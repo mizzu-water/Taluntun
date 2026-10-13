@@ -16,8 +16,8 @@
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .font-serif-heading { font-family: 'Merriweather', serif; }
 
-        /* Utility fallbacks for Tailwind */
-        .inset-0 { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+        .fixed { position: fixed !important; }
+        .inset-0 { top: 0 !important; right: 0 !important; bottom: 0 !important; left: 0 !important; }
         .bottom-6 { bottom: 1.5rem !important; }
         .bottom-10 { bottom: 2.5rem !important; }
         .left-6 { left: 1.5rem !important; }
@@ -224,11 +224,22 @@
             animation: slideInRight 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
         }
 
-        @media (max-width: 640px) {
-            .question-card {
-                padding: 1.5rem !important;
-                border-radius: 1.5rem !important;
-            }
+        /* Assessment Modal & Brainstorming Animations */
+        @keyframes popIn {
+            0% { transform: scale(0.85); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes brainPulse {
+            0%, 100% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.08) translateY(-6px); }
+        }
+        @keyframes spinSlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes spinSlowReverse {
+            0% { transform: rotate(360deg); }
+            100% { transform: rotate(0deg); }
         }
     </style>
     <script>
