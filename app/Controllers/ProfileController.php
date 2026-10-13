@@ -5,6 +5,24 @@ class ProfileController extends Controller {
     public function index() {
         $this->view('profile');
     }
+    public function getCurrentUser() {
+        header('Content-Type: application/json');
+        require_once 'auth/config.php';
+        startAuthSession();
+        if (!isLoggedIn()) {
+            echo json_encode(['logged_in' => false]);
+            exit;
+        }
+
+        echo json_encode([
+            'logged_in' => true,
+            'id' => $_SESSION['user_id'],
+            'full_name' => $_SESSION['full_name'] ?? 'Student',
+            'email' => $_SESSION['email'] ?? '',
+            'user_type' => $_SESSION['user_type'] ?? 'student'
+        ]);
+        exit;
+    }
     public function settings() {
         $this->view('settings');
     }

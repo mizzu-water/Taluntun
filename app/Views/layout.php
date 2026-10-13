@@ -8,9 +8,179 @@
     <link rel="stylesheet" href="style.css">
     <script src="vue.global.prod.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Leaflet Map CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/riasec/campus-map.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .font-serif-heading { font-family: 'Merriweather', serif; }
+
+        /* Utility fallbacks for Tailwind */
+        .inset-0 { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+        .bottom-6 { bottom: 1.5rem !important; }
+        .bottom-10 { bottom: 2.5rem !important; }
+        .left-6 { left: 1.5rem !important; }
+        .left-10 { left: 2.5rem !important; }
+        .right-6 { right: 1.5rem !important; }
+        .right-10 { right: 2.5rem !important; }
+        .top-6 { top: 1.5rem !important; }
+        .z-10 { z-index: 10 !important; }
+        .z-20 { z-index: 20 !important; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .w-3\.5 { width: 0.875rem !important; }
+        .h-3\.5 { height: 0.875rem !important; }
+        .w-11 { width: 2.75rem !important; }
+        .h-11 { height: 2.75rem !important; }
+
+        /* Global Animation Utilities */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .anim-fade-in-up {
+            animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes popScale {
+            0%   { transform: scale(1); }
+            45%  { transform: scale(1.32); }
+            100% { transform: scale(1); }
+        }
+        .anim-pop {
+            animation: popScale 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-exit-collapse {
+            transform: scale(0.95) translateY(-4px) !important;
+            opacity: 0 !important;
+            max-height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            overflow: hidden !important;
+            border-width: 0 !important;
+            transition: all 0.32s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        /* Quiz Shimmer & Transitions */
+        @keyframes progressShimmer {
+            0%   { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .progress-bar-shimmer {
+            background: linear-gradient(90deg, #059669 0%, #10b981 40%, #34d399 60%, #059669 100%) !important;
+            background-size: 200% 100% !important;
+            animation: progressShimmer 2.8s infinite linear !important;
+        }
+
+        .slide-fade-enter-active {
+            transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .slide-fade-leave-active {
+            transition: all 0.18s cubic-bezier(0.4, 0, 1, 1);
+        }
+        .slide-fade-enter-from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        .slide-fade-leave-to {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.001ms !important;
+                transition-duration: 0.001ms !important;
+            }
+        }
+
+        /* Map Fullscreen styles */
+        #map-section, #school-leaflet-map {
+            transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes userLocationPulse {
+            0% {
+                transform: scale(0.6);
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(3.2);
+                opacity: 0;
+            }
+        }
+        .user-location-pulse {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: rgba(37, 99, 235, 0.45);
+            animation: userLocationPulse 2s infinite cubic-bezier(0.2, 0.6, 0.35, 1);
+            pointer-events: none;
+        }
+
+        @keyframes markerDrop {
+            0% {
+                transform: translateY(-26px);
+                opacity: 0;
+            }
+            60% {
+                transform: translateY(4px);
+                opacity: 1;
+            }
+            80% {
+                transform: translateY(-2px);
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .leaflet-marker-icon.school-marker-drop {
+            animation: markerDrop 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .map-fullscreen-active {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            z-index: 99999 !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        .map-fullscreen-active #school-leaflet-map {
+            height: 100% !important;
+            width: 100% !important;
+        }
+        .map-fullscreen-active #fullscreen-map-btn {
+            top: 16px !important;
+            right: 16px !important;
+            width: 40px !important;
+            height: 40px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+        }
+        .map-fullscreen-active #my-location-btn {
+            top: 16px !important;
+        }
+        .map-fullscreen-active #map-fullscreen-bottom-bar {
+            display: flex !important;
+        }
         
         /* Custom wavy bottom for hero (Optional, kept for backward compat) */
         .custom-shape-divider-bottom {

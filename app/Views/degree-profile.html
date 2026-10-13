@@ -116,7 +116,7 @@
                         </div>
                         <p class="text-[11px] text-gray-400 mb-2 leading-tight">{{ trait.desc }}</p>
                         <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                            <div :class="trait.barClass + ' h-2 rounded-full transition-all duration-700'" :style="{ width: trait.pct + '%' }"></div>
+                            <div class="h-2 rounded-full transition-all duration-700" :style="{ width: trait.pct + '%', backgroundColor: trait.barBg }"></div>
                         </div>
                     </div>
                 </div>
@@ -142,13 +142,45 @@
                     </div>
                 </div>
                 
-                <!-- Real Dasmariñas Partner Campuses (Replaced the removed 46 colleges link) -->
+                <!-- Real Dasmariñas Partner Campuses -->
                 <div v-if="degree.colleges && degree.colleges.length > 0" class="mt-auto pt-8 border-t border-gray-100">
-                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Offered at {{ degree.colleges.length }} Dasmariñas Campuses:</div>
-                    <div class="flex flex-wrap gap-2">
-                        <a v-for="c in degree.colleges" :key="c.id" :href="c.profile_url ? c.profile_url : 'school-profile?id=' + c.short_name" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition border border-emerald-100 shadow-sm">
-                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                            {{ c.name }}
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: #10b981;"></span>
+                            OFFERED IN DASMARIÑAS &middot; {{ degree.colleges.length }} {{ degree.colleges.length === 1 ? 'CAMPUS' : 'CAMPUSES' }}
+                        </div>
+                        <span class="text-xs font-medium px-3 py-0.5 rounded-full" style="color: #059669; background-color: #ffffff; border: 1px solid #6ee7b7;">
+                            Cavite
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <a v-for="c in degree.colleges" :key="c.id" 
+                           :href="c.profile_url ? c.profile_url.replace('.html', '') : 'school-profile?id=' + c.short_name" 
+                           class="group flex items-center justify-between campus-card-link transition-all duration-200"
+                           style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 16px;">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                <div class="flex-shrink-0 flex items-center justify-center" style="width: 42px; height: 42px; min-width: 42px; background-color: #ecfdf5; border-radius: 10px; color: #059669;">
+                                    <svg style="width: 22px; height: 22px; min-width: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-sm sm:text-[15px] font-bold text-gray-900 group-hover:text-emerald-800 transition-colors leading-snug">
+                                        {{ cleanCollegeName(c.name) }}
+                                    </div>
+                                    <div class="text-xs flex items-center gap-1.5 mt-0.5">
+                                        <span class="font-bold text-emerald-600">{{ c.short_name || 'Campus' }}</span>
+                                        <span class="text-gray-300">&middot;</span>
+                                        <span class="text-gray-400">{{ c.type || 'Private' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center group-hover:translate-x-0.5 transition-all flex-shrink-0 ml-3" style="color: #cbd5e1;">
+                                <svg style="width: 18px; height: 18px; min-width: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
                         </a>
                     </div>
                 </div>
@@ -182,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'Physical Execution, Tools & Technical Design',
                     color: 'text-rose-600',
                     bar: 'bg-rose-500',
+                    barBg: '#f43f5e',
                     desc: 'Focuses on practical, mechanical, hands-on physical building, materials, and real-world construction.'
                 },
                 'I': {
@@ -189,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'Scientific Inquiry, Mathematics & Analysis',
                     color: 'text-blue-600',
                     bar: 'bg-blue-600',
+                    barBg: '#2563eb',
                     desc: 'Centers around mathematical modeling, analytical logic, physics, scientific inquiry, and empirical problem solving.'
                 },
                 'A': {
@@ -196,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'Creative Innovation, Aesthetics & Spatial Design',
                     color: 'text-purple-600',
                     bar: 'bg-purple-600',
+                    barBg: '#9333ea',
                     desc: 'Emphasizes creative expression, spatial visualization, aesthetic conception, and original architectural design.'
                 },
                 'S': {
@@ -203,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'Human Relations, Counseling & Teamwork',
                     color: 'text-emerald-600',
                     bar: 'bg-emerald-600',
+                    barBg: '#059669',
                     desc: 'Involves communication, human welfare, collaborative teamwork, coaching, and public service.'
                 },
                 'E': {
@@ -210,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'Project Leadership, Strategy & Persuasion',
                     color: 'text-amber-600',
                     bar: 'bg-amber-500',
+                    barBg: '#f59e0b',
                     desc: 'Drives project supervision, team direction, resource coordination, and strategic decision-making.'
                 },
                 'C': {
@@ -217,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     role: 'Systems Accuracy, Data & Quality Control',
                     color: 'text-slate-600',
                     bar: 'bg-slate-600',
+                    barBg: '#475569',
                     desc: 'Prioritizes systematic precision, standards compliance, structured workflows, documentation, and quality control.'
                 }
             };
@@ -241,13 +279,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         role: 'Specialized Discipline',
                         color: 'text-emerald-600',
                         bar: 'bg-emerald-600',
+                        barBg: '#059669',
                         desc: 'Core occupational domain essential to this degree path.'
                     };
                     
                     let scorePct = 90 - (idx * 6);
+                    let hasRealScore = false;
                     if (scores && scores[letter] !== undefined) {
-                        const raw = scores[letter];
-                        scorePct = Math.min(99, Math.max(50, Math.round((raw / 20) * 100)));
+                        const raw = Number(scores[letter]);
+                        // Scale accurately against maximum trait score of 50 points
+                        scorePct = Math.min(100, Math.max(0, Math.round((raw / 50) * 100)));
+                        hasRealScore = true;
                     }
                     
                     return {
@@ -256,6 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         role: info.role,
                         desc: info.desc,
                         pct: scorePct,
+                        hasRealScore: hasRealScore,
+                        barBg: info.barBg,
                         barClass: info.bar,
                         textClass: info.color
                     };
@@ -273,25 +317,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     return l;
                 });
                 
-                if (traitNames.length === 3) {
-                    return `This degree corresponds exceptionally well with candidates whose RIASEC assessment scores reflect ${traitNames[0]}, ${traitNames[1]}, and ${traitNames[2]} dimensions.`;
+                const traitString = traitNames.join(', ');
+                if (userScores.value && Object.values(userScores.value).some(v => Number(v) > 0)) {
+                    const userSorted = Object.keys(userScores.value)
+                        .map(k => ({ code: k, score: Number(userScores.value[k]) }))
+                        .sort((a, b) => b.score - a.score);
+                    const userTopCode = userSorted.slice(0, 3).map(t => t.code).join('-');
+                    
+                    return `This program requires ${traitString} competencies. Based on your official RIASEC profile (${userTopCode}), your individual strengths and cognitive preferences correspond directly with this degree's academic requirements.`;
                 }
-                return `This degree corresponds exceptionally well with candidates whose RIASEC assessment scores reflect ${traitNames.join(', ')} dimensions.`;
+                
+                return `This degree corresponds exceptionally well with candidates whose RIASEC assessment scores reflect ${traitString} dimensions.`;
             });
 
             const overallMatchPercent = computed(() => {
                 if (!userScores.value) return '94% Core Match';
-                let total = 0;
+                const hasScores = Object.values(userScores.value).some(v => Number(v) > 0);
+                if (!hasScores) return '94% Core Match';
+
                 const letters = hollandLetters.value;
-                letters.forEach(l => {
-                    if (userScores.value[l]) {
-                        total += Math.min(100, Math.round((userScores.value[l] / 20) * 100));
-                    } else {
-                        total += 80;
-                    }
+                if (!letters || letters.length === 0) return '94% Core Match';
+
+                // Weighted alignment based on trait priority in degree curriculum:
+                // Primary (1st trait): 50% weight, Secondary (2nd trait): 30% weight, Auxiliary (3rd trait): 20% weight
+                const weights = [0.50, 0.30, 0.20];
+                let weightedSum = 0;
+                let weightTotal = 0;
+
+                letters.forEach((l, idx) => {
+                    const raw = userScores.value[l] !== undefined ? Number(userScores.value[l]) : 0;
+                    const pct = Math.min(100, Math.max(0, Math.round((raw / 50) * 100)));
+                    const w = weights[idx] || 0.20;
+                    weightedSum += pct * w;
+                    weightTotal += w;
                 });
-                const avg = Math.min(99, Math.round(total / letters.length));
-                return `${avg}% Your Match`;
+
+                const finalPct = Math.min(99, Math.max(30, Math.round(weightedSum / weightTotal)));
+                return `${finalPct}% Your Match`;
             });
 
             const programTracks = computed(() => {
@@ -299,6 +361,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cat = (degree.value.category || '').toLowerCase();
                 const title = (degree.value.title || '').toLowerCase();
                 
+                if (title.includes('radiologic') || title.includes('rad tech') || title.includes('x-ray')) {
+                    return [
+                        { name: 'Diagnostic Radiography & Fluoroscopy', desc: 'Clinical X-ray operations, trauma imaging protocols, fluoroscopic procedures and radiation protection.', tag: 'Key: Digital X-Ray & ALARA Safety' },
+                        { name: 'Computed Tomography (CT Imaging)', desc: 'Multi-slice helical CT scans, volumetric angiography, cross-sectional anatomy and 3D reconstruction.', tag: 'Key: 3D Cross-Sectional Imaging' },
+                        { name: 'Magnetic Resonance Imaging (MRI)', desc: 'RF pulse sequences, high-field magnetic resonance physics, neuroimaging and musculoskeletal scans.', tag: 'Key: High-Tesla MRI Protocols' },
+                        { name: 'Radiation Oncology & Nuclear Medicine', desc: 'Linear accelerator beam setups, computerized dosimetry, radiopharmaceuticals and gamma camera scans.', tag: 'Key: Linear Accelerator & Dosimetry' }
+                    ];
+                }
+
+                if (title.includes('medical technology') || title.includes('med tech')) {
+                    return [
+                        { name: 'Clinical Chemistry & Toxicology', desc: 'Biochemical assays, serum analytics, endocrine testing and automated clinical analyzers.', tag: 'Key: Clinical Assays & Quality Control' },
+                        { name: 'Microbiology & Parasitology', desc: 'Bacterial cultures, antimicrobial susceptibility, viral diagnostics and fungal identification.', tag: 'Key: Diagnostic Microbiology' },
+                        { name: 'Hematology & Blood Banking', desc: 'Immunohematology, blood cross-matching, transfusion medicine and coagulation profiles.', tag: 'Key: Transfusion Science & Blood Bank' },
+                        { name: 'Histopathology & Molecular Biology', desc: 'Tissue biopsy processing, immunohistochemistry, PCR amplification and cytopathology.', tag: 'Key: Molecular Pathology & Biopsy' }
+                    ];
+                }
+
+                if (title.includes('nursing')) {
+                    return [
+                        { name: 'Critical Care & Emergency Nursing', desc: 'ICU monitoring, cardiovascular stabilization, advanced life support and trauma triage.', tag: 'Key: Advanced Life Support & ICU' },
+                        { name: 'Maternal & Child Health Nursing', desc: 'Obstetric care, labor and delivery, neonatal intensive care and pediatric wellness.', tag: 'Key: OB-GYN & Neonatal Care' },
+                        { name: 'Community & Public Health Nursing', desc: 'Primary healthcare delivery, epidemic prevention, health education and immunization.', tag: 'Key: Community Health Nursing' },
+                        { name: 'Surgical & Perioperative Care', desc: 'Operating room protocol, sterile fields, surgical instrumentation and anesthesia care.', tag: 'Key: Perioperative & Surgical Suite' }
+                    ];
+                }
+
                 if (title.includes('civil') || (cat === 'engineering' && title.includes('civil'))) {
                     return [
                         { name: 'Structural Engineering', desc: 'Structural mechanics, reinforced concrete, seismic resistance and high-rise framing analysis.', tag: 'Key: Seismic & Steel Design' },
@@ -317,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ];
                 }
                 
-                if (cat === 'health' || title.includes('nursing') || title.includes('medical') || title.includes('pharmacy')) {
+                if (cat === 'health') {
                     return [
                         { name: 'Clinical Healthcare Practice', desc: 'Direct patient assessment, medical care procedures, pharmacology and triage diagnostics.', tag: 'Key: Critical Care & Patient Safety' },
                         { name: 'Diagnostic & Laboratory Science', desc: 'Hematology, clinical chemistry, microbiology and advanced diagnostic imaging.', tag: 'Key: Precision Diagnostics' },
@@ -339,6 +428,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cat = (degree.value.category || '').toLowerCase();
                 const title = (degree.value.title || '').toLowerCase();
                 
+                if (title.includes('radiologic') || title.includes('rad tech') || title.includes('x-ray')) {
+                    return [
+                        { role: 'Registered Radiologic Technologist (RTR)', demand: 'High Demand', badgeClass: 'text-emerald-600' },
+                        { role: 'CT Scan & MRI Medical Imaging Specialist', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
+                        { role: 'Radiation Therapy & Dosimetry Technologist', demand: 'High Demand', badgeClass: 'text-blue-600' },
+                        { role: 'Chief Radiographer / Radiology Dept. Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
+                    ];
+                }
+
+                if (title.includes('medical technology') || title.includes('med tech')) {
+                    return [
+                        { role: 'Registered Medical Technologist (RMT)', demand: 'High Demand', badgeClass: 'text-emerald-600' },
+                        { role: 'Clinical Microbiologist & Serologist', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
+                        { role: 'Immunohematology & Blood Bank Specialist', demand: 'High Demand', badgeClass: 'text-blue-600' },
+                        { role: 'Chief Medical Technologist / Laboratory Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
+                    ];
+                }
+
+                if (title.includes('nursing')) {
+                    return [
+                        { role: 'Registered Nurse (RN) / Clinical Practitioner', demand: 'High Demand', badgeClass: 'text-emerald-600' },
+                        { role: 'Critical Care & Emergency Room Nurse', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
+                        { role: 'Nurse Educator & Clinical Specialist', demand: 'High Demand', badgeClass: 'text-blue-600' },
+                        { role: 'Chief Nurse / Director of Nursing Services', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
+                    ];
+                }
+
                 if (title.includes('civil')) {
                     return [
                         { role: 'Licensed Structural Design Engineer', demand: 'High Demand', badgeClass: 'text-emerald-600' },
@@ -359,9 +475,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (cat === 'health') {
                     return [
-                        { role: 'Registered Clinical Practitioner / Nurse', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'Specialized Department Supervisor', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Clinical Diagnostic Laboratory Specialist', demand: 'High Demand', badgeClass: 'text-blue-600' },
+                        { role: 'Licensed Clinical Healthcare Specialist', demand: 'High Demand', badgeClass: 'text-emerald-600' },
+                        { role: 'Department Clinical Supervisor', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
+                        { role: 'Diagnostic & Care Consultant', demand: 'High Demand', badgeClass: 'text-blue-600' },
                         { role: 'Hospital & Healthcare Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
                     ];
                 }
@@ -374,6 +490,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 ];
             });
 
+            const cleanCollegeName = (name) => {
+                if (!name) return '';
+                return name.replace(/Dasmari.*?as/gi, 'Dasmariñas');
+            };
+
             onMounted(async () => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const id = urlParams.get('id');
@@ -383,7 +504,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (savedScores) {
                     try {
                         const parsed = JSON.parse(savedScores);
-                        if (parsed.scores) userScores.value = parsed.scores;
+                        if (parsed.scores && Object.values(parsed.scores).some(v => Number(v) > 0)) {
+                            userScores.value = parsed.scores;
+                        }
+                    } catch (e) {}
+                }
+
+                if (!userScores.value) {
+                    try {
+                        const aRes = await fetch('/riasec/api/get_latest_assessment');
+                        if (aRes.ok) {
+                            const aData = await aRes.json();
+                            if (aData.success && aData.scores) {
+                                userScores.value = aData.scores;
+                                localStorage.setItem('talunton_assessment_scores', JSON.stringify({
+                                    scores: aData.scores,
+                                    holland_code: aData.holland_code
+                                }));
+                            }
+                        }
                     } catch (e) {}
                 }
 
@@ -416,7 +555,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 psychometricExplanation,
                 overallMatchPercent,
                 programTracks,
-                careerPathways
+                careerPathways,
+                cleanCollegeName
             };
         }
     }).mount('#app');
@@ -479,7 +619,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         @media (min-width: 1024px) {
             .hero-image-container {
-                width: 50%; /* Make image larger */ } } `;
+                width: 50%; /* Make image larger */ } } 
+        /* Explicit RIASEC trait progress bar colors */
+        .bg-rose-500 { background-color: #f43f5e !important; }
+        .bg-blue-600 { background-color: #2563eb !important; }
+        .bg-purple-600 { background-color: #9333ea !important; }
+        .bg-emerald-600 { background-color: #059669 !important; }
+        .bg-amber-500 { background-color: #f59e0b !important; }
+        .bg-slate-600 { background-color: #475569 !important; }
+        .campus-card-link:hover {
+            border-color: #6ee7b7 !important;
+            background-color: #f0fdf4 !important;
+        }`;
         document.head.appendChild(style);
     }
 })();

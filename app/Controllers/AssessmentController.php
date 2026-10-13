@@ -48,6 +48,44 @@ class AssessmentController extends Controller {
         $conn->close();
     }
 
+    public function getLatestAssessment() {
+        header('Content-Type: application/json');
+        require_once 'auth/config.php';
+        startAuthSession();
+        $user_id = isLoggedIn() ? intval($_SESSION['user_id']) : 0;
+
+        if ($user_id === 0) {
+            echo json_encode(['success' => false, 'is_logged_in' => false, 'error' => 'Not logged in']);
+            exit;
+        }
+
+        $conn = getDB();
+        $stmt = $conn->prepare("SELECT holland_code, scores, taken_at FROM assessment_results WHERE user_id = ? ORDER BY taken_at DESC LIMIT 1");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+
+        if ($row = $res->fetch_assoc()) {
+            $scores = json_decode($row['scores'], true);
+            echo json_encode([
+                'success' => true,
+                'is_logged_in' => true,
+                'holland_code' => $row['holland_code'],
+                'scores' => $scores,
+                'taken_at' => $row['taken_at']
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'is_logged_in' => true,
+                'error' => 'No assessment found'
+            ]);
+        }
+
+        $stmt->close();
+        $conn->close();
+    }
+
     public function getDegrees() {
         header('Content-Type: application/json');
         require_once 'auth/config.php';
@@ -314,13 +352,24 @@ class AssessmentController extends Controller {
     public function getColleges() {
         header('Content-Type: application/json');
         require_once 'auth/config.php';
+        startAuthSession();
+        $user_id = isLoggedIn() ? intval($_SESSION['user_id']) : 0;
         $conn = getDB();
         
-        $sql = "SELECT * FROM colleges ORDER BY name ASC";
+        if ($user_id > 0) {
+            $sql = "SELECT c.*, IF(usc.id IS NOT NULL, 1, 0) as is_saved 
+                    FROM colleges c 
+                    LEFT JOIN user_saved_colleges usc ON c.id = usc.college_id AND usc.user_id = $user_id 
+                    ORDER BY c.name ASC";
+        } else {
+            $sql = "SELECT c.*, 0 as is_saved FROM colleges c ORDER BY c.name ASC";
+        }
+        
         $result = $conn->query($sql);
         $colleges = [];
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
+                $row['is_saved'] = (bool)$row['is_saved'];
                 $colleges[] = $row;
             }
         }

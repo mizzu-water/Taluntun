@@ -157,12 +157,12 @@
     </div>
 
     <div class="w-full max-w-sm mx-auto flex items-center justify-center gap-3 mt-2 mb-2">
-        <div class="flex-grow h-1.5 bg-gray-200 rounded-full overflow-hidden">
-            <div class="h-full bg-emerald-500 transition-all duration-500 ease-out" 
+        <div class="flex-grow h-2 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+            <div class="h-full rounded-full transition-all duration-500 ease-out progress-bar-shimmer" 
                  :style="{ width: answeredProgressPercentage + '%' }">
             </div>
         </div>
-        <span class="text-xs font-bold text-gray-400 min-w-[2.5rem] text-right">
+        <span class="text-xs font-bold text-emerald-700 min-w-[2.5rem] text-right">
             {{ Math.round(answeredProgressPercentage) }}%
         </span>
     </div>
@@ -179,38 +179,39 @@
     </div>
 </div>
 
-                
-                <!-- Animated Card Wrapper -->
-                <div :key="currentQuestionIndex" class="w-full question-card mb-8">
-                        <div class="min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
-                            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-serif-heading font-bold text-gray-900 leading-tight px-4">
-                                "{{ currentQuestion.text }}"
-                            </h1>
-                        </div>
-                        
-                        <p class="text-center text-gray-500 text-xs sm:text-sm mb-6 mt-1">
-                            Answer based on what you genuinely enjoy doing, not what you think you <i>should</i> do.
-                        </p>
+<!-- Animated Card Wrapper -->
+<transition name="slide-fade" mode="out-in">
+    <div :key="currentQuestionIndex" class="w-full question-card mb-8">
+        <div class="min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-serif-heading font-bold text-gray-900 leading-tight px-4 text-center">
+                "{{ currentQuestion.text }}"
+            </h1>
+        </div>
+        
+        <p class="text-center text-gray-500 text-xs sm:text-sm mb-6 mt-1">
+            Answer based on what you genuinely enjoy doing, not what you think you <i>should</i> do.
+        </p>
 
-                        <!-- Rating Scale -->
-                        <div class="mt-4 mb-2 max-w-2xl mx-auto w-full">
-                            <div class="flex justify-between text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 px-4">
-                                <span>Strongly Disagree</span>
-                                <span class="text-emerald-700">Strongly Agree</span>
-                            </div>
-                            
-                            <div class="flex justify-between items-center gap-2 sm:gap-4 relative px-4">
-                                <div class="absolute top-1/2 left-4 right-4 h-1.5 bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
-                                
-                                <button v-for="n in 5" :key="n"
-                                        @click="selectRating(n)"
-                                        class="rating-btn w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-2xl font-bold text-gray-500 transition-all duration-300 hover:border-emerald-400 hover:shadow-md focus:outline-none"
-                                        :class="{'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-lg scale-110 z-10': selectedRating === n, 'hover:-translate-y-1': selectedRating !== n}">
-                                    {{ n }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Rating Scale -->
+        <div class="mt-4 mb-2 max-w-2xl mx-auto w-full">
+            <div class="flex justify-between text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 px-4">
+                <span>Strongly Disagree</span>
+                <span class="text-emerald-700">Strongly Agree</span>
+            </div>
+            
+            <div class="flex justify-between items-center gap-2 sm:gap-4 relative px-4">
+                <div class="absolute top-1/2 left-4 right-4 h-1.5 bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
+                
+                <button v-for="n in 5" :key="n"
+                        @click="selectRating(n)"
+                        class="rating-btn w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-2xl font-bold text-gray-500 transition-all duration-200 hover:border-emerald-400 hover:shadow-md focus:outline-none active:scale-95"
+                        :class="{'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-lg scale-110 z-10 anim-pop': selectedRating === n, 'hover:-translate-y-1': selectedRating !== n}">
+                    {{ n }}
+                </button>
+            </div>
+        </div>
+    </div>
+</transition>
 
                 <!-- Navigation -->
 <div class="flex items-center justify-between border-t border-gray-200 pt-4 mt-2 max-w-3xl mx-auto w-full px-4">
@@ -528,6 +529,7 @@ setTimeout(() => {
                 const holland_code = sortedTraits.slice(0, 3).join("");
 
                 localStorage.setItem("talunton_assessment_scores", JSON.stringify({ scores, holland_code }));
+                sessionStorage.setItem("talunton_just_completed_assessment", "true");
 
                 // Add an artificial delay for the brainstorming screen
                 setTimeout(async () => {

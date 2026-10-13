@@ -1,1 +1,0 @@
-<?php $c = file_get_contents("app/Controllers/AssessmentController.php"); $c = preg_replace("/public function getCollege\(\) \{\s*header\(\'Content-Type: application\/json\'\);\s*if \(\!isset\(<\?php.*?public function getQuestions/s", "public function getQuestions", $c); file_put_contents("app/Controllers/AssessmentController.php", $c);

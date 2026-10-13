@@ -38,44 +38,31 @@
             </div>
         </div>
 
-        <!-- Favorite Subjects Section -->
+                <!-- Favorite Colleges Section -->
         <div class="mt-12 pt-8 border-t border-gray-100">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
                 <div>
                     <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
                         <span class="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
                         </span>
-                        My Favorite Subjects
+                        My Favorite Colleges
                     </h2>
-                    <p class="text-sm text-gray-500 mt-1">Select or add subjects you enjoy most to better tailor course recommendations.</p>
+                    <p class="text-sm text-gray-500 mt-1">Keep track of your top target universities and campuses in Dasmariñas, Cavite.</p>
                 </div>
-                <span id="subjectSaveFeedback" class="text-xs font-semibold text-emerald-600 transition-opacity opacity-0">Saved!</span>
+
+                <!-- Add College Quick Picker -->
+                <div class="relative w-full sm:w-auto">
+                    <select id="quickAddCollegeSelect" class="w-full sm:w-64 px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">+ Add a College to Favorites...</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Subject Tags Container -->
-            <div class="bg-gray-50 border border-gray-200/80 rounded-2xl p-5 mb-5">
-                <div id="favoriteSubjectsContainer" class="flex flex-wrap gap-2 min-h-[38px] items-center">
-                    <span class="text-sm text-gray-400 italic">No favorite subjects added yet. Pick from the suggestions below or add your own!</span>
-                </div>
-            </div>
-
-            <!-- Add Custom Subject Input & Suggestions -->
-            <div class="space-y-4">
-                <div class="flex gap-2">
-                    <input type="text" id="newSubjectInput" placeholder="Add a subject (e.g. Physics, Creative Writing, Marketing)..." class="flex-grow px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                    <button type="button" id="addSubjectBtn" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                        Add Subject
-                    </button>
-                </div>
-
-                <div>
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Popular Suggestions (Click to Add):</span>
-                    <div id="subjectSuggestions" class="flex flex-wrap gap-2">
-                        <!-- Injected via JS -->
-                    </div>
-                </div>
+            <div id="favoriteCollegesContainer" class="space-y-4">
+                <p class="text-sm text-gray-500 py-4">Loading saved colleges...</p>
             </div>
         </div>
 
@@ -106,7 +93,10 @@
         </div>
 
         <div class="mt-10 pt-6 border-t border-gray-100 flex justify-end gap-3">
-            <a href="degrees" class="px-5 py-2.5 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition">
+            <a href="colleges" class="px-5 py-2.5 text-sm font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition">
+                Browse Colleges
+            </a>
+            <a href="degrees" class="px-5 py-2.5 text-sm font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition">
                 Browse All Degrees
             </a>
             <a href="settings" class="px-5 py-2.5 text-sm font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition">
@@ -119,155 +109,179 @@
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Load User Info
+    let user = null;
     const userDataStr = localStorage.getItem('talunton_user');
-    if (!userDataStr) {
-        window.location.href = '/riasec/login';
-        return;
+    if (userDataStr) {
+        try {
+            user = JSON.parse(userDataStr);
+        } catch (e) {}
     }
-    
-    let user;
-    try {
-        user = JSON.parse(userDataStr);
-    } catch (e) {
+
+    // Fallback: try fetching current user from backend session
+    if (!user || !user.full_name) {
+        try {
+            const userRes = await fetch('/riasec/api/get_current_user');
+            if (userRes.ok) {
+                const uData = await userRes.json();
+                if (uData.logged_in) {
+                    user = uData;
+                    localStorage.setItem('talunton_user', JSON.stringify(user));
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching current user:', e);
+        }
+    }
+
+    if (!user) {
         window.location.href = '/riasec/login';
         return;
     }
 
     const fullName = user.full_name || 'Student';
     const email = user.email || 'No email provided';
-    const initial = fullName.charAt(0).toUpperCase();
+    const initial = fullName.charAt(0).toUpperCase() || 'S';
 
-    document.getElementById('profileName').textContent = fullName;
-    document.getElementById('detailName').textContent = fullName;
-    document.getElementById('detailEmail').textContent = email;
-    document.getElementById('profileAvatarLarge').textContent = initial;
+    const profileNameEl = document.getElementById('profileName');
+    const detailNameEl = document.getElementById('detailName');
+    const detailEmailEl = document.getElementById('detailEmail');
+    const profileAvatarLargeEl = document.getElementById('profileAvatarLarge');
 
-    // 2. Favorite Subjects Logic
-    let favoriteSubjects = [];
-    const popularSuggestions = [
-        'Mathematics', 'General Biology', 'Chemistry', 'Physics', 
-        'Computer Science / Programming', 'English & Literature', 
-        'Business & Entrepreneurship', 'Accountancy', 'Arts & Design', 
-        'Social Sciences / Psychology', 'History & Political Science', 
-        'Media & Communication', 'Research & Statistics'
-    ];
+    if (profileNameEl) profileNameEl.textContent = fullName;
+    if (detailNameEl) detailNameEl.textContent = fullName;
+    if (detailEmailEl) detailEmailEl.textContent = email;
+    if (profileAvatarLargeEl) profileAvatarLargeEl.textContent = initial;
 
-    const subjectsContainer = document.getElementById('favoriteSubjectsContainer');
-    const suggestionsContainer = document.getElementById('subjectSuggestions');
-    const newSubjectInput = document.getElementById('newSubjectInput');
-    const addSubjectBtn = document.getElementById('addSubjectBtn');
-    const feedbackSpan = document.getElementById('subjectSaveFeedback');
+    // 2. Favorite Colleges Logic
+    const collegesContainer = document.getElementById('favoriteCollegesContainer');
+    const quickAddCollegeSelect = document.getElementById('quickAddCollegeSelect');
+    let allColleges = [];
 
-    const showSavedFeedback = () => {
-        feedbackSpan.style.opacity = '1';
-        setTimeout(() => { feedbackSpan.style.opacity = '0'; }, 2000);
-    };
-
-    const saveFavoriteSubjects = async () => {
-        // Save locally
-        localStorage.setItem('talunton_favorite_subjects', JSON.stringify(favoriteSubjects));
-        showSavedFeedback();
-
-        // Save to backend
+    const loadCollegesAndFavorites = async () => {
         try {
-            await fetch('/riasec/api/save_favorite_subjects', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ subjects: favoriteSubjects })
-            });
+            const res = await fetch('/riasec/api/get_colleges');
+            if (!res.ok) throw new Error('Failed to fetch colleges');
+            allColleges = await res.json();
+
+            // Populate quick-add select
+            if (quickAddCollegeSelect) {
+                quickAddCollegeSelect.innerHTML = '<option value="">+ Add a College to Favorites...</option>' + 
+                    allColleges.map(c => `<option value="${c.id}">${c.name} (${c.type || 'Cavite'})</option>`).join('');
+            }
+
+            const savedColleges = allColleges.filter(c => c.is_saved == 1 || c.is_saved === true);
+
+            if (!collegesContainer) return;
+
+            if (savedColleges.length === 0) {
+                collegesContainer.innerHTML = `
+                    <div class="py-10 border-2 border-dashed border-gray-200 rounded-2xl text-center bg-gray-50/50">
+                        <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <p class="text-sm font-semibold text-gray-600 mb-1">You haven't added any favorite colleges yet.</p>
+                        <p class="text-xs text-gray-400 mb-4">Use the dropdown above or explore the colleges directory to shortlist your target campuses.</p>
+                        <a href="colleges" class="inline-flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm">
+                            Explore Colleges
+                            <svg class="w-4 h-4" width="16" height="16" style="width:16px;height:16px;min-width:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </a>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                savedColleges.forEach((col, index) => {
+                    const profileUrl = col.profile_url ? col.profile_url.replace('.html', '') : 'school-profile?id=' + col.short_name;
+                    const collegeImg = col.image_url ? col.image_url : 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=600&q=80';
+                    const delay = index * 60;
+                    html += `
+                    <div id="saved-college-${col.id}" class="anim-fade-in-up bg-white border border-gray-100 p-5 rounded-2xl shadow-sm hover:border-emerald-200 hover:shadow-md transition flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center group" style="animation-delay: ${delay}ms;">
+                        <div class="flex items-center gap-4 min-w-0">
+                            <div class="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-gray-100 border border-gray-200 relative flex items-center justify-center">
+                                <img src="${collegeImg}" alt="${col.name}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <h3 class="font-bold text-gray-900 group-hover:text-emerald-700 transition text-base leading-snug">${col.name}</h3>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-wider">${col.type || 'University'}</span>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200">${col.short_name || 'Campus'}</span>
+                                </div>
+                                <p class="text-xs text-gray-500 flex items-center gap-1.5 mt-1">
+                                    <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" width="16" height="16" style="width:16px;height:16px;min-width:16px;max-width:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span class="line-clamp-1">${col.address || 'Dasmariñas, Cavite'}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 flex items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                            <a href="${profileUrl}" class="flex-1 sm:flex-none text-center px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition border border-emerald-100 flex items-center justify-center gap-1.5">
+                                View Campus
+                                <svg class="w-4 h-4" width="16" height="16" style="width:16px;height:16px;min-width:16px;max-width:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </a>
+                            <button onclick="removeSavedCollege(${col.id}, this)" class="p-2 text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-100 flex items-center justify-center active:scale-90" title="Remove from favorites">
+                                <svg class="w-4 h-4" width="16" height="16" style="width:16px;height:16px;min-width:16px;max-width:16px;" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    `;
+                });
+                collegesContainer.innerHTML = html;
+            }
         } catch (e) {
-            console.error('Error saving subjects to backend:', e);
-        }
-    };
-
-    const renderFavoriteSubjects = () => {
-        if (!favoriteSubjects || favoriteSubjects.length === 0) {
-            subjectsContainer.innerHTML = '<span class="text-sm text-gray-400 italic">No favorite subjects added yet. Pick from the suggestions below or add your own!</span>';
-            return;
-        }
-
-        subjectsContainer.innerHTML = favoriteSubjects.map(sub => `
-            <span class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold transition shadow-sm animate-fade-in">
-                <span>${sub}</span>
-                <button type="button" data-subject="${sub}" class="remove-subject-btn hover:text-emerald-950 p-0.5 rounded-full transition" title="Remove ${sub}">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </span>
-        `).join('');
-
-        subjectsContainer.querySelectorAll('.remove-subject-btn').forEach(btn => {
-            btn.onclick = () => {
-                const subToRemove = btn.getAttribute('data-subject');
-                favoriteSubjects = favoriteSubjects.filter(s => s !== subToRemove);
-                renderFavoriteSubjects();
-                renderSuggestions();
-                saveFavoriteSubjects();
-            };
-        });
-    };
-
-    const renderSuggestions = () => {
-        suggestionsContainer.innerHTML = popularSuggestions
-            .filter(sub => !favoriteSubjects.includes(sub))
-            .map(sub => `
-                <button type="button" data-subject="${sub}" class="suggest-subject-btn bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 border border-gray-200 hover:border-emerald-300 px-3 py-1 rounded-full text-xs font-medium transition flex items-center gap-1 shadow-sm">
-                    <svg class="w-3 h-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    ${sub}
-                </button>
-            `).join('');
-
-        suggestionsContainer.querySelectorAll('.suggest-subject-btn').forEach(btn => {
-            btn.onclick = () => {
-                const subToAdd = btn.getAttribute('data-subject');
-                if (!favoriteSubjects.includes(subToAdd)) {
-                    favoriteSubjects.push(subToAdd);
-                    renderFavoriteSubjects();
-                    renderSuggestions();
-                    saveFavoriteSubjects();
-                }
-            };
-        });
-    };
-
-    const handleAddCustomSubject = () => {
-        const val = newSubjectInput.value.trim();
-        if (val && !favoriteSubjects.includes(val)) {
-            favoriteSubjects.push(val);
-            newSubjectInput.value = '';
-            renderFavoriteSubjects();
-            renderSuggestions();
-            saveFavoriteSubjects();
-        }
-    };
-
-    addSubjectBtn.onclick = handleAddCustomSubject;
-    newSubjectInput.onkeydown = (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleAddCustomSubject();
-        }
-    };
-
-    // Load initial subjects (try backend then fallback to local)
-    try {
-        const subRes = await fetch('/riasec/api/get_favorite_subjects');
-        if (subRes.ok) {
-            const data = await subRes.json();
-            if (data.success && Array.isArray(data.subjects) && data.subjects.length > 0) {
-                favoriteSubjects = data.subjects;
+            console.error(e);
+            if (collegesContainer) {
+                collegesContainer.innerHTML = '<p class="text-sm text-red-500 py-4">Failed to load saved colleges. Please refresh.</p>';
             }
         }
-    } catch (e) {}
+    };
 
-    if (favoriteSubjects.length === 0) {
-        const localSubs = localStorage.getItem('talunton_favorite_subjects');
-        if (localSubs) {
-            try { favoriteSubjects = JSON.parse(localSubs); } catch (e) {}
+    window.removeSavedCollege = async (collegeId, btn) => {
+        try {
+            if (btn) btn.classList.add('anim-pop');
+            const card = btn ? btn.closest('.group') : document.getElementById('saved-college-' + collegeId);
+            if (card) {
+                card.classList.add('card-exit-collapse');
+                await new Promise(r => setTimeout(r, 260));
+            }
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            const csrfToken = csrfMeta ? csrfMeta.content : '';
+            const res = await fetch('/riasec/api/save_college', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                body: JSON.stringify({ college_id: parseInt(collegeId) })
+            });
+            const data = await res.json();
+            if (data.success) {
+                await loadCollegesAndFavorites();
+            }
+        } catch (e) {
+            console.error(e);
         }
-    }
+    };
 
-    renderFavoriteSubjects();
-    renderSuggestions();
+    if (quickAddCollegeSelect) {
+        quickAddCollegeSelect.onchange = async () => {
+            const collegeId = quickAddCollegeSelect.value;
+            if (!collegeId) return;
+
+            try {
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const csrfToken = csrfMeta ? csrfMeta.content : '';
+                const res = await fetch('/riasec/api/save_college', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                    body: JSON.stringify({ college_id: parseInt(collegeId) })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    quickAddCollegeSelect.value = '';
+                    await loadCollegesAndFavorites();
+                } else {
+                    alert('Could not add college: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+    }
 
     // 3. Load Shortlisted Courses & Quick Add Dropdown
     const shortlistContainer = document.getElementById('shortlistContainer');
@@ -281,11 +295,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             allDegrees = await res.json();
             
             // Populate quick-add select
-            quickAddSelect.innerHTML = '<option value="">+ Add a Course to Favorites...</option>' + 
-                allDegrees.map(d => `<option value="${d.id}">${d.title} (${d.category || 'Program'})</option>`).join('');
+            if (quickAddSelect) {
+                quickAddSelect.innerHTML = '<option value="">+ Add a Course to Favorites...</option>' + 
+                    allDegrees.map(d => `<option value="${d.id}">${d.title} (${d.category || 'Program'})</option>`).join('');
+            }
 
-            const savedDegrees = allDegrees.filter(d => d.is_saved == 1);
+            const savedDegrees = allDegrees.filter(d => d.is_saved == 1 || d.is_saved === true);
             
+            if (!shortlistContainer) return;
+
             if (savedDegrees.length === 0) {
                 shortlistContainer.innerHTML = `
                     <div class="py-10 border-2 border-dashed border-gray-200 rounded-2xl text-center bg-gray-50/50">
@@ -300,7 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
             } else {
                 let html = '';
-                savedDegrees.forEach(deg => {
+                savedDegrees.forEach((deg, index) => {
                     let campusesHtml = '';
                     if (deg.campuses_list) {
                         const campuses = deg.campuses_list.split('|');
@@ -311,9 +329,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         });
                     }
-                    
+                    const delay = index * 60;
                     html += `
-                    <div class="bg-white border border-gray-100 p-5 rounded-2xl shadow-sm hover:border-emerald-200 hover:shadow-md transition flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center group">
+                    <div id="saved-degree-${deg.id}" class="anim-fade-in-up bg-white border border-gray-100 p-5 rounded-2xl shadow-sm hover:border-emerald-200 hover:shadow-md transition flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center group" style="animation-delay: ${delay}ms;">
                         <div class="flex-grow">
                             <div class="flex items-center gap-2 mb-1">
                                 <h3 class="font-bold text-gray-900 group-hover:text-emerald-700 transition">${deg.title}</h3>
@@ -332,8 +350,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             <a href="/riasec/degree-profile?id=${deg.id}" class="flex-1 sm:flex-none text-center px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition border border-emerald-100">
                                 Details
                             </a>
-                            <button onclick="if(window.saveDegree) { window.saveDegree(this, ${deg.id}); setTimeout(() => location.reload(), 300); }" class="p-2 text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-100" title="Remove from favorites">
-                                <svg class="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <button onclick="removeSavedDegree(${deg.id}, this)" class="p-2 text-rose-500 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl transition border border-rose-100 flex items-center justify-center active:scale-90" title="Remove from favorites">
+                                <svg class="w-4 h-4" width="16" height="16" style="width:16px;height:16px;min-width:16px;max-width:16px;" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </div>
                     </div>
@@ -343,15 +361,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (e) {
             console.error(e);
-            shortlistContainer.innerHTML = '<p class="text-sm text-red-500 py-4">Failed to load saved courses. Please refresh.</p>';
+            if (shortlistContainer) {
+                shortlistContainer.innerHTML = '<p class="text-sm text-red-500 py-4">Failed to load saved courses. Please refresh.</p>';
+            }
         }
     };
 
-    quickAddSelect.onchange = async () => {
-        const degreeId = quickAddSelect.value;
-        if (!degreeId) return;
-        
+    window.removeSavedDegree = async (degreeId, btn) => {
         try {
+            if (btn) btn.classList.add('anim-pop');
+            const card = btn ? btn.closest('.group') : document.getElementById('saved-degree-' + degreeId);
+            if (card) {
+                card.classList.add('card-exit-collapse');
+                await new Promise(r => setTimeout(r, 260));
+            }
             const csrfMeta = document.querySelector('meta[name="csrf-token"]');
             const csrfToken = csrfMeta ? csrfMeta.content : '';
             const res = await fetch('/riasec/api/save_degree', {
@@ -361,16 +384,43 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             const data = await res.json();
             if (data.success) {
-                quickAddSelect.value = '';
                 await loadDegreesAndShortlist();
-            } else {
-                alert('Could not add course: ' + (data.error || 'Unknown error'));
             }
         } catch (e) {
             console.error(e);
         }
     };
 
-    await loadDegreesAndShortlist();
+    if (quickAddSelect) {
+        quickAddSelect.onchange = async () => {
+            const degreeId = quickAddSelect.value;
+            if (!degreeId) return;
+            
+            try {
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const csrfToken = csrfMeta ? csrfMeta.content : '';
+                const res = await fetch('/riasec/api/save_degree', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+                    body: JSON.stringify({ degree_id: parseInt(degreeId) })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    quickAddSelect.value = '';
+                    await loadDegreesAndShortlist();
+                } else {
+                    alert('Could not add course: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        };
+    }
+
+    // Load both sections
+    await Promise.allSettled([
+        loadCollegesAndFavorites(),
+        loadDegreesAndShortlist()
+    ]);
 });
 </script>

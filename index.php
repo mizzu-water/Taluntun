@@ -33,6 +33,7 @@ $router->add('/api/pause_assessment', 'AssessmentController@pauseAssessment');
 $router->add('/api/check_progress', 'AssessmentController@checkProgress');
 $router->add('/api/get_degree', 'AssessmentController@getDegree');
 $router->add('/api/get_college', 'AssessmentController@getCollege');
+$router->add('/api/get_latest_assessment', 'AssessmentController@getLatestAssessment');
 $router->add('/api/get_colleges', 'AssessmentController@getColleges');
 
 $router->add('/course-quiz', 'CourseQuizController@index');
@@ -40,6 +41,7 @@ $router->add('/api/get_course_questions', 'CourseQuizController@getQuestions');
 
 $router->add('/profile', 'ProfileController@index');
 $router->add('/settings', 'ProfileController@settings');
+$router->add('/api/get_current_user', 'ProfileController@getCurrentUser');
 $router->add('/api/save_college', 'ProfileController@saveCollege');
 $router->add('/api/save_degree', 'ProfileController@saveDegree');
 $router->add('/api/save_favorite_subjects', 'ProfileController@saveFavoriteSubjects');
