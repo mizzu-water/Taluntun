@@ -14,12 +14,35 @@ class ProfileController extends Controller {
             exit;
         }
 
+        $userId = intval($_SESSION['user_id']);
+        $email = $_SESSION['email'] ?? '';
+        $fullName = $_SESSION['full_name'] ?? '';
+        $userType = $_SESSION['user_type'] ?? 'student';
+
+        if (empty($email) || empty($fullName)) {
+            $conn = getDB();
+            $stmt = $conn->prepare("SELECT full_name, email, user_type FROM users WHERE id = ?");
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            if ($row = $res->fetch_assoc()) {
+                $fullName = $row['full_name'];
+                $email = $row['email'];
+                $userType = $row['user_type'];
+                $_SESSION['full_name'] = $fullName;
+                $_SESSION['email'] = $email;
+                $_SESSION['user_type'] = $userType;
+            }
+            $stmt->close();
+            $conn->close();
+        }
+
         echo json_encode([
             'logged_in' => true,
-            'id' => $_SESSION['user_id'],
-            'full_name' => $_SESSION['full_name'] ?? 'Student',
-            'email' => $_SESSION['email'] ?? '',
-            'user_type' => $_SESSION['user_type'] ?? 'student'
+            'id' => $userId,
+            'full_name' => $fullName ?: 'Student',
+            'email' => $email,
+            'user_type' => $userType
         ]);
         exit;
     }

@@ -1,230 +1,309 @@
 <style>
-    .font-serif-heading { font-family: 'Playfair Display', serif; }
+    .font-serif-heading { font-family: 'Merriweather', serif; }
     .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
     .fade-enter-from, .fade-leave-to { opacity: 0; }
     
-    .option-btn { transition: all 0.2s ease; }
-    .option-btn.selected { border-color: #059669; background-color: #ecfdf5; }
+    .slide-fade-enter-active { transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    .slide-fade-leave-active { transition: all 0.2s cubic-bezier(0.7, 0, 0.84, 0); }
+    .slide-fade-enter-from { transform: translateX(18px); opacity: 0; }
+    .slide-fade-leave-to { transform: translateX(-18px); opacity: 0; }
+    
+    .progress-bar-shimmer {
+        background: linear-gradient(90deg, #059669 0%, #10b981 60%, #34d399 100%);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+    }
+
+    .option-btn { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+    .option-btn.selected { border-color: #059669; background-color: #ecfdf5; box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2); }
     .option-btn.correct { border-color: #059669; background-color: #d1fae5; color: #065f46; }
     .option-btn.wrong { border-color: #ef4444; background-color: #fee2e2; color: #991b1b; }
-    .option-btn:hover:not(:disabled) { border-color: #3b82f6; background-color: #eff6ff; transform: translateY(-2px); }
-    
-    .modal-enter-active, .modal-leave-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .modal-enter-from, .modal-leave-to { opacity: 0; transform: scale(0.95) translateY(10px); }
-    .modal-overlay-enter-active, .modal-overlay-leave-active { transition: opacity 0.3s ease; }
-    .modal-overlay-enter-from, .modal-overlay-leave-to { opacity: 0; }
+    .option-btn:hover:not(:disabled) { border-color: #10b981; background-color: #f0fdf4; transform: translateY(-2px); }
 </style>
 
-<div class="min-h-screen pt-24 pb-12">
+<div class="min-h-screen pt-24 pb-16 bg-[#fbfbfa]">
     <!-- Loading State -->
-    <div v-if="isLoading" class="max-w-3xl mx-auto py-16 px-8 text-center mt-12 mb-24">
-        <h2 class="text-3xl font-bold text-gray-800 mb-4 animate-pulse">Loading Quiz...</h2>
-        <p class="text-gray-500">Preparing your course-specific questions.</p>
+    <div v-if="isLoading" class="max-w-xl mx-auto py-20 px-8 text-center">
+        <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mx-auto mb-6"></div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">Preparing Quiz...</h2>
+        <p class="text-gray-500 font-medium">Gathering course questions and challenges for you.</p>
     </div>
 
     <!-- Error State -->
-    <div v-if="error" class="max-w-3xl mx-auto py-16 px-8 text-center mt-12 mb-24 bg-white rounded-3xl shadow-xl">
-        <div class="w-20 h-20 bg-red-100 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
-            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    <div v-if="error" class="max-w-lg mx-auto py-12 px-8 text-center bg-white rounded-3xl shadow-xl border border-gray-100 mt-6">
+        <div class="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xs">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
-        <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ error }}</h2>
-        <a href="degrees" class="inline-block mt-4 bg-[#0e3223] text-white px-8 py-3 rounded-full font-bold hover:bg-black transition shadow-lg">Back to Courses</a>
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{{ error }}</h2>
+        <p class="text-gray-500 text-sm mb-6">Please try refreshing or head back to the degrees catalog.</p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onclick="window.location.reload()" class="px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition shadow-sm">Try Again</button>
+            <a href="degrees" class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-200 transition">Browse Courses</a>
+        </div>
     </div>
 
     <!-- Welcome / Start Screen -->
-    <div v-if="!quizStarted && !isLoading && !error && !quizFinished && !reviewMode" class="max-w-4xl mx-auto mt-8 px-4 w-full">
-        <a :href="'degree-profile?id=' + degreeId" class="inline-flex items-center text-emerald-600 font-bold hover:text-emerald-700 transition mb-4">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Back
+    <div v-if="!quizStarted && !isLoading && !error && !quizFinished && !reviewMode" class="max-w-4xl mx-auto mt-4 px-4 w-full">
+        <a :href="'degree-profile?id=' + degreeId" class="inline-flex items-center text-xs font-bold text-emerald-700 hover:text-emerald-900 transition mb-6 bg-white border border-gray-200 hover:border-emerald-300 px-3.5 py-1.5 rounded-full shadow-xs">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Degree Details
         </a>
-        <div class="py-8 sm:py-12 px-4 sm:px-8 bg-white rounded-[2rem] shadow-xl border border-gray-100 relative overflow-hidden">
-        <div class="text-center">
-            <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif-heading font-bold text-gray-900 mb-4">{{ degreeTitle }} Quiz</h2>
-            <p class="text-gray-500 text-lg mb-8 max-w-xl mx-auto">
-                Number of questions: {{ questions.length }}<br>
-                Test your knowledge in this degree program.
-            </p>
-            
-            
-                <div v-if="degreeQuizLatestResult" class="mb-10 bg-gray-50 p-6 rounded-2xl border border-gray-200 text-left max-w-2xl mx-auto">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Quiz Completed</h3>
-                    <div class="grid grid-cols-2 gap-4 text-gray-700">
-                        <div><strong>Previous Score:</strong> {{ degreeQuizLatestResult.score }} / {{ questions.length }}</div>
-                        <div><strong>Previous Result:</strong> {{ degreeQuizLatestResult.percentage }}% ({{ degreeQuizLatestResult.interpretation }})</div>
-                        <div><strong>Date Taken:</strong> {{ degreeQuizLatestResult.date }}</div>
-                        <div><strong>Correct Answers:</strong> {{ degreeQuizLatestResult.correct }}</div>
-                        <div><strong>Skipped Questions:</strong> {{ degreeQuizLatestResult.skipped }}</div>
+
+        <div class="py-8 sm:py-12 px-6 sm:px-10 bg-white rounded-3xl shadow-xl border border-gray-100 relative overflow-hidden">
+            <div class="text-center max-w-2xl mx-auto">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider mb-3">Course Diagnostic</span>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-serif-heading font-extrabold text-gray-900 mb-4 tracking-tight">{{ degreeTitle }}</h1>
+                <p class="text-gray-600 text-base sm:text-lg mb-8 leading-relaxed">
+                    Test your understanding with <strong>{{ questions.length }} curated questions</strong> spanning core foundations, analytical skills, and real-world program scenarios.
+                </p>
+
+                <!-- Previous Quiz Summary Card (if already taken) -->
+                <div v-if="degreeQuizLatestResult" class="mb-10 bg-gradient-to-b from-gray-50 to-white p-6 sm:p-8 rounded-3xl border border-gray-200 text-left shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-200 gap-2 mb-6">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-700 tracking-wider uppercase">Latest Performance</span>
+                            <h3 class="text-xl font-extrabold text-gray-900">Quiz Completed</h3>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold self-start sm:self-auto" v-html="degreeQuizLatestResult.interpretation"></span>
+                    </div>
+
+                    <!-- 4 Metric Cards -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs text-center">
+                            <span class="text-xs text-gray-400 font-bold uppercase block mb-1">Score</span>
+                            <span class="text-2xl font-black text-gray-900">{{ degreeQuizLatestResult.score }}/{{ questions.length }}</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs text-center">
+                            <span class="text-xs text-gray-400 font-bold uppercase block mb-1">Accuracy</span>
+                            <span class="text-2xl font-black text-emerald-600">{{ degreeQuizLatestResult.percentage }}%</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs text-center">
+                            <span class="text-xs text-gray-400 font-bold uppercase block mb-1">Correct</span>
+                            <span class="text-2xl font-black text-emerald-700">{{ degreeQuizLatestResult.correct }}</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-xs text-center">
+                            <span class="text-xs text-gray-400 font-bold uppercase block mb-1">Skipped</span>
+                            <span class="text-2xl font-black text-amber-600">{{ degreeQuizLatestResult.skipped }}</span>
+                        </div>
                     </div>
                     
-                    <div class="mt-6 pt-4 border-t border-gray-200 flex flex-col sm:flex-row gap-4 items-center justify-center">
-                        <button @click="reviewMode = true" class="w-full sm:w-auto bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-bold hover:bg-blue-200 transition shadow-sm">
+                    <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row gap-3 items-center justify-center">
+                        <button @click="retakeQuiz" class="w-full sm:w-auto bg-[#0e3223] text-white px-7 py-3 rounded-full font-bold text-sm hover:bg-black transition shadow-md flex items-center justify-center gap-2">
+                            <span>Retake Quiz</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </button>
+                        <button @click="reviewMode = true" class="w-full sm:w-auto bg-emerald-50 text-emerald-800 border border-emerald-200 px-6 py-3 rounded-full font-bold text-sm hover:bg-emerald-100 transition shadow-xs">
                             Review Answers
                         </button>
-                        <button @click="retakeQuiz" class="w-full sm:w-auto bg-emerald-100 text-emerald-800 px-6 py-3 rounded-full font-bold hover:bg-emerald-200 transition shadow-sm">
-                            Retake Quiz
-                        </button>
-                        <a :href="'degree-profile?id=' + degreeId" class="w-full sm:w-auto bg-gray-100 text-gray-800 px-5 py-2 rounded-full font-bold text-sm hover:bg-gray-200 transition shadow-sm text-center flex items-center justify-center">
-                            Back to Degree Details
+                        <a :href="'degree-profile?id=' + degreeId" class="w-full sm:w-auto bg-gray-100 text-gray-700 px-5 py-3 rounded-full font-bold text-sm hover:bg-gray-200 transition shadow-xs text-center">
+                            Degree Profile
                         </a>
                     </div>
                     
-                    <div class="mt-6 flex justify-center">
-                        <button @click="showHistory = !showHistory" class="text-blue-600 font-bold hover:underline text-sm">
-                            {{ showHistory ? 'Hide Previous Attempts' : 'View Previous Attempts' }}
+                    <div class="mt-6 text-center">
+                        <button @click="showHistory = !showHistory" class="text-xs font-bold text-gray-500 hover:text-emerald-700 transition inline-flex items-center gap-1">
+                            <span>{{ showHistory ? 'Hide All Attempts' : 'View Attempt History (' + degreeQuizHistory.length + ')' }}</span>
+                            <svg class="w-3.5 h-3.5 transform transition-transform" :class="showHistory ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                     </div>
-                
-                <div v-if="showHistory" class="mt-4 pt-4 border-t">
-                    <h4 class="font-bold mb-2">Quiz History</h4>
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="p-2">Attempt</th>
-                                <th class="p-2">Score</th>
-                                <th class="p-2">Date</th>
-                                <th class="p-2">Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(hist, idx) in degreeQuizHistory" :key="idx" class="border-b">
-                                <td class="p-2">Attempt {{ idx + 1 }}</td>
-                                <td class="p-2">{{ hist.percentage }}%</td>
-                                <td class="p-2">{{ hist.date }}</td>
-                                <td class="p-2">{{ idx === degreeQuizHistory.length - 1 ? 'Latest' : 'Previous' }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <div v-if="showHistory" class="mt-4 pt-4 border-t border-gray-200 overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-gray-100 text-gray-500 font-bold uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-2.5 rounded-l-lg">Attempt</th>
+                                    <th class="p-2.5">Score</th>
+                                    <th class="p-2.5">Date</th>
+                                    <th class="p-2.5 rounded-r-lg">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr v-for="(hist, idx) in degreeQuizHistory" :key="idx" class="hover:bg-gray-50 transition">
+                                    <td class="p-2.5 font-bold text-gray-800">Attempt #{{ idx + 1 }}</td>
+                                    <td class="p-2.5 font-semibold text-emerald-700">{{ hist.score }}/{{ questions.length }} ({{ hist.percentage }}%)</td>
+                                    <td class="p-2.5 text-gray-500">{{ hist.date }}</td>
+                                    <td class="p-2.5 font-medium">
+                                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold" :class="idx === degreeQuizHistory.length - 1 ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'">
+                                            {{ idx === degreeQuizHistory.length - 1 ? 'Latest' : 'Past' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- First Time Start Button -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6" v-if="!degreeQuizLatestResult">
+                    <button @click="retakeQuiz" class="bg-[#0e3223] text-white px-8 py-3.5 rounded-full font-bold text-base w-full sm:w-auto transition-all shadow-lg hover:bg-black hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <span>Start Course Quiz</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                    <a :href="'degree-profile?id=' + degreeId" class="bg-gray-100 text-gray-700 px-6 py-3.5 rounded-full font-bold text-sm w-full sm:w-auto hover:bg-gray-200 transition">
+                        Back to Degree
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preference Screen -->
+    <div v-if="quizStarted && !degreeQuizPreference && !quizFinished" class="max-w-2xl mx-auto py-12 px-6 sm:px-10 bg-white rounded-3xl shadow-xl border border-gray-100 text-center mt-6">
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider mb-3">Quiz Mode</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3 tracking-tight">How would you like to see answers?</h2>
+        <p class="text-gray-500 text-sm mb-8">Choose your preferred quiz feedback style before starting.</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 text-left">
+            <div @click="tempPreference = 'immediate'" 
+                 class="cursor-pointer border-2 p-5 rounded-2xl transition-all relative flex flex-col justify-between"
+                 :class="tempPreference === 'immediate' ? 'border-emerald-600 bg-emerald-50/70 shadow-sm ring-2 ring-emerald-200' : 'border-gray-200 hover:border-emerald-300 bg-white'">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-gray-900">Show Immediately</h3>
+                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="tempPreference === 'immediate' ? 'border-emerald-600 bg-emerald-600' : 'border-gray-300'">
+                            <svg v-if="tempPreference === 'immediate'" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-gray-600 space-y-1.5 list-disc pl-4">
+                        <li>Instant correct/wrong feedback.</li>
+                        <li>Reveals correct explanation immediately.</li>
+                        <li>Ideal for learning and studying.</li>
+                    </ul>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4" v-if="!degreeQuizLatestResult">
-        <button @click="retakeQuiz" class="bg-[#0e3223] text-white px-5 py-2 rounded-full font-bold text-sm w-full sm:w-auto transition-all shadow-xl hover:bg-black hover:-translate-y-1">
-            Start Quiz
-        </button>
-        <a :href="'degree-profile?id=' + degreeId" class="bg-gray-100 text-gray-800 px-5 py-2 rounded-full font-bold text-sm w-full sm:w-auto hover:bg-gray-200 transition shadow flex items-center justify-center gap-2">
-            <span>&larr;</span> Back to Degree Details</a></div></div></div></div><!-- Preference Screen -->
-    <div v-if="quizStarted && !degreeQuizPreference && !quizFinished" class="max-w-3xl mx-auto py-16 px-8 bg-white rounded-[2rem] shadow-xl border border-gray-100 text-center mt-12">
-        <h2 class="text-3xl font-bold text-gray-900 mb-8">How would you like to see quiz answers?</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div @click="tempPreference = 'immediate'" 
-                 class="cursor-pointer border-2 p-6 rounded-2xl transition-all"
-                 :class="tempPreference === 'immediate' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-300'">
-                <h3 class="text-xl font-bold mb-2">Option 1: Show Answer Immediately</h3>
-                <ul class="text-sm text-gray-600 text-left list-disc pl-5 space-y-1">
-                    <li>Show immediately if correct or incorrect.</li>
-                    <li>Display correct answer.</li>
-                    <li>Click Next Question to continue.</li>
-                </ul>
-            </div>
             <div @click="tempPreference = 'after'" 
-                 class="cursor-pointer border-2 p-6 rounded-2xl transition-all"
-                 :class="tempPreference === 'after' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'">
-                <h3 class="text-xl font-bold mb-2">Option 2: Show Answers After Quiz</h3>
-                <ul class="text-sm text-gray-600 text-left list-disc pl-5 space-y-1">
-                    <li>Do not reveal correct answer while taking quiz.</li>
-                    <li>Use Previous to return and change answers.</li>
-                    <li>Show correct answers only at the end.</li>
-                </ul>
+                 class="cursor-pointer border-2 p-5 rounded-2xl transition-all relative flex flex-col justify-between"
+                 :class="tempPreference === 'after' ? 'border-emerald-600 bg-emerald-50/70 shadow-sm ring-2 ring-emerald-200' : 'border-gray-200 hover:border-emerald-300 bg-white'">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-base font-extrabold text-gray-900">Show at the End</h3>
+                        <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center" :class="tempPreference === 'after' ? 'border-emerald-600 bg-emerald-600' : 'border-gray-300'">
+                            <svg v-if="tempPreference === 'after'" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                    <ul class="text-xs text-gray-600 space-y-1.5 list-disc pl-4">
+                        <li>Answers hidden during the test.</li>
+                        <li>Can navigate back and adjust answers.</li>
+                        <li>Comprehensive review at completion.</li>
+                    </ul>
+                </div>
             </div>
         </div>
         
-        <button @click="startWithPreference" :disabled="!tempPreference" 
-                class="bg-[#0e3223] text-white px-6 py-3 rounded-full font-bold text-base w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed">
-            Begin Quiz
-        </button>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
+            <button @click="startWithPreference" :disabled="!tempPreference" 
+                    class="bg-[#0e3223] text-white px-8 py-3 rounded-full font-bold text-sm w-full sm:w-auto transition shadow-lg hover:bg-black disabled:opacity-40 disabled:cursor-not-allowed">
+                Begin Quiz Now
+            </button>
+            <button @click="quizStarted = false" class="text-gray-500 hover:text-gray-700 font-bold text-xs py-2 px-4 transition">
+                Cancel
+            </button>
+        </div>
     </div>
 
     <!-- Active Quiz UI -->
-    <div v-if="quizStarted && degreeQuizPreference && !quizFinished && !showSubmitWarning" class="max-w-3xl mx-auto w-full px-4 py-2">
+    <div v-if="quizStarted && degreeQuizPreference && !quizFinished && !showSubmitWarning" class="max-w-3xl mx-auto w-full px-4 py-4">
         <!-- Top Bar -->
-        <div class="flex flex-col items-center justify-center mb-2 relative">
-            <div class="w-full text-center mb-2 font-bold text-gray-700">
-                {{ degreeTitle }} Quiz
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-gray-100 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">{{ degreeTitle }}</span>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-700 self-start sm:self-auto">
+                    Question {{ globalQuestionIndex + 1 }} of {{ questions.length }}
+                </span>
             </div>
             
-            <div class="w-full max-w-md mx-auto flex flex-col items-center justify-center gap-1 mt-1 mb-1">
-                <div class="flex-grow h-4 w-full bg-gray-200 rounded-full overflow-hidden flex relative shadow-inner">
-                    <div class="h-full transition-all duration-300 absolute left-0 progress-bar-shimmer rounded-full" :style="{ width: progressPercentage + '%' }"></div>
-                    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow">
-                        {{ Math.round(progressPercentage) }}%
-                    </div>
-                </div>
-                <div class="text-sm text-gray-500 w-full flex justify-between px-1 mt-1">
-                    <span>Answered: {{ answeredCount }}</span>
-                    <span>Skipped: {{ skippedCount }}</span>
-                    <span>Remaining: {{ remainingCount }}</span>
-                </div>
+            <!-- Progress Bar -->
+            <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden relative shadow-inner mb-3">
+                <div class="h-full transition-all duration-300 progress-bar-shimmer rounded-full" :style="{ width: progressPercentage + '%' }"></div>
             </div>
-            
-            <div class="text-base font-bold text-gray-800 mt-2">
-                Question {{ globalQuestionIndex + 1 }} of {{ questions.length }}
+
+            <!-- Status Pills -->
+            <div class="flex items-center justify-between text-xs font-bold text-gray-500">
+                <span class="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Answered: {{ answeredCount }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Skipped: {{ skippedCount }}
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">
+                    Remaining: {{ remainingCount }}
+                </span>
             </div>
         </div>
 
         <!-- Question Card -->
         <transition name="slide-fade" mode="out-in">
-            <div :key="globalQuestionIndex" class="w-full bg-white rounded-2xl p-4 sm:p-6 shadow-xl border border-gray-100 mb-4 relative">
-                <div v-if="currentAnswerState.skipped" class="absolute -top-4 right-8 bg-amber-100 text-amber-800 px-4 py-1 rounded-full text-sm font-bold border border-amber-200 shadow-sm anim-pop">
-                    Skipped
+            <div :key="globalQuestionIndex" class="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-100 mb-6 relative">
+                <div v-if="currentAnswerState.skipped" class="absolute -top-3.5 right-6 bg-amber-100 text-amber-800 px-3.5 py-0.5 rounded-full text-xs font-extrabold border border-amber-200 shadow-xs">
+                    Marked as Skipped
                 </div>
                 
-                <h1 class="text-xl sm:text-2xl font-serif-heading font-bold text-gray-900 leading-tight mb-4 mt-0">
+                <span class="inline-block text-xs font-extrabold text-emerald-700 uppercase tracking-widest mb-2">Stage {{ currentQuestion.stage || 1 }}</span>
+                <h2 class="text-xl sm:text-2xl font-serif-heading font-extrabold text-gray-900 leading-snug mb-6">
                     {{ currentQuestion.text }}
-                </h1>
+                </h2>
 
-            <div class="grid grid-cols-1 gap-4">
-                <button v-for="opt in shuffledOptions" :key="opt.letter"
-                        @click="handleAnswerSelection(opt.originalLetter)"
-                        :disabled="isOptionDisabled"
-                        class="option-btn text-left p-3 sm:p-4 rounded-xl border-2 border-gray-200 bg-white font-medium text-gray-700 flex items-center gap-4 relative transition-colors"
-                        :class="getOptionClass(opt.originalLetter)">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
-                         :class="getLetterBadgeClass(opt.originalLetter)">
-                        {{ opt.letter }}
-                    </div>
-                    <span class="text-base">{{ opt.content }}</span>
-                    
-                    <!-- Immediate feedback icons -->
-                    <template v-if="degreeQuizPreference === 'immediate' && currentAnswerState.locked">
-                        <div v-if="currentQuestion.correct === opt.originalLetter" class="absolute right-4 text-green-500">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div class="grid grid-cols-1 gap-3.5">
+                    <button v-for="opt in shuffledOptions" :key="opt.letter"
+                            @click="handleAnswerSelection(opt.originalLetter)"
+                            :disabled="isOptionDisabled"
+                            class="option-btn text-left p-4 rounded-2xl border-2 border-gray-200 bg-white font-medium text-gray-800 flex items-center gap-4 relative transition-all"
+                            :class="getOptionClass(opt.originalLetter)">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs flex-shrink-0 transition-colors shadow-xs"
+                             :class="getLetterBadgeClass(opt.originalLetter)">
+                            {{ opt.letter }}
                         </div>
-                        <div v-if="currentAnswerState.selectedLetter === opt.originalLetter && currentQuestion.correct !== opt.originalLetter" class="absolute right-4 text-red-500">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </div>
-                    </template>
-                </button>
+                        <span class="text-sm sm:text-base font-semibold leading-normal pr-8">{{ opt.content }}</span>
+                        
+                        <!-- Immediate feedback icons -->
+                        <template v-if="degreeQuizPreference === 'immediate' && currentAnswerState.locked">
+                            <div v-if="currentQuestion.correct === opt.originalLetter" class="absolute right-4 text-emerald-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div v-if="currentAnswerState.selectedLetter === opt.originalLetter && currentQuestion.correct !== opt.originalLetter" class="absolute right-4 text-rose-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </div>
+                        </template>
+                    </button>
+                </div>
+                
+                <!-- Immediate Feedback Banner -->
+                <div v-if="degreeQuizPreference === 'immediate' && currentAnswerState.locked && currentAnswerState.selectedLetter" 
+                     class="mt-5 p-4 rounded-2xl shadow-xs" 
+                     :class="currentAnswerState.selectedLetter === currentQuestion.correct ? 'bg-emerald-50 border border-emerald-200' : 'bg-rose-50 border border-rose-200'">
+                    <p class="font-extrabold text-sm mb-1 flex items-center gap-2" :class="currentAnswerState.selectedLetter === currentQuestion.correct ? 'text-emerald-800' : 'text-rose-800'">
+                        <svg v-if="currentAnswerState.selectedLetter === currentQuestion.correct" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        <svg v-else class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        {{ currentAnswerState.selectedLetter === currentQuestion.correct ? 'Correct! Excellent job.' : 'Incorrect answer.' }}
+                    </p>
+                    <p class="text-xs sm:text-sm text-gray-700 mt-1 pl-7">
+                        The correct answer is: <strong class="text-gray-900 font-bold">{{ getOptionContent(currentQuestion.correct) }}</strong>
+                    </p>
+                </div>
             </div>
-            
-            <!-- Immediate Explanation -->
-            <div v-if="degreeQuizPreference === 'immediate' && currentAnswerState.locked && currentAnswerState.selectedLetter" class="mt-4 p-3 rounded-xl shadow-sm" :class="currentAnswerState.selectedLetter === currentQuestion.correct ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'">
-                <p class="font-bold mb-1 flex items-center gap-2" :class="currentAnswerState.selectedLetter === currentQuestion.correct ? 'text-green-800' : 'text-red-800'">
-                    <svg v-if="currentAnswerState.selectedLetter === currentQuestion.correct" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                    <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    {{ currentAnswerState.selectedLetter === currentQuestion.correct ? 'Correct!' : 'Incorrect' }}
-                </p>
-                <p class="text-gray-700 text-sm mt-1">
-                    The correct answer is <strong>{{ getOptionContent(currentQuestion.correct) }}</strong>.
-                </p>
-            </div>
-        </div>
         </transition>
 
-        <!-- Navigation -->
-        <div class="flex flex-wrap justify-center sm:justify-between items-center gap-2 mt-2">
-            <button @click="previousQuestion" :disabled="globalQuestionIndex === 0" class="px-3 py-2 sm:px-6 sm:py-3 rounded-full font-bold text-xs sm:text-base bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                Previous
+        <!-- Navigation Buttons -->
+        <div class="flex items-center justify-between gap-3 pt-2">
+            <button @click="previousQuestion" :disabled="globalQuestionIndex === 0" 
+                    class="px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-xs flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <span>Previous</span>
             </button>
             
-            <button @click="skipQuestion" class="px-3 py-2 sm:px-6 sm:py-3 rounded-full font-bold text-xs sm:text-base text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition border border-transparent hover:border-amber-200">
-                Skip Question
+            <button @click="skipQuestion" 
+                    class="px-4 py-2.5 rounded-full font-bold text-xs sm:text-sm text-amber-700 hover:text-amber-800 hover:bg-amber-50 transition border border-transparent hover:border-amber-200">
+                Skip
             </button>
             
             <button @click="nextQuestion" 
                 :disabled="!currentAnswerState.selectedLetter && !currentAnswerState.skipped"
-                class="px-3 py-2 sm:px-6 sm:py-3 rounded-full font-bold text-xs sm:text-base bg-[#0e3223] text-white hover:bg-black transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ globalQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question' }}
+                class="px-6 py-2.5 rounded-full font-bold text-xs sm:text-sm bg-[#0e3223] text-white hover:bg-black transition shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5">
+                <span>{{ globalQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question' }}</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
         </div>
     </div>
@@ -295,30 +374,9 @@
             <button @click="reviewMode = false" class="bg-[#0e3223] text-white px-8 py-3 rounded-full font-bold hover:bg-black transition shadow-lg">Back to Result</button>
         </div></div></div><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-window.addEventListener('error', function(event) {
-    fetch('/riasec/log_error.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ message: event.message, filename: event.filename, lineno: event.lineno, colno: event.colno, error: event.error ? event.error.stack : null })
-    });
-});
-window.addEventListener('unhandledrejection', function(event) {
-    fetch('/riasec/log_error.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ message: event.reason ? event.reason.message : 'Unhandled Promise Rejection', stack: event.reason ? event.reason.stack : null })
-    });
-});
-
     const { createApp, ref, computed, onMounted, watch } = Vue;
 
-    window.addEventListener('error', function(e) {
-    document.body.innerHTML += '<div style=\"position:fixed;top:0;left:0;background:red;color:white;z-index:9999;padding:20px;\">' + e.message + '</div>';
-});
-window.addEventListener('unhandledrejection', function(e) {
-    document.body.innerHTML += '<div style=\"position:fixed;top:50px;left:0;background:red;color:white;z-index:9999;padding:20px;\">' + e.reason + '</div>';
-});
-const app = createApp({
+    const app = createApp({
 
         setup() {
             const isLoading = ref(true);
@@ -377,7 +435,8 @@ const app = createApp({
                 } catch(e) {}
                 
                 try {
-                    const res = await fetch("api/get_course_questions?degree_id=" + id);
+                    const apiPath = (window.location.pathname.startsWith('/riasec') ? '/riasec/' : '/') + 'api/get_course_questions?degree_id=' + id;
+                    const res = await fetch(apiPath);
                     const data = await res.json();
                     if (data.success && data.questions) {
                         questions.value = data.questions;
