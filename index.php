@@ -46,6 +46,8 @@ $router->add('/api/save_college', 'ProfileController@saveCollege');
 $router->add('/api/save_degree', 'ProfileController@saveDegree');
 $router->add('/api/save_favorite_subjects', 'ProfileController@saveFavoriteSubjects');
 $router->add('/api/get_favorite_subjects', 'ProfileController@getFavoriteSubjects');
+$router->add('/api/change_password', 'ProfileController@changePassword');
+$router->add('/api/update_profile_name', 'ProfileController@updateProfileName');
 
 $router->add('/careers', 'PagesController@careers');
 $router->add('/colleges', 'PagesController@colleges');

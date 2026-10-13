@@ -185,4 +185,97 @@ class ProfileController extends Controller {
         echo json_encode(['success' => true, 'subjects' => $subjects]);
         exit;
     }
+
+    public function changePassword() {
+        header('Content-Type: application/json');
+        require_once 'auth/config.php';
+        startAuthSession();
+        if (!isLoggedIn()) {
+            echo json_encode(['success' => false, 'error' => 'Please log in to change your password.']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $currentPassword = trim($data['current_password'] ?? '');
+        $newPassword = trim($data['new_password'] ?? '');
+        $confirmPassword = trim($data['confirm_password'] ?? '');
+
+        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
+            echo json_encode(['success' => false, 'error' => 'All password fields are required.']);
+            exit;
+        }
+
+        if (strlen($newPassword) < 8) {
+            echo json_encode(['success' => false, 'error' => 'New password must be at least 8 characters long.']);
+            exit;
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            echo json_encode(['success' => false, 'error' => 'New password and confirmation do not match.']);
+            exit;
+        }
+
+        $userId = intval($_SESSION['user_id']);
+        $conn = getDB();
+        $stmt = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $user = $res->fetch_assoc();
+        $stmt->close();
+
+        if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
+            echo json_encode(['success' => false, 'error' => 'Current password is incorrect.']);
+            $conn->close();
+            exit;
+        }
+
+        $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
+        $updateStmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+        $updateStmt->bind_param("si", $newHash, $userId);
+        $success = $updateStmt->execute();
+        $updateStmt->close();
+        $conn->close();
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Password updated successfully!']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to update password. Please try again.']);
+        }
+        exit;
+    }
+
+    public function updateProfileName() {
+        header('Content-Type: application/json');
+        require_once 'auth/config.php';
+        startAuthSession();
+        if (!isLoggedIn()) {
+            echo json_encode(['success' => false, 'error' => 'Please log in.']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $fullName = trim($data['full_name'] ?? '');
+
+        if (empty($fullName)) {
+            echo json_encode(['success' => false, 'error' => 'Full name cannot be empty.']);
+            exit;
+        }
+
+        $userId = intval($_SESSION['user_id']);
+        $conn = getDB();
+        $stmt = $conn->prepare("UPDATE users SET full_name = ? WHERE id = ?");
+        $stmt->bind_param("si", $fullName, $userId);
+        $success = $stmt->execute();
+        $stmt->close();
+        $conn->close();
+
+        if ($success) {
+            $_SESSION['full_name'] = $fullName;
+            echo json_encode(['success' => true, 'message' => 'Profile name updated successfully!', 'full_name' => $fullName]);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to update profile name.']);
+        }
+        exit;
+    }
 }
