@@ -1,0 +1,136 @@
+﻿<div class="max-w-7xl mx-auto py-16 px-6 w-full"><div class="text-center mb-16">
+                <div class="text-sm font-bold text-emerald-600 tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
+                    <span class="w-12 h-px bg-emerald-300"></span>
+                    <span>Start Here</span>
+                    <span class="w-12 h-px bg-emerald-300"></span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-serif-heading font-bold text-gray-900 mb-4">Course Introduction</h1>
+                <p class="text-gray-500 max-w-2xl mx-auto">Explore different degree programs and learn more about what each program offers.</p>
+            </div>
+
+                        <!-- Recommended for You -->
+            <div v-if="recommendedDegrees.length > 0" class="mb-16">
+                <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                    <span class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    </span>
+                    Recommended for You
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="deg in recommendedDegrees" :key="deg.id" @click="selectDegree(deg)" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col group">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="bg-emerald-200 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Top Match</span>
+                                <span class="bg-white border border-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">{{ deg.category }}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ deg.title }}</h3>
+                            <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ deg.description || 'Learn the fundamentals and advanced topics in this degree program.' }}</p>
+                        </div>
+                        <div class="text-emerald-700 font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all mt-4 border-t border-emerald-100 pt-4">
+                            View Introduction 
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Explore All Degrees -->
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                    <span class="bg-gray-100 text-gray-600 p-2 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </span>
+                    Explore All Degrees
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div v-for="deg in otherDegrees" :key="deg.id" @click="selectDegree(deg)" class="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer flex flex-col group">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">{{ deg.category }}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ deg.title }}</h3>
+                            <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ deg.description || 'Learn the fundamentals and advanced topics in this degree program.' }}</p>
+                        </div>
+                        <div class="text-[#0e3223] font-bold text-sm flex items-center gap-1 group-hover:gap-3 transition-all mt-4 border-t border-gray-50 pt-4">
+                            View Introduction 
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+</div>
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const recommendedDegrees = ref([]);
+            const otherDegrees = ref([]);
+
+            const fetchDegrees = async () => {
+                try {
+                    const res = await fetch('api/get_degrees');
+                    if (!res.ok) return;
+                    const all = await res.json();
+                    
+                    let userTraits = [];
+                    const savedData = localStorage.getItem('talunton_assessment_scores');
+                    if (savedData) {
+                        try {
+                            const parsed = JSON.parse(savedData);
+                            if (parsed.scores) {
+                                userTraits = Object.keys(parsed.scores)
+                                    .map(key => ({ code: key, score: parsed.scores[key] }))
+                                    .sort((a, b) => b.score - a.score)
+                                    .slice(0, 3)
+                                    .map(t => t.code);
+                            }
+                        } catch (e) {}
+                    }
+                    
+                    if (userTraits.length > 0) {
+                        let rec = [];
+                        let oth = [];
+                        all.forEach(deg => {
+                            let match = false;
+                            if (deg.holland_code) {
+                                if (userTraits[0] && deg.holland_code.includes(userTraits[0])) match = true;
+                                else if (userTraits[1] && deg.holland_code.includes(userTraits[1])) match = true;
+                                else if (userTraits[2] && deg.holland_code.includes(userTraits[2])) match = true;
+                            }
+                            if (match) rec.push(deg);
+                            else oth.push(deg);
+                        });
+                        recommendedDegrees.value = rec;
+                        otherDegrees.value = oth;
+                    } else {
+                        otherDegrees.value = all;
+                    }
+                    
+                } catch(e) {
+                    console.error("Failed to load degrees:", e);
+                }
+            };
+
+            onMounted(() => {
+                fetchDegrees();
+            });
+
+                        const selectDegree = (deg) => { window.location.href = '/riasec/degree-profile?id=' + deg.id; };;
+
+                        return {
+                recommendedDegrees,
+                otherDegrees,
+                selectDegree,
+                
+            };
+        }
+    }).mount('#app');
+</script>
+
+
+
+
+
+
+

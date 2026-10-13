@@ -1,0 +1,325 @@
+<!-- Step 1: Registration Form -->
+        <div id="formStep" class="bg-white p-8 md:p-10 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md mx-auto mt-16 mb-16">
+
+            <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <svg class="w-7 h-7 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+            </div>
+
+            <h1 class="text-2xl font-serif-heading font-bold text-gray-900 mb-1 text-center">Create Account</h1>
+            <p class="text-gray-500 text-sm mb-8 text-center">Discover your career DNA in just 5 minutes.</p>
+
+            <!-- Global Error -->
+            <div id="globalError" class="hidden bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-6 flex items-start gap-2">
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                <span id="globalErrorText"></span>
+            </div>
+
+            <form id="signupForm" novalidate class="space-y-5">
+                <!-- Full Name -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
+                    <input id="full_name" type="text" placeholder="Juan Miguel Dela Cruz" autocomplete="name"
+                           class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-gray-800">
+                    <p class="error-msg" id="full_nameError"></p>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
+                    <input id="email" type="email" placeholder="you@example.com" autocomplete="email"
+                           class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-gray-800">
+                    <p class="error-msg" id="emailError"></p>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                    <div class="relative">
+                        <input id="password" type="password" placeholder="Min 8 chars, 1 uppercase, 1 number" autocomplete="new-password"
+                               class="w-full px-4 py-3 pr-12 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-gray-800">
+                        <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                    <!-- Password strength meter -->
+                    <div class="w-full bg-gray-100 rounded-full h-1.5 mt-2">
+                        <div id="strengthBar" class="h-1.5 rounded-full w-0" style="width:0;background:#ef4444"></div>
+                    </div>
+                    <p id="strengthLabel" class="text-[11px] text-gray-400 mt-1"></p>
+                    <p class="error-msg" id="passwordError"></p>
+                </div>
+
+                <!-- Confirm Password -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Confirm Password</label>
+                    <input id="confirm_password" type="password" placeholder="Re-enter password" autocomplete="new-password"
+                           class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-gray-800">
+                    <p class="error-msg" id="confirm_passwordError"></p>
+                </div>
+
+                <!-- User Type -->
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">I am a...</label>
+                    <select id="user_type" class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition text-gray-700">
+                        <option value="shs">Senior High School Student</option>
+                        <option value="college">College Student (Shifter/Transfer)</option>
+                        <option value="professional">Working Professional</option>
+                    </select>
+                    <p class="error-msg" id="user_typeError"></p>
+                </div>
+
+                <!-- Terms -->
+                <div class="flex items-start gap-3">
+                    <input id="agree" type="checkbox" class="mt-1 accent-emerald-600">
+                    <label for="agree" class="text-xs text-gray-500">
+                        I agree to the <a href="#" class="text-emerald-700 font-bold hover:underline">Terms of Use</a> and 
+                        <a href="#" class="text-emerald-700 font-bold hover:underline">Privacy Policy</a>.
+                    </label>
+                </div>
+                <p class="error-msg" id="agreeError"></p>
+
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-[#0e3223] hover:bg-black text-white font-bold py-3.5 rounded-lg transition flex items-center justify-center gap-2">
+                    <span id="submitText">Create Account</span>
+                    <svg id="submitSpinner" class="hidden animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-gray-500">
+                Already have an account?
+                <a href="login" class="text-emerald-700 font-bold hover:underline">Log in</a>
+            </div>
+        </div>
+
+        <!-- Step 2: Verification Code Input (shown after successful submit) -->
+        <div id="successStep" class="hidden bg-white p-10 rounded-2xl shadow-xl border border-gray-100 w-full max-w-md text-center mx-auto mt-16 mb-16">
+            <div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-serif-heading font-bold text-gray-900 mb-3">Check Your Email!</h2>
+            <p class="text-gray-500 text-sm mb-6">
+                We've sent a 6-digit verification code to <strong id="confirmedEmail" class="text-gray-800"></strong>.
+            </p>
+
+            <form id="verifyForm" class="space-y-4 text-left">
+                <!-- Global Verify Error -->
+                <div id="verifyGlobalError" class="hidden bg-red-50 text-red-600 text-sm p-3 rounded border border-red-100 flex items-start gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="verifyGlobalErrorText"></span>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Verification Code</label>
+                    <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6"
+                           class="w-full px-4 py-3 bg-blue-50/50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition text-center text-xl tracking-widest font-bold">
+                    <p class="error-msg" id="verificationCodeError"></p>
+                </div>
+
+                <!-- Dev mode: show the code directly -->
+                <div id="devCodeBox" class="hidden bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
+                    <p class="text-[10px] font-bold text-orange-600 uppercase tracking-widest mb-1">Local Dev Mode</p>
+                    <p class="text-sm text-gray-600">Your code is: <strong id="devCode" class="text-lg text-emerald-700 tracking-widest"></strong></p>
+                </div>
+
+                <button type="submit" id="verifyBtn"
+                        class="w-full bg-[#0e3223] hover:bg-black text-white font-bold py-3.5 rounded-lg transition flex items-center justify-center gap-2 mt-4">
+                    <span id="verifyBtnText">Verify Account</span>
+                    <svg id="verifySpinner" class="hidden animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </button>
+                
+                <div class="text-center mt-4">
+                    <button type="button" id="resendBtn" class="text-sm font-bold text-emerald-700 hover:underline">
+                        Resend Code
+                    </button>
+                    <p id="resendMsg" class="text-xs text-gray-500 mt-2 hidden"></p>
+                </div>
+            </form>
+        </div>
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("signupForm");
+        const btn = document.getElementById("submitBtn");
+        const btnText = document.getElementById("submitText");
+        const spinner = document.getElementById("submitSpinner");
+        const globalError = document.getElementById("globalError");
+        const globalErrorText = document.getElementById("globalErrorText");
+        
+        // Password toggle
+        const toggleBtn = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("password");
+        if(toggleBtn && passwordInput) {
+            toggleBtn.addEventListener("click", () => {
+                const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+                passwordInput.setAttribute("type", type);
+                toggleBtn.innerHTML = type === "password" ? 
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>' : 
+                    '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path></svg>';
+            });
+        }
+
+        // Password strength
+        const strengthBar = document.getElementById("strengthBar");
+        const strengthLabel = document.getElementById("strengthLabel");
+        if(passwordInput && strengthBar) {
+            passwordInput.addEventListener("input", (e) => {
+                const val = e.target.value;
+                let strength = 0;
+                if(val.length >= 8) strength++;
+                if(/[A-Z]/.test(val)) strength++;
+                if(/[0-9]/.test(val)) strength++;
+                if(/[^A-Za-z0-9]/.test(val)) strength++;
+                
+                let width = "0%"; let color = "#ef4444"; let label = "Too weak";
+                if(strength === 1) { width = "25%"; color = "#ef4444"; label = "Weak"; }
+                if(strength === 2) { width = "50%"; color = "#f59e0b"; label = "Fair"; }
+                if(strength === 3) { width = "75%"; color = "#10b981"; label = "Good"; }
+                if(strength >= 4) { width = "100%"; color = "#059669"; label = "Strong"; }
+                
+                if(val === "") { width = "0%"; label = ""; }
+                
+                strengthBar.style.width = width;
+                strengthBar.style.backgroundColor = color;
+                strengthLabel.textContent = label;
+                strengthLabel.style.color = color;
+            });
+        }
+
+        const showError = (id, msg) => {
+            const el = document.getElementById(id + "Error");
+            if(el) { el.textContent = msg; el.style.display = "block"; }
+            const input = document.getElementById(id);
+            if(input) { input.classList.add("border-red-400", "bg-red-50"); }
+        };
+
+        const clearErrors = () => {
+            document.querySelectorAll(".error-msg").forEach(e => { e.textContent = ""; e.style.display = "none"; });
+            document.querySelectorAll("input, select").forEach(i => i.classList.remove("border-red-400", "bg-red-50"));
+            globalError.classList.add("hidden");
+        };
+
+        if(form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                clearErrors();
+                
+                const fullName = document.getElementById("full_name").value.trim();
+                const email = document.getElementById("email").value.trim();
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirm_password").value;
+                const userType = document.getElementById("user_type").value;
+                const agree = document.getElementById("agree").checked;
+
+                let hasError = false;
+
+                if(!fullName) { showError("full_name", "Full name is required"); hasError = true; }
+                if(!email) { showError("email", "Email is required"); hasError = true; }
+                else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError("email", "Invalid email format"); hasError = true; }
+                
+                if(!password) { showError("password", "Password is required"); hasError = true; }
+                else if(password.length < 8) { showError("password", "Password must be at least 8 characters"); hasError = true; }
+                
+                if(password !== confirmPassword) { showError("confirm_password", "Passwords do not match"); hasError = true; }
+                if(!agree) { showError("agree", "You must agree to the Terms of Use"); hasError = true; }
+
+                if(hasError) return;
+
+                btn.disabled = true;
+                btnText.textContent = "Creating Account...";
+                spinner.classList.remove("hidden");
+
+                try {
+                    const res = await fetch("register", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ full_name: fullName, email, password, user_type: userType })
+                    });
+                    const data = await res.json();
+                    
+                    if(data.success) {
+                        // Switch to verification step
+                        document.getElementById("formStep").classList.add("hidden");
+                        document.getElementById("successStep").classList.remove("hidden");
+                        document.getElementById("confirmedEmail").textContent = email;
+                        
+                        if(data.dev_code) {
+                            document.getElementById("devCodeBox").classList.remove("hidden");
+                            document.getElementById("devCode").textContent = data.dev_code;
+                        }
+                    } else {
+                        if(data.errors) {
+                            Object.keys(data.errors).forEach(key => showError(key, data.errors[key]));
+                        } else {
+                            globalError.classList.remove("hidden");
+                            globalErrorText.textContent = data.error || "Registration failed.";
+                        }
+                    }
+                } catch(err) {
+                    globalError.classList.remove("hidden");
+                    globalErrorText.textContent = "A network error occurred. Please try again.";
+                }
+
+                btn.disabled = false;
+                btnText.textContent = "Create Account";
+                spinner.classList.add("hidden");
+            });
+        }
+        
+        // Verification form logic
+        const verifyForm = document.getElementById("verifyForm");
+        if(verifyForm) {
+            verifyForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const code = document.getElementById("verificationCode").value.trim();
+                const vBtn = document.getElementById("verifyBtn");
+                const vText = document.getElementById("verifyBtnText");
+                const vSpinner = document.getElementById("verifySpinner");
+                const vErr = document.getElementById("verificationCodeError");
+                const vGlobal = document.getElementById("verifyGlobalError");
+                const vGlobalText = document.getElementById("verifyGlobalErrorText");
+                
+                vErr.textContent = ""; vGlobal.classList.add("hidden");
+                
+                if(!code || code.length !== 6) {
+                    vErr.textContent = "Please enter the 6-digit code";
+                    return;
+                }
+                
+                vBtn.disabled = true; vText.textContent = "Verifying..."; vSpinner.classList.remove("hidden");
+                
+                try {
+                    const email = document.getElementById("email").value.trim();
+                    const res = await fetch("verify_code", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email, code })
+                    });
+                    const data = await res.json();
+                    if(data.success) {
+                        window.location.href = "assessment";
+                    } else {
+                        vGlobal.classList.remove("hidden");
+                        vGlobalText.textContent = data.error || "Invalid code";
+                    }
+                } catch(err) {
+                    vGlobal.classList.remove("hidden");
+                    vGlobalText.textContent = "Network error";
+                }
+                
+                vBtn.disabled = false; vText.textContent = "Verify Account"; vSpinner.classList.add("hidden");
+            });
+        }
+    });
+</script>

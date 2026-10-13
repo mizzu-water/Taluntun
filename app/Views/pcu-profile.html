@@ -1,0 +1,232 @@
+<div class="max-w-[1200px] mx-auto px-4 pt-12 pb-12 w-full">
+    <div class="mb-4">
+        <a href="colleges" class="text-gray-500 hover:text-gray-900 font-medium text-sm flex items-center gap-2 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to Colleges
+        </a>
+    </div>
+    <div style="height: clamp(240px, 35vh, 320px);" class="w-full bg-gray-900 relative overflow-hidden rounded-[2rem] shadow-lg mb-8">
+        <img id="college-banner-img" src="" alt="Campus Image" class="w-full h-full object-contain object-center">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+        <div class="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 z-10 text-white">
+            <div class="flex flex-wrap gap-2 mb-3">
+                <span class="bg-emerald-600 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">CHED Recognized</span>
+                <span id="college-type-badge" class="bg-white/20 backdrop-blur-md border border-white/30 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">Private</span>
+            </div>
+            <h1 id="college-name" class="text-3xl sm:text-4xl md:text-5xl font-serif-heading font-bold mb-3 drop-shadow-lg leading-tight">University Profile</h1>
+            <div class="flex items-center gap-2 text-sm sm:text-base font-medium opacity-90 drop-shadow">
+                <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"></path></svg>
+                <span id="college-address">Location details</span> &bull; <span id="college-uni-type">University</span>
+            </div>
+        </div>
+        <div class="absolute top-6 right-6 bg-white/95 backdrop-blur-sm text-gray-800 text-xs font-bold px-4 py-2 rounded-full shadow-md flex items-center gap-2 hidden sm:flex border border-white/50">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Main Campus Grounds
+        </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 space-y-10">
+            <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-4 font-serif-heading">About the University</h2>
+                <div class="prose text-gray-600 leading-relaxed text-sm">
+                    <p id="college-about" class="mb-4 text-gray-600"></p>
+                </div>
+            </section>
+            
+            <section>
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 font-serif-heading">Programs Offered</h2>
+                <div id="programs-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="text-gray-500 text-sm py-4">Loading programs...</div>
+                </div>
+            </section>
+
+              <section id="admission-requirements-section" class="hidden mt-12">
+                  <h2 class="text-2xl font-bold text-gray-900 mb-6 font-serif-heading">Admission Requirements & Process</h2>
+                  
+                  <div class="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-sm">
+                      <div class="flex justify-between items-center mb-4">
+                          <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                              <div class="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                              </div>
+                              Document Requirements Checklist
+                          </h3>
+                          <span id="req-count" class="text-xs font-bold text-gray-500 bg-gray-50 px-3 py-1 rounded-full border border-gray-200"></span>
+                      </div>
+                      
+                      <p class="text-sm text-gray-600 mb-6">Prepare all original documents along with clear photocopies inside a long brown envelope for in-person document screening at the Registrar's Office.</p>
+                      
+                      <div id="requirements-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <!-- Requirements will go here -->
+                      </div>
+                  </div>
+              </section>
+          </div>
+          
+          <div class="space-y-6">
+            <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-4">Quick Facts</h3>
+                <ul class="space-y-4 text-sm text-gray-600">
+                    <li class="flex justify-between border-b border-gray-100 pb-2">
+                        <span class="font-medium text-gray-500">Type</span>
+                        <span id="college-type" class="font-bold text-gray-900">Private</span>
+                    </li>
+                    <li class="flex justify-between pb-2">
+                        <span class="font-medium text-gray-500">Scholarships</span>
+                        <span class="font-bold text-emerald-600">Available</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div id="map-section" class="bg-blue-50 border border-blue-100 rounded-xl p-6 hidden">
+                <h3 class="font-bold text-blue-900 mb-2">Location & Map</h3>
+                <p id="college-map-address" class="text-sm text-blue-700 mb-4"></p>
+                <a id="college-map-link" href="#" target="_blank" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> 
+                    Open in Google Maps
+                </a>
+            </div>
+            
+            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
+                <h3 class="font-bold text-emerald-900 mb-2">Interested?</h3>
+                <p class="text-sm text-emerald-700 mb-4">Save this school to your profile to receive updates about admission deadlines and scholarship opportunities.</p>
+                <button id="save-school-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg font-bold text-sm shadow-sm transition flex items-center justify-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Save to Favorites</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shortName = urlParams.get('id') || 'PCU';
+    
+    if (!shortName) {
+        document.getElementById('college-name').textContent = "University Not Found";
+        document.getElementById('programs-list').innerHTML = '<div class="text-red-500 py-4">Invalid university ID.</div>';
+        return;
+    }
+
+    try {
+        const res = await fetch(`/riasec/api/get_college?id=${encodeURIComponent(shortName)}`);
+        if (!res.ok) throw new Error('Failed to fetch college');
+        const college = await res.json();
+        
+        if (college.error) {
+            document.getElementById('college-name').textContent = "University Not Found";
+            document.getElementById('programs-list').innerHTML = `<div class="text-red-500 py-4">${college.error}</div>`;
+            return;
+        }
+
+        document.getElementById('college-name').textContent = college.name;
+        if (document.getElementById('college-about')) document.getElementById('college-about').textContent = college.about || 'Providing quality education to students.';
+        document.getElementById('college-address').textContent = college.address || "Dasmariñas City, Cavite";
+        document.getElementById('college-type').textContent = college.type || "Private";
+        if (document.getElementById('college-type-badge')) document.getElementById('college-type-badge').textContent = college.type || "Private";
+        if (document.getElementById('college-uni-type')) document.getElementById('college-uni-type').textContent = (college.type && college.type.toLowerCase().includes('public')) ? 'Public University' : 'Private University';
+        if (document.getElementById('college-banner-img') && college.image_url) document.getElementById('college-banner-img').src = college.image_url;
+        
+        document.title = `${college.name} - Talunton Cavite`;
+        
+        if (college.map_query) {
+            document.getElementById('map-section').classList.remove('hidden');
+            document.getElementById('college-map-address').textContent = college.address || "Cavite, Philippines";
+            document.getElementById('college-map-link').href = "https://www.google.com/maps/search/" + encodeURIComponent(college.map_query);
+        }
+        
+        const saveBtn = document.getElementById('save-school-btn');
+        if (window.saveCollege) {
+            saveBtn.onclick = function() { window.saveCollege(this, college.id); };
+        } else {
+            saveBtn.onclick = function() {
+                this.innerHTML='<svg class="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved!'; 
+                this.classList.remove('bg-emerald-600', 'hover:bg-emerald-700'); 
+                this.classList.add('bg-gray-800', 'hover:bg-gray-900'); 
+                alert('School successfully saved to your favorites!');
+            };
+        }
+
+        const programsList = document.getElementById('programs-list');
+        if (college.degrees && college.degrees.length > 0) {
+            let html = '';
+            college.degrees.forEach((deg, index) => {
+                const isHidden = index >= 4;
+                const displayStyle = isHidden ? 'style="display: none;"' : '';
+                html += `
+                <a href="/riasec/degree-profile?id=${deg.id}" ${displayStyle} class="program-card border border-gray-200 p-5 rounded-2xl bg-white shadow-sm hover:border-emerald-500 hover:shadow-md transition flex flex-col h-full group">
+                    <div class="font-bold text-gray-900 group-hover:text-emerald-700 transition text-lg mb-2">${deg.title}</div>
+                    <div class="text-sm text-gray-500 mb-3 flex-grow line-clamp-2">${deg.description || 'A degree program.'}</div>
+                    <div class="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">
+                        <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">${deg.category || 'Program'}</span>
+                    </div>
+                </a>
+                `;
+            });
+            programsList.innerHTML = html;
+            
+            if (college.degrees.length > 4) {
+                let btnContainer = document.getElementById('toggle-programs-container');
+                if (!btnContainer) {
+                    btnContainer = document.createElement('div');
+                    btnContainer.id = 'toggle-programs-container';
+                    btnContainer.className = 'mt-4 text-center col-span-1 sm:col-span-2';
+                    btnContainer.innerHTML = `<button id="toggle-programs-btn" class="bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-bold py-2.5 px-6 rounded-full transition shadow-sm">See More</button>`;
+                    programsList.parentNode.insertBefore(btnContainer, programsList.nextSibling);
+                    
+                    let isExpanded = false;
+                    document.getElementById('toggle-programs-btn').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        isExpanded = !isExpanded;
+                        const cards = programsList.querySelectorAll('.program-card');
+                        cards.forEach((card, idx) => {
+                            if (idx >= 4) {
+                                card.style.display = isExpanded ? 'flex' : 'none';
+                            }
+                        });
+                        this.textContent = isExpanded ? 'See Less' : 'See More';
+                    });
+                }
+            }
+                const reqSection = document.getElementById('admission-requirements-section');
+        const reqList = document.getElementById('requirements-list');
+        const reqCount = document.getElementById('req-count');
+        
+        if (college.requirements && college.requirements.length > 0 && reqSection) {
+            reqSection.classList.remove('hidden');
+            let reqHtml = '';
+            college.requirements.forEach(req => {
+                const isVerify = req.status.toLowerCase() === 'verify';
+                const statusIconClass = isVerify ? 'bg-amber-500' : 'bg-emerald-600';
+                const badgeClass = isVerify ? 'text-amber-700 bg-amber-50 border border-amber-200' : 'text-emerald-700 bg-emerald-50 border border-emerald-100';
+                
+                reqHtml += `
+                <div class="border border-gray-100 p-4 rounded-xl bg-gray-50/50 hover:bg-white hover:border-emerald-200 hover:shadow-sm transition flex gap-4 group">
+                    <div class="flex-shrink-0 mt-1">
+                        <div class="w-5 h-5 rounded flex items-center justify-center ${statusIconClass}">
+                            <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-start mb-1">
+                            <h4 class="font-bold text-gray-900 text-sm group-hover:text-emerald-700 transition">${req.title}</h4>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${badgeClass}">${req.status}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 leading-relaxed">${req.desc}</p>
+                    </div>
+                </div>
+                `;
+            });
+            reqList.innerHTML = reqHtml;
+            reqCount.textContent = `${college.requirements.length} Required Items`;
+        }
+
+        } else {
+            programsList.innerHTML = '<div class="text-gray-500 py-4 col-span-2">No degree programs currently listed for this campus.</div>';
+        }
+
+    } catch (e) {
+        console.error(e);
+        document.getElementById('programs-list').innerHTML = '<div class="text-red-500 py-4">Failed to load data. Please try again.</div>';
+    }
+});
+</script>
+</div>

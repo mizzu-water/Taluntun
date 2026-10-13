@@ -1,0 +1,587 @@
+<div v-if="!isLoggedIn" class="max-w-3xl mx-auto px-4 py-16 text-center mt-8 bg-white rounded-2xl shadow-xl border border-gray-100 mb-16">
+                <div class="w-20 h-20 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="text-3xl font-serif-heading font-bold text-gray-900 mb-4">Your Results are Ready!</h2>
+                <p class="text-gray-500 mb-8 max-w-lg mx-auto">Please create a free account or log in to view your top degree matches, trait breakdown, and personalized recommendations.</p>
+                <div class="flex justify-center gap-4">
+                    <a href="signup" class="bg-[#0e3223] hover:bg-black text-white font-bold py-3 px-8 rounded-full transition shadow">Sign Up Free</a>
+                    <a href="login" class="bg-white hover:bg-gray-50 text-[#0e3223] border border-[#0e3223] font-bold py-3 px-8 rounded-full transition shadow-sm">Log In</a>
+                </div>
+            </div>
+            
+            <div v-else>
+            <!-- Matrix & Scoring -->
+            
+            <div v-if="!isLoggedIn" class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-8 flex justify-between items-center max-w-[1200px] mx-auto text-amber-800 shadow-sm mt-4">
+                <div>
+                    <strong>Guest Mode:</strong> Your results are only saved locally right now. Sign up to permanently save your profile and degree matches!
+                </div>
+                <a href="signup" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition">Create Account</a>
+            </div>
+            
+            <section class="max-w-[1200px] mx-auto px-4 relative z-20 mb-16 pt-8 md:pt-12" style="margin-top: 24px;">
+                <div class="bg-white rounded-2xl p-6 md:p-10 shadow-xl border border-gray-100 flex flex-col lg:flex-row gap-10 items-center">
+                    
+                    <div class="w-full lg:w-1/3 flex flex-col items-center border-b lg:border-b-0 lg:border-r border-gray-100 pb-8 lg:pb-0 pr-0 lg:pr-8">
+                        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-6">RIASEC Scores</div>
+                        <div class="flex items-end justify-center gap-2 sm:gap-4 h-48 w-full mt-4">
+                            <div v-for="trait in topTraits" :key="'bar-'+trait.code" class="flex flex-col items-center gap-2 group w-full max-w-[40px]">
+                                <div class="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">{{ trait.percentage }}%</div>
+                                <div class="relative flex flex-col justify-end h-32 w-full bg-gray-100 rounded-t-lg overflow-hidden">
+                                    <div class="w-full bg-emerald-500 rounded-t-lg transition-all duration-1000 group-hover:bg-emerald-600" :style="{ height: trait.percentage + '%' }"></div>
+                                </div>
+                                <div class="text-xs font-bold text-gray-600">{{ trait.code }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown Bars -->
+                    <div class="w-full lg:w-2/3">
+                        <h2 class="text-2xl font-serif-heading font-bold text-gray-900 mb-6">Your Trait Breakdown</h2>
+                        <div class="space-y-6">
+                            <div v-for="(trait, index) in topTraits" :key="trait.code">
+                                <div class="flex justify-between items-end mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded flex items-center justify-center font-bold text-xs" :class="index === 0 ? 'bg-[#0e3223] text-white' : 'bg-gray-200 text-gray-700'">{{ trait.code }}</div>
+                                        <span class="font-bold text-gray-900">{{ trait.name }}</span>
+                                    </div>
+                                    <span class="text-lg font-bold" :class="index === 0 ? 'text-emerald-600' : 'text-gray-500'">{{ trait.percentage }}%</span>
+                                </div>
+                                <div class="w-full bg-emerald-50 rounded-full h-2">
+                                    <div class="h-2 rounded-full transition-all duration-1000 bg-emerald-500" 
+                                         :style="{ width: trait.percentage + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Matched Degrees -->
+            <section class="max-w-[1200px] mx-auto px-4 mb-20">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-serif-heading font-bold text-gray-900 mb-4">Top Degree Matches</h2>
+                    <p class="text-gray-500 max-w-2xl mx-auto mb-6">Based on your Holland Code, these Cavite degree programs offer the best alignment with your strengths.</p>
+                    <button @click="showRetakeModal = true" class="inline-flex items-center justify-center gap-2 px-6 py-2 border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold rounded-full transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Retake Assessment
+                    </button>
+                </div>
+
+                <div v-if="topDegree" class="mb-10">
+                    <div class="flex items-center justify-center mb-6">
+                        <div class="bg-amber-100 text-amber-800 px-4 py-1 rounded-full text-sm font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm border border-amber-200">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                            #1 Top Recommendation
+                        </div>
+                    </div>
+                    <!-- Big Card -->
+                    <div @click="goToMap(topDegree)" class="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col group cursor-pointer relative overflow-hidden ring-1 ring-emerald-100">
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-50 rounded-bl-full -mr-8 -mt-8 z-0 transition-transform duration-500 group-hover:scale-110 opacity-70"></div>
+                        <div class="relative z-10 w-full flex flex-col">
+                            <div class="mb-4 flex justify-between items-start">
+                                <div class="flex flex-wrap">
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1.5 rounded uppercase tracking-wider mr-2 mb-2 inline-block">{{ topDegree.fit }}% Match</span>
+                                    <span v-if="hasTakenQuiz(topDegree.id)" class="bg-blue-100 text-blue-700 text-xs font-extrabold px-3 py-1.5 rounded uppercase tracking-wider mr-2 mb-2 inline-block">Quiz Taken</span>
+                                </div>
+                                <button @click.stop="saveCourse(topDegree)" class="text-gray-400 hover:text-emerald-600 transition p-2 bg-gray-50 hover:bg-emerald-50 rounded-full" title="Save to Shortlist">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                </button>
+                            </div>
+                            <h3 class="text-3xl font-serif-heading font-bold text-gray-900 mb-4">{{ topDegree.title }}</h3>
+                            
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span v-if="topDegree.isPublic" class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded border border-blue-100 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                    Free Tuition (CHED)
+                                </span>
+                                <span v-else class="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1.5 rounded border border-gray-200">
+                                    Est. {{ topDegree.tuition || '₱40k - ₱60k / sem' }}
+                                </span>
+                                <span v-if="topDegree.scholarship" class="bg-yellow-50 text-yellow-700 text-xs font-bold px-3 py-1.5 rounded border border-yellow-200 flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    {{ topDegree.scholarship }}
+                                </span>
+                            </div>
+
+                            <p class="text-gray-600 text-lg mb-6 max-w-4xl">{{ topDegree.desc }}</p>
+                            <div class="bg-emerald-50 rounded-xl p-5 mb-8 border border-emerald-100">
+                                <p class="text-base text-emerald-900"><strong class="font-bold text-emerald-700">Why this match:</strong> {{ topDegree.reason }}</p>
+                            </div>
+
+                            <div class="mb-6 bg-emerald-50/50 rounded-xl p-4 border border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="text-emerald-800 font-bold flex items-center gap-2 text-sm">
+                                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Test your knowledge?
+                                </div>
+                                <a :href="'course-quiz?degree_id=' + topDegree.id" @click.stop class="bg-[#0e3223] hover:bg-black text-white px-6 py-2 rounded-full font-bold transition shadow-sm text-sm inline-flex items-center justify-center gap-2 text-center w-full sm:w-auto">
+                                    Take a Quiz
+                                </a>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-100 relative mt-auto">
+                                <div class="relative inline-block text-left">
+                                    <button type="button" @click.stop="topDegree.showDropdown = !topDegree.showDropdown" class="flex items-center text-sm font-bold text-gray-500 hover:text-emerald-600 transition focus:outline-none">
+                                        <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        <span>Offered in {{ topDegree.campusCount }} campuses in Dasma</span>
+                                        <svg class="w-4 h-4 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    
+                                    <div v-if="topDegree.showDropdown" class="absolute left-0 bottom-full mb-2 w-64 rounded-xl shadow-xl bg-white border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
+                                        <div class="py-2 text-sm font-semibold text-gray-600">
+                                            <a v-for="c in topDegree.campuses" :key="c.name" :href="c.url" class="block px-4 py-2 hover:bg-emerald-50 hover:text-emerald-700 transition">{{ c.name }}</a>
+                                            <div v-if="!topDegree.campuses || topDegree.campuses.length === 0" class="px-4 py-2 text-gray-400">No campuses listed</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div @click="goToMap(topDegree)" class="cursor-pointer w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition shadow-sm">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="otherDegrees && otherDegrees.length > 0" class="text-center mb-8">
+                    <button v-if="!showMoreDegrees" @click="showMoreDegrees = true" class="bg-white border-2 border-gray-200 text-gray-600 hover:border-emerald-600 hover:text-emerald-700 hover:shadow-md font-bold py-3 px-8 rounded-full transition-all inline-flex items-center gap-2">
+                        See More Matches
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+
+                <div v-if="showMoreDegrees" class="grid grid-cols-1 md:grid-cols-2 gap-6" style="animation: slideInUp 0.3s ease-out">
+                    <div @click="goToMap(match)" class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-xl transition-shadow flex flex-col group cursor-pointer" v-for="match in otherDegrees" :key="match.title">
+                        <div class="mb-4 flex justify-between items-start">
+                            <div class="flex flex-wrap">
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider mr-1 mb-1 inline-block">{{ match.fit }}% Match</span>
+                                <span v-if="hasTakenQuiz(match.id)" class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider mr-1 mb-1 inline-block">Quiz Taken</span>
+                            </div>
+                            <button @click.stop="saveCourse(match)" class="text-gray-400 hover:text-emerald-600 transition" title="Save to Shortlist">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            </button>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ match.title }}</h3>
+                        
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <span v-if="match.isPublic" class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded border border-blue-100 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                                Free Tuition (CHED)
+                            </span>
+                            <span v-else class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded border border-gray-200">
+                                Est. {{ match.tuition || '₱40k - ₱60k / sem' }}
+                            </span>
+                            <span v-if="match.scholarship" class="bg-yellow-50 text-yellow-700 text-[10px] font-bold px-2 py-1 rounded border border-yellow-200 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                {{ match.scholarship }}
+                            </span>
+                        </div>
+
+                        <p class="text-gray-500 text-sm mb-3">{{ match.desc }}</p>
+                        <div class="bg-gray-50 rounded p-3 mb-4 flex-grow border border-gray-100">
+                            <p class="text-xs font-medium text-gray-700"><span class="font-bold text-emerald-700">Why this match:</span> {{ match.reason }}</p>
+                        </div>
+                        
+                        <div class="mb-4 bg-emerald-50/50 rounded p-3 border border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="text-emerald-800 font-bold flex items-center gap-2 text-xs">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Test your knowledge?
+                            </div>
+                            <a :href="'course-quiz?degree_id=' + match.id" @click.stop class="bg-[#0e3223] hover:bg-black text-white px-4 py-1.5 rounded-full font-bold transition shadow-sm text-xs inline-flex items-center justify-center gap-1.5 text-center w-full sm:w-auto">
+                                Take a Quiz
+                            </a>
+                        </div>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100 relative mt-auto">
+                            <div class="relative inline-block text-left">
+                                <button type="button" @click.stop="match.showDropdown = !match.showDropdown" class="flex items-center text-xs font-bold text-gray-500 hover:text-emerald-600 transition focus:outline-none">
+                                    <svg class="w-4 h-4 text-emerald-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                    <span>Offered in {{ match.campusCount }} campuses in Dasma</span>
+                                    <svg class="w-3 h-3 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                
+                                <div v-if="match.showDropdown" class="absolute left-0 bottom-full mb-2 w-48 rounded-xl shadow-lg bg-white border border-gray-100 ring-1 ring-black ring-opacity-5 z-20">
+                                    <div class="py-1 text-sm font-semibold text-gray-600">
+                                        <a v-for="c in match.campuses" :key="c.name" :href="c.url" class="block px-4 py-2 hover:bg-emerald-50 hover:text-emerald-700 transition">{{ c.name }}</a>
+                                        <div v-if="!match.campuses || match.campuses.length === 0" class="px-4 py-2 text-gray-400">No campuses listed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div @click="goToMap(match)" class="cursor-pointer w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Personality Description -->
+            <section class="max-w-[1200px] mx-auto px-4 mb-20" v-if="personalityData">
+                <div class="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-bl-full -mr-16 -mt-16 z-0 opacity-70"></div>
+                    <div class="relative z-10">
+                        <h2 class="text-3xl md:text-4xl font-serif-heading font-bold text-gray-900 mb-8 text-center">Personality Description</h2>
+                        
+                        <div class="space-y-8 text-gray-700">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Your Personality</h3>
+                                <p class="leading-relaxed">{{ personalityData.characteristics }}</p>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Your Strengths</h3>
+                                <p class="leading-relaxed">{{ personalityData.strengths }}</p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Your Preferred Environment</h3>
+                                <p class="leading-relaxed">{{ personalityData.environment }}</p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Your Interests</h3>
+                                <p class="leading-relaxed">{{ personalityData.interests }}</p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">Possible Career Tendencies</h3>
+                                <p class="leading-relaxed">{{ personalityData.careers }}</p>
+                            </div>
+
+                            <div class="bg-emerald-50 rounded-2xl p-6 border border-emerald-100 mt-8">
+                                <h3 class="text-xl font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                                    <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    Why These Degrees Match You
+                                </h3>
+                                <p class="leading-relaxed text-emerald-800">{{ degreeConnection }}</p>
+                            </div>
+                            
+                            <div class="text-xs text-gray-400 mt-6 pt-6 border-t border-gray-100 text-center">
+                                Please note: This personality description is an assessment-based interpretation designed to help you explore your options, not a professional psychological diagnosis. The suggested career areas are tendencies and possibilities, not guaranteed outcomes.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Career Role Model (You Look Like) -->
+            <section class="max-w-[1200px] mx-auto px-4 mb-20" v-if="roleModel">
+                <div class="bg-white rounded-3xl p-8 md:p-12 border border-gray-100 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-64 h-64 bg-blue-50 rounded-br-full -ml-16 -mt-16 z-0 opacity-70"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Your Career Inspiration</div>
+                        <h2 class="text-3xl md:text-4xl font-serif-heading font-bold text-gray-900 mb-10 text-center">Your profile aligns with...</h2>
+                        
+                        <div class="flex flex-col md:flex-row gap-10 items-center md:items-start max-w-4xl w-full">
+                            <div class="w-48 h-48 md:w-64 md:h-64 flex-shrink-0 rounded-2xl overflow-hidden shadow-lg border-4 border-white bg-gray-100">
+                                <img :src="roleModel.image_path" :alt="roleModel.name" class="w-full h-full object-cover" @error="$event.target.src='/riasec/assets/placeholder.jpg'">
+                            </div>
+                            <div class="flex-grow text-center md:text-left">
+                                <h3 class="text-3xl font-bold text-gray-900 mb-2">{{ roleModel.name }}</h3>
+                                <div class="inline-block bg-blue-100 text-blue-800 font-bold px-4 py-1.5 rounded-full text-sm mb-6">{{ roleModel.title }}</div>
+                                
+                                <p class="text-gray-600 text-lg leading-relaxed mb-6">{{ roleModel.description }}</p>
+                                
+                                <div class="bg-blue-50 rounded-2xl p-6 border border-blue-100">
+                                    <h4 class="text-lg font-bold text-blue-900 mb-3">Why this match?</h4>
+                                    <p class="leading-relaxed text-blue-800">{{ roleModelMatchDesc }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-xs text-gray-400 mt-10 pt-6 border-t border-gray-100 text-center w-full max-w-4xl">
+                            Please note: "Your profile aligns with" refers to similarities in career and personality characteristics based on your assessment, not physical appearance.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="max-w-[1200px] mx-auto px-4 mb-20" v-else-if="!roleModel && degreeMatches.length > 0">
+                <div class="bg-gray-50 rounded-3xl p-8 border border-gray-100 text-center">
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Your Career Inspiration</h3>
+                    <p class="text-gray-500">We don't currently have a matching career figure for this recommendation.</p>
+                </div>
+            </section>
+
+            <!-- Retake Modal -->
+            <teleport to="body">
+                <div v-if="showRetakeModal" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+                    <div class="absolute inset-0" @click="showRetakeModal = false"></div>
+                    
+                    <div class="bg-white rounded-2xl shadow-xl relative z-10 p-6 animate-fade-in-up" style="max-height: 90vh; overflow-y: auto; max-width: 560px; width: calc(100% - 32px);">
+                        <button @click="showRetakeModal = false" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        
+                        <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 text-center mt-2">Choose your assessment length</h3>
+                        
+                        <div class="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg flex items-start gap-3 mb-6 text-sm">
+                            <svg class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            <p><strong>Warning:</strong> Retaking the assessment will replace your current results.</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <a href="assessment?retake=standard" class="block border border-gray-200 hover:border-emerald-600 hover:shadow-md rounded-xl p-4 transition cursor-pointer group">
+                                <h4 class="font-bold text-gray-900 text-lg group-hover:text-emerald-700 transition">60 Questions</h4>
+                                <p class="text-gray-500 text-sm mt-1">Quick version. Estimated time: about 10 to 15 minutes.</p>
+                            </a>
+
+                            <a href="assessment?retake=extended" class="block border-2 border-emerald-500 bg-emerald-50 hover:shadow-md rounded-xl p-4 transition cursor-pointer relative group">
+                                <div class="absolute -top-3 right-4 bg-emerald-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full">Recommended</div>
+                                <h4 class="font-bold text-gray-900 text-lg group-hover:text-emerald-800 transition">120 Questions</h4>
+                                <p class="text-emerald-700 text-xs font-bold mb-1">For more accurate results</p>
+                                <p class="text-gray-600 text-sm">Estimated time: about 20 to 30 minutes.</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </teleport>
+            
+            </div>
+
+<script>
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+
+    createApp({
+        setup() {
+            const isLoggedIn = ref(false);
+            const scores = ref({ R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 });
+            const maxScorePerTrait = 50;
+
+            const traitNames = {
+                R: 'Realistic (Doers)',
+                I: 'Investigative (Thinkers)',
+                A: 'Artistic (Creators)',
+                S: 'Social (Helpers)',
+                E: 'Enterprising (Persuaders)',
+                C: 'Conventional (Organizers)'
+            };
+
+            const checkAuthAndScores = () => {
+                const user = localStorage.getItem('talunton_user');
+                if (user) {
+                    isLoggedIn.value = true;
+                }
+                
+                const savedData = localStorage.getItem('talunton_assessment_scores');
+                if (savedData) {
+                    try {
+                        const parsed = JSON.parse(savedData);
+                        if (parsed.scores) scores.value = parsed.scores;
+                    } catch (e) {}
+                }
+            };
+
+            onMounted(() => {
+                checkAuthAndScores();
+            });
+
+            const getScore = (trait) => {
+                return Math.round((scores.value[trait] / maxScorePerTrait) * 100) || 0;
+            };
+
+            const topTraits = computed(() => {
+                return Object.keys(scores.value)
+                    .map(key => ({
+                        code: key,
+                        name: traitNames[key],
+                        percentage: getScore(key)
+                    }))
+                    .sort((a, b) => b.percentage - a.percentage);
+            });
+
+            const traitData = {
+                R: { char: "practical, hands-on, and grounded", strength: "working with tools, machines, or physical objects to solve tangible problems", env: "practical, hands-on environments with clear tasks rather than abstract theories", interest: "building, repairing, or engaging in physical activities", careers: "engineering, mechanics, construction, or technical trades" },
+                I: { char: "analytical, curious, and logical", strength: "understanding complex concepts, researching, and solving scientific or mathematical problems", env: "independent, research-oriented, and intellectually stimulating environments", interest: "exploring ideas, discovering facts, and gathering data", careers: "science, research, data analysis, or computer programming" },
+                A: { char: "creative, original, and expressive", strength: "using imagination to create art, write, or design without strict rules", env: "unstructured, creative, and flexible environments that allow for self-expression", interest: "music, art, literature, drama, or design", careers: "arts, writing, design, media, or performing arts" },
+                S: { char: "empathetic, friendly, and communicative", strength: "helping, teaching, or counseling others to solve personal or social problems", env: "collaborative and people-focused environments", interest: "training, healing, supporting, or interacting with people", careers: "education, healthcare, counseling, or human resources" },
+                E: { char: "ambitious, energetic, and persuasive", strength: "leading people, managing projects, and selling ideas to achieve goals", env: "competitive, fast-paced, and leadership-oriented environments", interest: "business, politics, leadership, and public speaking", careers: "management, sales, entrepreneurship, or law" },
+                C: { char: "organized, detail-oriented, and structured", strength: "managing data, organizing information, and maintaining accuracy", env: "structured, orderly, and predictable environments with clear rules", interest: "working with numbers, organizing records, and following procedures", careers: "finance, accounting, administration, or data management" }
+            };
+
+            const personalityData = computed(() => {
+                if (!topTraits.value || topTraits.value.length < 2) return null;
+                const pData = traitData[topTraits.value[0].code];
+                const sData = traitData[topTraits.value[1].code];
+                if (!pData || !sData) return null;
+                return {
+                    characteristics: `Your results suggest that you are naturally ${pData.char}. You may also show strong tendencies toward being ${sData.char}.`,
+                    strengths: `Your profile indicates a strong ability for ${pData.strength}. You may also excel at ${sData.strength}, which can be a valuable asset academically and professionally.`,
+                    environment: `You may prefer ${pData.env}. Additionally, you might be drawn to ${sData.env}.`,
+                    interests: `Your primary interests likely include ${pData.interest}, with secondary interests in ${sData.interest}.`,
+                    careers: `You may naturally align with career paths in ${pData.careers}. You could also find fulfillment in ${sData.careers}.`
+                };
+            });
+
+            const radarPoints = computed(() => {
+                const cx = 100;
+                const cy = 100;
+                const r = 80;
+                const angles = {
+                    R: -Math.PI / 2,
+                    I: -Math.PI / 6,
+                    A: Math.PI / 6,
+                    S: Math.PI / 2,
+                    E: 5 * Math.PI / 6,
+                    C: -5 * Math.PI / 6
+                };
+                
+                const pts = ['R', 'I', 'A', 'S', 'E', 'C'].map(trait => {
+                    const angle = angles[trait];
+                    const distance = r * (getScore(trait) / 100);
+                    const x = cx + distance * Math.cos(angle);
+                    const y = cy + distance * Math.sin(angle);
+                    return `${x},${y}`;
+                });
+                return pts.join(' ');
+            });
+
+            const degreeMatches = ref([]);
+            const showMoreDegrees = ref(false);
+            const showRetakeModal = ref(false);
+            
+            watch(showRetakeModal, (isOpen) => {
+                if (isOpen) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+
+            const topDegree = computed(() => degreeMatches.value.length > 0 ? degreeMatches.value[0] : null);
+            const otherDegrees = computed(() => degreeMatches.value.length > 1 ? degreeMatches.value.slice(1) : []);
+
+            const degreeConnection = computed(() => {
+                if (!degreeMatches.value || degreeMatches.value.length === 0 || !topTraits.value.length) return '';
+                const degreeTitles = degreeMatches.value.slice(0, 3).map(d => d.title).join(' and ');
+                const primaryTrait = topTraits.value[0].code;
+                const interest = traitData[primaryTrait]?.interest || 'your preferred areas';
+                return `The recommended programs like ${degreeTitles} were selected because they strongly align with your strengths. They offer environments and career paths that match your interest in ${interest}, allowing you to utilize your natural characteristics effectively.`;
+            });
+
+            const fetchRecommendedDegrees = async () => {
+                try {
+                    if (isLoggedIn.value) {
+                        const res = await fetch('api/get_recommended_degrees');
+                        if (res.ok) {
+                            const matches = await res.json();
+                            if (matches.length > 0) {
+                                degreeMatches.value = matches;
+                                fetchRoleModel(matches);
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Fallback to client-side logic for guests or if backend returns empty
+                    const res = await fetch('api/get_degrees');
+                    if (!res.ok) return;
+                    const all = await res.json();
+                    
+                    let matches = all.map(deg => {
+                        let score = 0;
+                        if (deg.holland_code) {
+                            if (topTraits.value[0] && deg.holland_code.includes(topTraits.value[0].code)) score += 50;
+                            if (topTraits.value[1] && deg.holland_code.includes(topTraits.value[1].code)) score += 30;
+                            if (topTraits.value[2] && deg.holland_code.includes(topTraits.value[2].code)) score += 10;
+                        }
+                        
+                        return {
+                            id: deg.id,
+                            title: deg.title,
+                            fit: Math.min(99, 45 + score),
+                            isPublic: deg.category !== 'private',
+                            tuition: 'Varies',
+                            scholarship: 'Check Eligibility',
+                            desc: deg.description,
+                            reason: 'This perfectly aligns with your ' + (topTraits.value[0] ? topTraits.value[0].name.split(' ')[0] : 'core') + ' traits.',
+                            campusCount: (deg.campuses ? deg.campuses.length : 0), campuses: deg.campuses, showDropdown: false,
+                            score: score
+                        };
+                    }).sort((a, b) => b.score - a.score).slice(0, 3);
+                    
+                    degreeMatches.value = matches;
+                    if (matches.length > 0) {
+                        fetchRoleModel(matches);
+                    }
+                } catch(e) {
+                    console.error("Failed to load recommended degrees:", e);
+                }
+            };
+
+            const roleModel = ref(null);
+            const roleModelMatchDesc = computed(() => {
+                if (!roleModel.value || !topTraits.value.length) return '';
+                const primaryTrait = topTraits.value[0].name.split(' ')[0];
+                return `Your assessment results suggest strong ${primaryTrait} characteristics, indicating that you may enjoy activities aligned with this profile. These characteristics share similarities with qualities associated with ${roleModel.value.name}'s professional career path as a ${roleModel.value.title}.`;
+            });
+
+            const fetchRoleModel = async (degrees) => {
+                try {
+                    for (const deg of degrees) {
+                        const res = await fetch('api/get_role_model?degree=' + encodeURIComponent(deg.title));
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.success && data.role_model) {
+                                roleModel.value = data.role_model;
+                                return; // Stop at first match
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error("Failed to load role model:", e);
+                }
+            };
+
+            onMounted(() => {
+                checkAuthAndScores();
+                fetchRecommendedDegrees(); document.addEventListener('click', () => { degreeMatches.value.forEach(m => m.showDropdown = false); });
+            });
+
+            const goToMap = (match) => {
+                window.location.href = 'degrees';
+            };
+
+            const saveCourse = (match) => {
+                if (window.saveDegree) {
+                    const dummyBtn = document.createElement('button');
+                    window.saveDegree(dummyBtn, match.id);
+                    alert(match.title + ' saved to your shortlist!');
+                }
+            };
+            
+            const hasTakenQuiz = (id) => {
+                return localStorage.getItem(`degreeQuizLatestResult_${id}`) !== null;
+            };
+
+            return {
+                isLoggedIn,
+                getScore,
+                topTraits,
+                radarPoints,
+                degreeMatches,
+                showMoreDegrees,
+                showRetakeModal,
+                topDegree,
+                otherDegrees,
+                goToMap,
+                saveCourse,
+                hasTakenQuiz,
+                personalityData,
+                degreeConnection,
+                roleModel,
+                roleModelMatchDesc
+            };
+        }
+    }).mount('#app');
+</script>
+
+
+
+
+
+
+
+

@@ -1,0 +1,278 @@
+<div class="bg-[#fdfaf6] min-h-screen pt-12 pb-24">
+    <div class="max-w-[1400px] mx-auto px-4 md:px-8 w-full">
+        <!-- Header Section -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h1 class="text-emerald-600 font-bold text-sm tracking-widest uppercase mb-3">Academic Excellence</h1>
+            <h2 class="text-4xl md:text-5xl font-serif-heading font-bold text-gray-900 mb-6">Degree Programs</h2>
+            <p class="text-gray-600 text-lg mb-8">
+                Explore our comprehensive list of degree programs tailored to your Holland Code. Find exactly where your strengths belong.
+            </p>
+            
+            <!-- Search Bar -->
+            <div class="relative max-w-2xl mx-auto">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" id="searchDegrees" placeholder="Search degrees by name or keyword..." class="block w-full pl-14 pr-6 py-4 bg-white border-2 border-gray-100 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-lg transition-all text-lg">
+            </div>
+        </div>
+        
+                <!-- Recommendations (Only visible if logged in and has scores) -->
+        <div id="recommendations-section" class="hidden mb-12 border-b border-gray-100 pb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                </span>
+                Recommended for You
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" id="recommended-list">
+                <!-- Recommended degrees will be injected here -->
+            </div>
+        </div>
+        <!-- List Container -->
+        <div id="degree-list">
+            <!-- Loading -->
+            <div class="text-center text-gray-500 py-16 col-span-full" id="loading-message">
+                <svg class="animate-spin h-8 w-8 text-emerald-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                Loading degree programs...
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const list = document.getElementById('degree-list');
+    const search = document.getElementById('searchDegrees');
+    const recSection = document.getElementById('recommendations-section');
+    const recList = document.getElementById('recommended-list');
+    
+    let allDegrees = [];
+
+    const createCardHTML = (deg, isTopMatch = false) => {
+        const isSaved = deg.is_saved;
+        const btnClass = isSaved ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 hover:text-emerald-600 bg-gray-50 hover:bg-emerald-50';
+        const svgFill = isSaved ? 'currentColor' : 'none';
+        
+        let campusLinks = '';
+        if (deg.campuses && deg.campuses.length > 0) {
+            campusLinks = deg.campuses.map(c => `<a href="${c.url}" class="block px-4 py-2 hover:bg-emerald-50 hover:text-emerald-700 transition">${c.name}</a>`).join('');
+        } else {
+            campusLinks = `<div class="px-4 py-2 text-gray-400">No campuses listed</div>`;
+        }
+        
+        const topMatchBadge = isTopMatch ? `<span class="bg-emerald-200 text-emerald-800 text-[10px] font-bold px-2 py-1.5 rounded uppercase tracking-wider mr-2 mb-2 inline-block">Top Recommended Degree</span>` : '';
+        const hasTakenQuiz = localStorage.getItem(`degreeQuizLatestResult_${deg.id}`) !== null;
+        const quizBadge = hasTakenQuiz ? `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1.5 rounded uppercase tracking-wider mr-2 mb-2 inline-block">Quiz Taken</span>` : '';
+        
+        return `
+        <div class="bg-white rounded-[2rem] border ${isTopMatch ? 'border-emerald-200 bg-emerald-50' : 'border-gray-100'} p-8 shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group relative">
+                                    <div class="w-full h-48 mb-6 rounded-2xl overflow-hidden shadow-sm">
+                <img src="${deg.image_url || '/riasec/assets/images/placeholder.jpg'}" onerror="this.src='/riasec/assets/images/placeholder.jpg'" alt="${deg.title}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex-wrap flex">
+                    ${topMatchBadge}
+                    ${quizBadge}
+                    <span class="text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 mb-2 inline-block">${deg.category || 'Program'}</span>
+                </div>
+                <span class="text-xs font-bold text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm" title="Holland Code Match">${deg.holland_code || 'N/A'}</span>
+            </div>
+            
+            <a href="/riasec/degree-profile?id=${deg.id}" class="block flex-grow">
+                <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors">${deg.title}</h3>
+                <p class="text-gray-500 mb-8 leading-relaxed text-sm">${deg.description}</p>
+            </a>
+            
+            <div class="flex items-center justify-between mt-auto pt-5 border-t border-gray-100 relative">
+                <div class="relative inline-block text-left">
+                    <button type="button" onclick="document.querySelectorAll('.campus-dropdown').forEach(el => { if(el !== this.nextElementSibling) el.classList.add('hidden'); }); this.nextElementSibling.classList.toggle('hidden'); event.stopPropagation();" class="flex items-center text-sm text-gray-500 font-semibold hover:text-emerald-600 transition focus:outline-none">
+                        <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span>Offered in ${deg.campuses ? deg.campuses.length : 0} campuses in Dasma</span>
+                        <svg class="w-4 h-4 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    
+                    <div class="campus-dropdown absolute left-0 bottom-full mb-2 w-48 rounded-xl shadow-lg bg-white border border-gray-100 ring-1 ring-black ring-opacity-5 hidden z-20">
+                        <div class="py-1 text-sm font-semibold text-gray-600">
+                            ${campusLinks}
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="transition p-2 rounded-full ${btnClass}" onclick="if(window.saveDegree) saveDegree(this, ${deg.id})" title="Save to Shortlist">
+                    <svg class="w-5 h-5" fill="${svgFill}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                </button>
+            </div>
+        </div>
+        `;
+    };
+
+    const renderDegrees = (degrees) => {
+        if (degrees.length === 0) {
+            list.innerHTML = '<div class="col-span-full text-center text-gray-500 py-16 bg-white rounded-3xl border border-gray-100 shadow-sm text-lg">No degrees found matching your search.</div>';
+            return;
+        }
+
+        const available = degrees.filter(deg => deg.campuses && deg.campuses.length > 0);
+        const notAvailable = degrees.filter(deg => !deg.campuses || deg.campuses.length === 0);
+
+        const getHeadingHTML = (title) => `
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <span class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                </span>
+                ${title}
+            </h2>
+        `;
+
+        let html = '';
+
+        if (available.length > 0) {
+            html += `<div class="mb-12">`;
+            html += getHeadingHTML('Offered at the Dasma Campus');
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">`;
+            html += available.map(deg => createCardHTML(deg, false)).join('');
+            html += `</div></div>`;
+        }
+
+        if (notAvailable.length > 0) {
+            html += `<div>`;
+            html += getHeadingHTML('Not Offered at the Dasma Campus');
+            html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">`;
+            html += notAvailable.map(deg => createCardHTML(deg, false)).join('');
+            html += `</div></div>`;
+        }
+
+        list.innerHTML = html;
+    };
+
+    const checkRecommendations = async (all) => {
+        const user = localStorage.getItem('talunton_user');
+        let matches = [];
+        
+        if (user) {
+            try {
+                const res = await fetch('/riasec/api/get_recommended_degrees');
+                if (res.ok) {
+                    matches = await res.json();
+                }
+            } catch (e) {
+                console.error("Failed to load backend recommendations:", e);
+            }
+        }
+        
+        // Fallback for guests or if backend fails/empty
+        if ((!matches || matches.length === 0) && localStorage.getItem('talunton_assessment_scores')) {
+            const savedData = localStorage.getItem('talunton_assessment_scores');
+            try {
+                const parsed = JSON.parse(savedData);
+                if (parsed.scores) {
+                    let userTraits = Object.keys(parsed.scores)
+                        .map(key => ({ code: key, score: parsed.scores[key] }))
+                        .sort((a, b) => b.score - a.score)
+                        .slice(0, 3)
+                        .map(t => t.code);
+                        
+                    if (userTraits.length > 0) {
+                        let rec = [];
+                        all.forEach(deg => {
+                            if (deg.holland_code) {
+                                let score = 0;
+                                if (userTraits[0] && deg.holland_code.includes(userTraits[0])) score += 50;
+                                if (userTraits[1] && deg.holland_code.includes(userTraits[1])) score += 30;
+                                if (userTraits[2] && deg.holland_code.includes(userTraits[2])) score += 10;
+                                
+                                if (score > 0) {
+                                    rec.push({ ...deg, match_score: score });
+                                }
+                            }
+                        });
+                        
+                        if (rec.length > 0) {
+                            // Sort by score descending
+                            rec.sort((a, b) => b.match_score - a.match_score);
+                            
+                            // Deduplicate by ID
+                            const unique = [];
+                            const seen = new Set();
+                            for (const item of rec) {
+                                if (!seen.has(item.id)) {
+                                    seen.add(item.id);
+                                    unique.push(item);
+                                }
+                            }
+                            matches = unique.slice(0, 3);
+                        }
+                    }
+                }
+            } catch (e) {}
+        }
+        
+        // Ensure section is visible
+        recSection.classList.remove('hidden');
+        
+        if (matches && matches.length > 0) {
+            // First item gets the Top Match badge
+            recList.innerHTML = matches.map((deg, index) => createCardHTML(deg, index === 0)).join('');
+        } else {
+            // Empty state
+            recList.innerHTML = `
+                <div class="col-span-full text-center py-12 bg-white rounded-[2rem] border border-gray-100 shadow-sm">
+                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">No Recommendations Yet</h3>
+                    <p class="text-gray-500 mb-6 max-w-md mx-auto">Take the assessment to discover which degree programs best fit your personality and strengths.</p>
+                    <a href="/riasec/assessment" class="inline-flex items-center justify-center bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm">
+                        Take the Assessment
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            `;
+        }
+    };
+
+    try {
+        const res = await fetch('/riasec/api/get_degrees');
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+        allDegrees = data;
+        
+        checkRecommendations(allDegrees);
+        renderDegrees(allDegrees);
+    } catch(err) {
+        console.error("Fetch error: ", err);
+        list.innerHTML = '<div class="col-span-full text-center text-red-500 py-16 bg-red-50 rounded-3xl border border-red-100 text-lg">Failed to load degrees. Check your connection.</div>';
+    }
+
+    search.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase();
+        
+        // Hide recommendations when searching
+        if (q.length > 0) {
+            recSection.style.display = 'none';
+        } else {
+            recSection.style.display = '';
+        }
+        
+        const filtered = allDegrees.filter(d => 
+            d.title.toLowerCase().includes(q) || 
+            (d.description && d.description.toLowerCase().includes(q))
+        );
+        renderDegrees(filtered);
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.campus-dropdown').forEach(el => el.classList.add('hidden'));
+    });
+});
+</script>
+
+
+
+
+

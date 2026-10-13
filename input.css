@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* ── Custom fonts ── */
+@layer base {
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #fdfaf6;
+    }
+}
+
+/* ── Custom component classes ── */
+@layer components {
+    .font-serif-heading {
+        font-family: 'Merriweather', serif;
+    }
+
+    .rating-btn.selected {
+        background-color: #0e3223;
+        color: white;
+        border-color: #0e3223;
+        transform: scale(1.05);
+        box-shadow: 0 10px 25px -5px rgba(14, 50, 35, 0.4);
+    }
+
+    .error-msg {
+        display: none;
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    .error-msg.visible {
+        display: block;
+    }
+}
+
+/* ── Wavy divider ── */
+.custom-shape-divider-bottom {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    z-index: 10;
+}
+
+.custom-shape-divider-bottom svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 40px;
+}
+
+.custom-shape-divider-bottom .shape-fill {
+    fill: #fdfaf6;
+}
+
+@media (min-width: 768px) {
+    .custom-shape-divider-bottom svg {
+        height: 60px;
+    }
+}
+
+/* ── Password strength bar ── */
+#strengthBar {
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* ── Vue transition ── */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}

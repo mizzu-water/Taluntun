@@ -1,0 +1,214 @@
+﻿<div class="min-h-[calc(100vh-65px)] bg-[#fdfaf6] w-full font-sans py-10" v-if="degree">
+    <div class="max-w-4xl mx-auto px-4 md:px-8">
+        
+        <!-- Header & Progress -->
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-8">{{ degree.title }} Tutorial</h1>
+            
+            <!-- Modern Stepper -->
+            <div class="relative flex justify-between items-center w-full max-w-3xl mx-auto before:absolute before:inset-0 before:top-1/2 before:-translate-y-1/2 before:h-1 before:bg-gray-200 before:z-0">
+                <div class="absolute top-1/2 -translate-y-1/2 h-1 bg-[#04AA6D] transition-all duration-500 z-0" :style="{ width: (currentModuleIndex / (modules.length - 1)) * 100 + '%' }"></div>
+                
+                <div v-for="(mod, index) in modules" :key="index" class="relative z-10 flex flex-col items-center">
+                    <button @click="currentModuleIndex = index" :class="['w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-4', currentModuleIndex === index ? 'bg-[#04AA6D] border-white text-white shadow-lg scale-110' : currentModuleIndex > index ? 'bg-[#04AA6D] border-[#04AA6D] text-white' : 'bg-white border-gray-200 text-gray-400 hover:border-gray-300']">
+                        <svg v-if="currentModuleIndex > index" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        <span v-else>{{ index + 1 }}</span>
+                    </button>
+                    <span :class="['absolute top-14 text-xs font-bold whitespace-nowrap hidden sm:block transition-colors duration-300', currentModuleIndex === index ? 'text-[#04AA6D]' : currentModuleIndex > index ? 'text-gray-600' : 'text-gray-400']">{{ mod.title }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Card -->
+        <main class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mt-16 sm:mt-24 transition-all duration-500">
+            <div class="p-8 md:p-12" id="mainContentArea">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 border-b border-gray-100 pb-6">{{ currentModule.title }}</h2>
+                
+                <div class="prose max-w-none text-gray-700 text-lg leading-relaxed space-y-6" v-html="currentModule.content"></div>
+                
+                <!-- Code Example Block -->
+                <div v-if="currentModule.hasCode" class="mt-10 mb-6 bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-[#04AA6D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                            Example
+                        </h3>
+                    </div>
+                    <div class="bg-[#1e1e1e] rounded-xl p-5 font-mono text-sm overflow-x-auto text-gray-300 shadow-inner" v-html="currentModule.codeSnippet"></div>
+                    <div class="mt-6 flex justify-end">
+                        <button class="bg-[#04AA6D] hover:bg-[#059862] text-white px-6 py-2.5 rounded-full font-bold text-sm transition-colors shadow-md flex items-center gap-2">
+                            Try it Yourself
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Footer -->
+            <div class="bg-gray-50 px-8 py-6 md:px-12 flex justify-between items-center border-t border-gray-100">
+                <button @click="prevModule" :disabled="currentModuleIndex === 0" :class="['px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2', currentModuleIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed opacity-50' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 hover:border-gray-300 shadow-sm']">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Previous Module
+                </button>
+                
+                <button v-if="currentModuleIndex < modules.length - 1" @click="nextModule" class="px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 bg-[#04AA6D] hover:bg-[#059862] text-white shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                    Next Module
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+                
+                <a v-else href="javascript:history.back()" class="px-6 py-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                    Finish Lesson
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </a>
+            </div>
+        </main>
+        
+    </div>
+</div>
+
+<!-- Loading -->
+<div v-else class="min-h-screen flex items-center justify-center bg-[#fdfaf6]">
+    <div class="text-center text-gray-500">
+        <svg class="animate-spin h-10 w-10 text-[#04AA6D] mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        Loading Tutorial...
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+function getLessonContent(degree) {
+    const title = degree.title;
+    const category = degree.category || '';
+    
+    // YouTube Video Mapping
+    let videoId = "w5r_V4L1L6g"; // Default career advice video
+    if (title.includes('Computer Science') || title.includes('Information Technology')) {
+        videoId = "SzJ46YA_RaA"; // CrashCourse CS
+    } else if (title.includes('Nursing') || title.includes('Medical') || title.includes('Therapy') || title.includes('Radiologic')) {
+        videoId = "rKsqw0HymuE"; // Nursing
+    } else if (title.includes('Engineering') || title.includes('Architecture')) {
+        videoId = "owHF9iLyxic"; // Engineering
+    } else if (title.includes('Business') || title.includes('Accountancy') || title.includes('Management') || title.includes('Customs')) {
+        videoId = "1vXhXJ_0VAI"; // Business
+    } else if (title.includes('Education')) {
+        videoId = "6tFq5k5Y4b8"; // Education
+    } else if (title.includes('Communication') || title.includes('Arts') || title.includes('History')) {
+        videoId = "v=xEqbQkHh1D8"; // Liberal Arts
+    }
+
+    let videoHTML = `<div class='aspect-video rounded-xl overflow-hidden shadow-md mb-8 border border-gray-100 bg-black'><iframe class='w-full h-full' src='https://www.youtube.com/embed/${videoId}?rel=0' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe></div>`;
+
+    // Default template
+    let intro = videoHTML + `<p>Welcome to the introductory lesson for <strong>${title}</strong>!</p><p class='mt-4'>${degree.description}</p><p class='mt-4'>This degree is designed to equip you with the essential skills needed to succeed in the fast-paced world of ${category}. You can watch the introductory video above to get a visual overview of the field, or simply skip ahead by clicking Next Module.</p><div class='bg-emerald-50 border-l-4 border-emerald-500 p-5 mt-8 rounded-r-lg'><p class='m-0 text-emerald-900'><strong>Note:</strong> This is an interactive tutorial. You can navigate through the chapters using the Next and Previous buttons below.</p></div>`;
+    
+    let concepts = `<p>The fundamentals of ${title} revolve around solving complex real-world problems and applying theoretical knowledge to practical scenarios.</p><p>As a student, you will delve deep into the mechanics of ${category} and learn how to optimize systems, manage resources, and communicate effectively.</p>`;
+    
+    let hasCode = false;
+    let codeSnippet = "";
+    
+    let careers = `<p>Graduates of ${title} are highly sought after. Potential roles include:</p><div class='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Specialist</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Consultant</div></div>`;
+    
+    // Custom overrides
+    if (title.includes('Computer Science') || title.includes('Information Technology')) {
+        concepts = `<p>Computer Science and IT focus on logic, algorithms, and software architecture. You will learn multiple programming languages and how to structure databases.</p><p>Here is an example of a simple algorithm you might write:</p>`;
+        hasCode = true;
+        codeSnippet = "<span style='color:#569cd6'>function</span> <span style='color:#dcdcaa'>binarySearch</span>(arr, target) {<br>&nbsp;&nbsp;<span style='color:#569cd6'>let</span> left = <span style='color:#b5cea8'>0</span>;<br>&nbsp;&nbsp;<span style='color:#569cd6'>let</span> right = arr.<span style='color:#9cdcfe'>length</span> - <span style='color:#b5cea8'>1</span>;<br>&nbsp;&nbsp;<span style='color:#c586c0'>while</span> (left <= right) {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#569cd6'>let</span> mid = <span style='color:#4ec9b0'>Math</span>.<span style='color:#dcdcaa'>floor</span>((left + right) / <span style='color:#b5cea8'>2</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#c586c0'>if</span> (arr[mid] === target) <span style='color:#c586c0'>return</span> mid;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#c586c0'>else if</span> (arr[mid] < target) left = mid + <span style='color:#b5cea8'>1</span>;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span style='color:#c586c0'>else</span> right = mid - <span style='color:#b5cea8'>1</span>;<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;<span style='color:#c586c0'>return</span> -<span style='color:#b5cea8'>1</span>;<br>}";
+        careers = `<p>Tech roles are some of the highest-paying globally. Potential roles include:</p><div class='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Software Engineer</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Data Scientist</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Cybersecurity Analyst</div></div>`;
+    } 
+    else if (title.includes('Nursing') || title.includes('Medical') || title.includes('Therapy') || title.includes('Radiologic')) {
+        concepts = `<p>Healthcare degrees require a deep understanding of human anatomy, patient care ethics, and clinical procedures.</p><p>You will participate in hands-on clinical rotations where you monitor vital signs and assist in treatments.</p><div class='bg-blue-50 p-5 rounded-xl border border-blue-100 mt-4'><h4 class='font-bold text-blue-900'>Sample Clinical Case</h4><p class='text-blue-800 text-sm mt-2'>A 45-year-old patient arrives with a high fever and shortness of breath. Your first step is to record their triage vitals and prepare an oxygen saturation monitor before the attending physician arrives.</p></div>`;
+        careers = `<p>Healthcare is a globally critical field. Potential roles include:</p><div class='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Registered Nurse / Practitioner</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Clinical Manager</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Public Health Specialist</div></div>`;
+    }
+    else if (title.includes('Engineering') || title.includes('Architecture')) {
+        concepts = `<p>Engineering programs are heavily rooted in advanced mathematics, physics, and structural design.</p><p>You will use software like AutoCAD and engage in project-based learning to build structural models.</p><div class='bg-gray-800 p-5 rounded-xl border border-gray-700 mt-4 font-mono text-gray-300 text-sm'><span class='text-gray-400'>// Structural Load Calculation</span><br>Total Load (W) = Dead Load (DL) + Live Load (LL)<br>W = (Volume × Density) + (Occupancy factor × Area)<br><span class='text-emerald-400'>Result: System remains in equilibrium.</span></div>`;
+        careers = `<p>Engineers literally build the future. Potential roles include:</p><div class='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Licensed Engineer</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Project Lead</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Urban Planner</div></div>`;
+    }
+    else if (title.includes('Business') || title.includes('Accountancy') || title.includes('Management') || title.includes('Customs')) {
+        concepts = `<p>Business programs focus on financial literacy, corporate strategy, marketing, and organizational leadership.</p><p>You will analyze market trends and review case studies of successful global corporations.</p><div class='bg-emerald-50 p-5 rounded-xl border border-emerald-100 mt-4'><h4 class='font-bold text-emerald-900'>Case Study: Market Expansion</h4><p class='text-emerald-800 text-sm mt-2'>If a company's revenue is ₱5M with a profit margin of 12%, introducing a new product line could increase overhead by 4% while boosting overall market share. You must calculate the Break-Even Point.</p></div>`;
+        careers = `<p>Business drives the global economy. Potential roles include:</p><div class='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Financial Auditor (CPA)</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Marketing Director</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Operations Manager</div></div>`;
+    }
+    else if (title.includes('Education')) {
+        concepts = `<p>Education programs teach you how to design curriculums, understand child psychology, and manage classrooms effectively.</p><p>You will learn modern pedagogical methods and how to integrate technology into learning.</p>`;
+        careers = `<p>Educators shape the next generation. Potential roles include:</p><div class='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6'><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Licensed Teacher</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>Curriculum Developer</div><div class='bg-gray-50 p-4 rounded-xl border border-gray-100 font-bold text-gray-700 flex items-center gap-3'><div class='w-2 h-2 rounded-full bg-[#04AA6D]'></div>School Administrator</div></div>`;
+    }
+
+    return [
+        {
+            title: "Introduction",
+            content: intro,
+            hasCode: false
+        },
+        {
+            title: "Core Concepts",
+            content: concepts,
+            hasCode: hasCode,
+            codeSnippet: codeSnippet
+        },
+        {
+            title: "Career Paths",
+            content: careers,
+            hasCode: false
+        },
+        {
+            title: "Summary",
+            content: `<p class='text-2xl font-bold text-gray-900 mb-4'>Congratulations!</p><p>You have successfully completed the introduction to ${title}.</p><p class='mt-6'>If this sounds like the right path for you, you can go back to the Degree Profile to save it to your shortlist, or explore the campuses that offer it.</p>`,
+            hasCode: false
+        }
+    ];
+}
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const degree = ref(null);
+            const currentModuleIndex = ref(0);
+            
+            const modules = ref([]);
+
+                        onMounted(async () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get('id');
+                
+                if (id) {
+                    try {
+                        const res = await fetch('/riasec/api/get_degree?id=' + id);
+                        if (res.ok) {
+                            degree.value = await res.json();
+                            modules.value = getLessonContent(degree.value);
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+            });
+
+            const currentModule = computed(() => modules.value[currentModuleIndex.value]);
+
+            const nextModule = () => {
+                if (currentModuleIndex.value < modules.value.length - 1) {
+                    currentModuleIndex.value++;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            const prevModule = () => {
+                if (currentModuleIndex.value > 0) {
+                    currentModuleIndex.value--;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            return {
+                degree,
+                modules,
+                currentModuleIndex,
+                currentModule,
+                nextModule,
+                prevModule
+            };
+        }
+    }).mount('#app');
+});
+</script>
+
+

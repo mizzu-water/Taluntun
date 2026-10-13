@@ -1,0 +1,78 @@
+<div class="max-w-[1400px] mx-auto px-4 py-16 w-full">
+<div class="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+            <h2 class="text-xl font-bold text-gray-800">Available Campuses</h2>
+            <div class="flex items-center gap-3">
+                <label for="typeFilter" class="text-sm font-bold text-gray-500">Filter by Type:</label>
+                <select id="typeFilter" class="px-4 py-2.5 bg-white border border-gray-200 text-gray-700 outline-none shadow-sm cursor-pointer rounded-lg hover:border-emerald-500 focus:border-emerald-500 transition">
+                    <option value="all">All Institutions</option>
+                    <option value="private">Private</option>
+                    <option value="public">Public</option>
+                </select>
+            </div>
+        </div>
+        <div id="colleges-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="text-gray-500 py-4 col-span-full">Loading colleges...</div>
+        </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const grid = document.getElementById('colleges-grid');
+    const filter = document.getElementById('typeFilter');
+    let collegesData = [];
+
+    try {
+        const res = await fetch('/riasec/api/get_colleges');
+        if (!res.ok) throw new Error('Failed to fetch colleges');
+        collegesData = await res.json();
+        renderColleges(collegesData);
+    } catch (e) {
+        console.error(e);
+        grid.innerHTML = '<div class="text-red-500 py-4 col-span-full">Failed to load colleges.</div>';
+    }
+
+    filter.addEventListener('change', () => {
+        const type = filter.value.toLowerCase();
+        if (type === 'all') {
+            renderColleges(collegesData);
+        } else {
+            const filtered = collegesData.filter(c => c.type && c.type.toLowerCase().includes(type));
+            renderColleges(filtered);
+        }
+    });
+
+    function renderColleges(colleges) {
+        if (colleges.length === 0) {
+            grid.innerHTML = '<div class="text-gray-500 py-4 col-span-full">No colleges found.</div>';
+            return;
+        }
+        
+        grid.innerHTML = colleges.map(college => {
+            const isPublic = college.type && college.type.toLowerCase().includes('public');
+            const badgeClass = isPublic ? 'bg-emerald-600 text-white' : 'bg-white text-gray-900';
+            const badgeText = college.type || 'Private';
+            
+            // Map specific schools to their specific HTML profiles if needed, otherwise use school-profile
+            let profileUrl = `/riasec/school-profile?id=${college.short_name}`;
+            if (college.profile_url) {
+                profileUrl = `/riasec/${college.profile_url.replace('.html', '')}`;
+            }
+
+            return `
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow overflow-hidden flex flex-col cursor-pointer">
+                <div class="h-40 bg-gray-900 relative">
+                    <img src="${college.image_url}" alt="Campus" class="w-full h-full object-contain">
+                    <div class="absolute top-4 left-4 ${badgeClass} text-[10px] font-bold px-2 py-1 rounded shadow">${badgeText}</div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">${college.name}</h3>
+                    <div class="text-xs text-gray-500 mb-4">${college.address || 'Dasmariñas City, Cavite'}</div>
+                    <p class="text-sm text-gray-600 mb-6 flex-grow">${college.description || 'Providing quality education to students.'}</p>
+                    <a href="${profileUrl}" class="w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-bold py-2.5 rounded transition block text-center">View Profile</a>
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+});
+</script>
