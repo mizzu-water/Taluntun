@@ -45,6 +45,48 @@ const CAMPUS_GEO = {
         name: 'Technological University of the Philippines - Cavite',
         address: 'Carlos Q. Trinidad Ave, Salawag, Dasmariñas City, Cavite',
         googleQuery: 'Technological University of the Philippines Cavite'
+    },
+    'FEAPITSAT': {
+        lat: 14.3262,
+        lng: 120.9452,
+        name: 'FEAPITSAT Colleges',
+        address: 'Congressional East Ave, Burol Main, Dasmariñas City, Cavite',
+        googleQuery: 'FEAPITSAT Colleges Dasmariñas'
+    },
+    'PHINMA': {
+        lat: 14.3385,
+        lng: 120.9402,
+        name: 'PHINMA Union College of Laguna (Dasma)',
+        address: 'Dasmariñas City, Cavite',
+        googleQuery: 'PHINMA Union College of Laguna Dasmariñas'
+    },
+    'STI': {
+        lat: 14.3288,
+        lng: 120.9387,
+        name: 'STI College Dasmariñas',
+        address: 'Emilio Aguinaldo Hwy, Zone 4, Dasmariñas City, Cavite',
+        googleQuery: 'STI College Dasmariñas'
+    },
+    'KLD': {
+        lat: 14.3228,
+        lng: 120.9501,
+        name: 'Kolehiyo ng Lungsod ng Dasmariñas',
+        address: 'Burol Main, Dasmariñas City, Cavite',
+        googleQuery: 'Kolehiyo ng Lungsod ng Dasmariñas'
+    },
+    'NU': {
+        lat: 14.3012,
+        lng: 120.9578,
+        name: 'National University - Dasmariñas',
+        address: 'SM City Dasmariñas Complex, Dasmariñas City, Cavite',
+        googleQuery: 'National University Dasmariñas'
+    },
+    'PNTC': {
+        lat: 14.3268,
+        lng: 120.9365,
+        name: 'PNTC Colleges - Dasmariñas',
+        address: 'Zone 3, Dasmariñas City, Cavite',
+        googleQuery: 'PNTC Colleges Dasmariñas'
     }
 };
 
@@ -55,19 +97,16 @@ function initSchoolLocationMap(college) {
     if (!mapSection) return;
     mapSection.classList.remove('hidden');
 
-    const schoolNameEl = document.getElementById('college-map-school-name');
-    if (schoolNameEl) {
-        schoolNameEl.textContent = college.name || (geo ? geo.name : "Campus Grounds");
-    }
-
-    const addressEl = document.getElementById('college-map-address');
-    if (addressEl) {
-        addressEl.textContent = college.address || "Dasmariñas City, Cavite";
-    }
-
     // Determine target campus geo
     let geo = null;
-    if (college.short_name && CAMPUS_GEO[college.short_name]) {
+    if (college.latitude && college.longitude && !isNaN(parseFloat(college.latitude)) && !isNaN(parseFloat(college.longitude))) {
+        geo = {
+            lat: parseFloat(college.latitude),
+            lng: parseFloat(college.longitude),
+            name: college.name || 'Campus Grounds',
+            address: college.address || 'Dasmariñas City, Cavite'
+        };
+    } else if (college.short_name && CAMPUS_GEO[college.short_name]) {
         geo = CAMPUS_GEO[college.short_name];
     } else if (college.name) {
         for (const key in CAMPUS_GEO) {
@@ -85,6 +124,16 @@ function initSchoolLocationMap(college) {
             name: college.name || 'Campus Grounds',
             address: college.address || 'City of Dasmariñas, Cavite'
         };
+    }
+
+    const schoolNameEl = document.getElementById('college-map-school-name');
+    if (schoolNameEl) {
+        schoolNameEl.textContent = college.name || geo.name;
+    }
+
+    const addressEl = document.getElementById('college-map-address');
+    if (addressEl) {
+        addressEl.textContent = college.address || geo.address;
     }
 
     let curLat = geo.lat;
@@ -116,7 +165,27 @@ function initSchoolLocationMap(college) {
     if (!mapContainer) return;
 
     if (typeof L === 'undefined') {
-        console.warn('Leaflet is not loaded.');
+        if (!document.getElementById('leaflet-css')) {
+            const link = document.createElement('link');
+            link.id = 'leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            document.head.appendChild(link);
+        }
+        if (!window.leafletLoadingPromise) {
+            window.leafletLoadingPromise = new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+        window.leafletLoadingPromise.then(() => {
+            initSchoolLocationMap(college);
+        }).catch(err => {
+            console.error('Failed to load Leaflet:', err);
+        });
         return;
     }
 
@@ -164,6 +233,15 @@ function initSchoolLocationMap(college) {
         closeButton: false,
         maxWidth: 230
     }).openPopup();
+
+    try {
+        schoolMarker.bindTooltip(`<b>${college.name || geo.name}</b>`, {
+            permanent: true,
+            direction: 'top',
+            offset: [0, -38],
+            className: 'school-pin-label'
+        });
+    } catch(e) {}
 
     schoolMarker.on('dragend', function() {
         const pos = schoolMarker.getLatLng();

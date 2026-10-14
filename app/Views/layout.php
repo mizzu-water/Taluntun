@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?? '' ?>">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="assets/css/enhancements.css?v=<?= filemtime(__DIR__ . '/../../assets/css/enhancements.css') ?>">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="vue.global.prod.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -25,10 +26,6 @@
         }
 
         .custom-shape-divider-bottom svg {
-            .then(res => {
-                if (!res.ok) throw new Error('Server returned HTTP ' + res.status);
-                return res.json();
-            })
             position: relative;
             display: block;
             width: calc(100% + 1.3px);
@@ -198,8 +195,12 @@
             // Make the server-verified session available before page apps mount.
             window.taluntonAuthenticated = <?= $navbarAuthenticated ? 'true' : 'false' ?>;
             try {
+                const existingTaluntonUser = localStorage.getItem('talunton_user');
+                if (existingTaluntonUser === '[object Object]' || existingTaluntonUser === 'undefined') {
+                    localStorage.removeItem('talunton_user');
+                }
                 <?php if ($navbarAuthenticated): ?>
-                localStorage.setItem('talunton_user', <?= json_encode(['user_id' => (int)$_SESSION['user_id'], 'full_name' => $navbarFullName, 'email' => $navbarEmail, 'user_type' => $_SESSION['user_type'] ?? ''], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>);
+                localStorage.setItem('talunton_user', JSON.stringify(<?= json_encode(['user_id' => (int)$_SESSION['user_id'], 'full_name' => $navbarFullName, 'email' => $navbarEmail, 'user_type' => $_SESSION['user_type'] ?? ''], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>));
                 <?php else: ?>
                 localStorage.removeItem('talunton_user');
                 <?php endif; ?>
@@ -219,8 +220,12 @@
     <script>
         // Keep UI-only account details aligned with the server-verified session.
         try {
+            const existingTaluntonUser2 = localStorage.getItem('talunton_user');
+            if (existingTaluntonUser2 === '[object Object]' || existingTaluntonUser2 === 'undefined') {
+                localStorage.removeItem('talunton_user');
+            }
             <?php if ($navbarAuthenticated): ?>
-            localStorage.setItem('talunton_user', <?= json_encode(['user_id' => (int)$_SESSION['user_id'], 'full_name' => $navbarFullName, 'email' => $navbarEmail, 'user_type' => $_SESSION['user_type'] ?? ''], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>);
+            localStorage.setItem('talunton_user', JSON.stringify(<?= json_encode(['user_id' => (int)$_SESSION['user_id'], 'full_name' => $navbarFullName, 'email' => $navbarEmail, 'user_type' => $_SESSION['user_type'] ?? ''], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>));
             <?php else: ?>
             localStorage.removeItem('talunton_user');
             <?php endif; ?>
@@ -373,21 +378,31 @@
             }
             if (btn.disabled) return Promise.resolve(false);
             
-            const isSaved = btn.dataset.saved === 'true' || btn.innerHTML.includes('Saved!');
+            const isIconOnly = btn.dataset.iconOnly === 'true' || btn.classList.contains('rounded-full');
+            const svg = btn.querySelector('svg');
+            const isSaved = btn.dataset.saved === 'true' || (svg && svg.getAttribute('fill') === 'currentColor') || btn.innerHTML.includes('Saved!');
             const originalHtml = btn.innerHTML;
             const originalClassName = btn.className;
             const originalSavedState = btn.dataset.saved;
             const originalAriaPressed = btn.getAttribute('aria-pressed');
-            if (isSaved) {
-                btn.innerHTML = 'Save';
-                btn.classList.remove('bg-gray-800', 'hover:bg-gray-900');
-                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+            
+            if (isIconOnly) {
+                if (svg) svg.setAttribute('fill', isSaved ? 'none' : 'currentColor');
+                btn.classList.toggle('text-emerald-700', !isSaved);
+                btn.classList.toggle('text-gray-700', isSaved);
             } else {
-                btn.innerHTML = `<svg class="w-4 h-4 inline-block mr-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved!`;
-                btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-                btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
+                if (isSaved) {
+                    btn.innerHTML = 'Save';
+                    btn.classList.remove('bg-gray-800', 'hover:bg-gray-900');
+                    btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                } else {
+                    btn.innerHTML = `<svg class="w-4 h-4 inline-block mr-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved!`;
+                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                    btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
+                }
             }
             btn.dataset.saved = String(!isSaved);
+            btn.setAttribute('aria-pressed', String(!isSaved));
             
             const csrfMeta = document.querySelector('meta[name="csrf-token"]');
             const csrfToken = csrfMeta ? csrfMeta.content : '';
@@ -409,15 +424,6 @@
             .then(data => {
                 if(!data.success) {
                     // Revert button state
-                    if (isSaved) {
-                        btn.innerHTML = `<svg class="w-4 h-4 inline-block mr-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved!`;
-                        btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
-                        btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-                    } else {
-                        btn.innerHTML = 'Save';
-                        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-                        btn.classList.remove('bg-gray-800', 'hover:bg-gray-900');
-                    }
                     btn.innerHTML = originalHtml;
                     btn.className = originalClassName;
                     if (originalSavedState === undefined) delete btn.dataset.saved;
@@ -436,7 +442,11 @@
                     const savedAfter = action === 'added';
                     btn.dataset.saved = String(savedAfter);
                     btn.setAttribute('aria-pressed', String(savedAfter));
-                    if (btn.dataset.iconOnly !== 'true') {
+                    if (isIconOnly) {
+                        if (svg) svg.setAttribute('fill', savedAfter ? 'currentColor' : 'none');
+                        btn.classList.toggle('text-emerald-700', savedAfter);
+                        btn.classList.toggle('text-gray-700', !savedAfter);
+                    } else {
                         if (savedAfter) {
                             btn.innerHTML = `<svg class="w-4 h-4 inline-block mr-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved!`;
                             btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
@@ -453,22 +463,13 @@
             })
             .catch(err => {
                 console.error(err);
-                if (isSaved) {
-                    btn.innerHTML = `<svg class="w-4 h-4 inline-block mr-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved!`;
-                    btn.classList.add('bg-gray-800', 'hover:bg-gray-900');
-                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
-                } else {
-                    btn.innerHTML = 'Save';
-                    btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
-                    btn.classList.remove('bg-gray-800', 'hover:bg-gray-900');
-                }
-                if (window.showToast) window.showToast('Network error while saving', 'error');
                 btn.innerHTML = originalHtml;
                 btn.className = originalClassName;
                 if (originalSavedState === undefined) delete btn.dataset.saved;
                 else btn.dataset.saved = originalSavedState;
                 if (originalAriaPressed === null) btn.removeAttribute('aria-pressed');
                 else btn.setAttribute('aria-pressed', originalAriaPressed);
+                if (window.showToast) window.showToast('Network error while saving', 'error');
                 return false;
             })
             .finally(() => {
@@ -504,6 +505,8 @@
         });
     </script>
     <script src="assets/js/ux-enhancements.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="campus-map.js"></script>
 </body>
 </html>
 

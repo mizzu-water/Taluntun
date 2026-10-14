@@ -16,65 +16,213 @@
 
     <!-- Welcome / Start Screen -->
     <div v-if="!quizStarted && !isLoading && !error && !quizFinished && !reviewMode" class="quiz-entry max-w-4xl mx-auto mt-8 px-4 w-full">
-        <a :href="'degree-profile?id=' + degreeId" class="inline-flex items-center text-emerald-600 font-bold hover:text-emerald-700 transition mb-4">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Back
+        <a :href="'degree-profile?id=' + degreeId" class="inline-flex items-center text-emerald-700 font-bold hover:text-emerald-800 transition mb-3">
+            <span class="mr-1.5">&larr;</span> Back
         </a>
-        <div class="quiz-setup-card relative">
-        <div class="text-center">
-            <p class="quiz-eyebrow mb-3">Course knowledge check</p>
-            <h2 class="text-3xl sm:text-4xl md:text-5xl font-serif-heading font-bold text-slate-900 mb-4">{{ degreeTitle }} Quiz</h2>
-            <p class="text-gray-600 text-base sm:text-lg mb-8 max-w-xl mx-auto leading-relaxed">Answer {{ questions.length }} questions to check your understanding of this degree program.</p>
-            
-            
-                <section v-if="degreeQuizLatestResult" class="quiz-results-card mt-8 p-5 sm:p-7 text-left" aria-labelledby="results-heading">
-                    <div class="quiz-result-hero">
-                        <div class="quiz-result-copy">
-                            <p class="quiz-eyebrow mb-2">Latest result</p>
-                            <h3 id="results-heading" class="text-2xl sm:text-3xl font-bold text-slate-900">Quiz completed</h3>
-                            <p class="mt-2 text-sm text-slate-600">Your understanding of this degree program at a glance.</p>
-                        </div>
-                        <div class="quiz-score-ring" role="img" :aria-label="degreeQuizLatestResult.percentage + '% — ' + degreeQuizLatestResult.interpretation" :style="{ '--score': degreeQuizLatestResult.percentage + '%' }">
-                            <div class="quiz-score-core"><strong>{{ degreeQuizLatestResult.percentage }}%</strong><span>{{ degreeQuizLatestResult.interpretation }}</span></div>
-                        </div>
+        <!-- Welcome / Start Screen (When no results yet) -->
+        <div v-if="!degreeQuizLatestResult" class="quiz-setup-card relative">
+            <div class="text-center">
+                <p class="quiz-eyebrow mb-2">Course Knowledge Check</p>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-serif-heading font-bold text-slate-900 mb-2.5 leading-tight">{{ degreeTitle }} Quiz</h2>
+                <p class="quiz-intro-text text-slate-600 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                    Check your understanding of this degree program with curriculum-tailored assessment questions.
+                </p>
+                
+                <!-- Assessment Length Selector -->
+                <div class="quiz-length-wrapper text-left">
+                    <div class="quiz-length-header-row">
+                        <span class="quiz-length-label">Select Assessment Length</span>
+                        <span class="quiz-length-hint">4 curriculum stages</span>
                     </div>
-                    <div class="quiz-result-progress" role="progressbar" :aria-valuenow="degreeQuizLatestResult.percentage" aria-valuemin="0" aria-valuemax="100" :aria-label="degreeQuizLatestResult.percentage + '% score'">
-                        <span :style="{ width: degreeQuizLatestResult.percentage + '%' }"></span>
-                    </div>
-                    <div class="quiz-result-stats">
-                        <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">◎</span><div><strong>Score</strong><span>{{ degreeQuizLatestResult.score }} / {{ questions.length }}</span></div></div>
-                        <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">✓</span><div><strong>Correct answers</strong><span>{{ degreeQuizLatestResult.correct }} answers</span></div></div>
-                        <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">◷</span><div><strong>Date taken</strong><span>{{ degreeQuizLatestResult.date }}</span></div></div>
-                        <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">↷</span><div><strong>Skipped questions</strong><span>{{ degreeQuizLatestResult.skipped }} questions</span></div></div>
-                    </div>
-                    <div class="quiz-result-actions">
-                        <button type="button" @click="enterReviewMode" class="quiz-action quiz-action-primary">Review Answers <span aria-hidden="true">→</span></button>
-                        <button type="button" @click="retakeQuiz" class="quiz-action quiz-action-secondary">Retake Quiz <span aria-hidden="true">↻</span></button>
-                        <a :href="'degree-profile?id=' + degreeId" class="quiz-action quiz-action-tertiary">Back to Degree Details</a>
-                    </div>
-                    <div class="quiz-history-wrap">
-                        <button type="button" @click="showHistory = !showHistory" class="quiz-history-toggle" :aria-expanded="showHistory" aria-controls="quiz-history">
-                            <span>{{ showHistory ? 'Hide Previous Attempts' : 'View Previous Attempts' }}</span><span class="quiz-history-chevron" :class="{ 'is-open': showHistory }" aria-hidden="true">⌄</span>
-                        </button>
-                        <Transition name="quiz-section">
-                            <div v-if="showHistory" id="quiz-history" class="quiz-history-panel">
-                                <h4 class="font-bold mb-3 text-slate-900">Previous attempts</h4>
-                                <div class="overflow-x-auto"><table class="quiz-history-table w-full text-sm text-left">
-                                    <thead><tr><th scope="col">Attempt</th><th scope="col">Score</th><th scope="col">Date</th><th scope="col">Result</th></tr></thead>
-                                    <tbody><tr v-for="(hist, idx) in degreeQuizHistory" :key="idx"><td>Attempt {{ idx + 1 }}</td><td>{{ hist.percentage }}%</td><td>{{ hist.date }}</td><td><span class="quiz-history-badge">{{ idx === degreeQuizHistory.length - 1 ? 'Latest' : 'Previous' }}</span></td></tr></tbody>
-                                </table></div>
+
+                    <div class="quiz-length-grid">
+                        <!-- 15 Questions -->
+                        <div role="button" tabindex="0" @click="setQuizLength(15)" @keydown.enter.prevent="setQuizLength(15)"
+                             class="quiz-length-card"
+                             :class="{ 'is-active': selectedLength === 15 }">
+                            <div class="quiz-length-card-top">
+                                <span class="quiz-length-badge badge-quick">Quick Check</span>
+                                <span class="quiz-radio-check">
+                                    <span v-if="selectedLength === 15" class="quiz-radio-dot"></span>
+                                </span>
                             </div>
-                        </Transition>
+                            <div class="quiz-length-title">15 Questions</div>
+                            <div class="quiz-length-meta">~10 minutes</div>
+                            <p class="quiz-length-desc">Quick pulse check covering core fundamentals & terminology.</p>
+                        </div>
+
+                        <!-- 30 Questions -->
+                        <div role="button" tabindex="0" @click="setQuizLength(30)" @keydown.enter.prevent="setQuizLength(30)"
+                             class="quiz-length-card"
+                             :class="{ 'is-active': selectedLength === 30 }">
+                            <div class="quiz-length-card-top">
+                                <span class="quiz-length-badge badge-standard">Standard</span>
+                                <span class="quiz-radio-check">
+                                    <span v-if="selectedLength === 30" class="quiz-radio-dot"></span>
+                                </span>
+                            </div>
+                            <div class="quiz-length-title">30 Questions</div>
+                            <div class="quiz-length-meta">~20 minutes</div>
+                            <p class="quiz-length-desc">In-depth review covering academic theory & applied principles.</p>
+                        </div>
+
+                        <!-- 50 Questions -->
+                        <div role="button" tabindex="0" @click="setQuizLength(50)" @keydown.enter.prevent="setQuizLength(50)"
+                             class="quiz-length-card"
+                             :class="{ 'is-active': selectedLength === 50 }">
+                            <div class="quiz-length-card-top">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="quiz-length-badge badge-comprehensive">Full Exam</span>
+                                    <span class="quiz-recommended-tag">Default</span>
+                                </div>
+                                <span class="quiz-radio-check">
+                                    <span v-if="selectedLength === 50" class="quiz-radio-dot"></span>
+                                </span>
+                            </div>
+                            <div class="quiz-length-title">50 Questions</div>
+                            <div class="quiz-length-meta">~35 mins &bull; Comprehensive</div>
+                            <p class="quiz-length-desc">Complete curriculum evaluation with 5-tier mastery grading.</p>
+                        </div>
                     </div>
-                </section>
+                </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4" v-if="!degreeQuizLatestResult">
-        <button @click="retakeQuiz" class="bg-[#0e3223] text-white px-8 py-3.5 rounded-full font-bold text-base w-full sm:w-auto transition-all shadow-lg hover:bg-black hover:-translate-y-0.5 active:scale-[.98]">
-            Start Quiz
-        </button>
-        <a :href="'degree-profile?id=' + degreeId" class="bg-gray-100 text-gray-800 px-5 py-2 rounded-full font-bold text-sm w-full sm:w-auto hover:bg-gray-200 transition shadow flex items-center justify-center gap-2">
-            <span>&larr;</span> Back to Degree Details</a></div></div></div></div><!-- Preference Screen -->
+            <div class="quiz-welcome-actions">
+                <button type="button" @click="retakeQuiz" class="quiz-btn-primary group">
+                    <span>Start Quiz ({{ selectedLength }} Questions)</span>
+                    <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
+                </button>
+                <a :href="'degree-profile?id=' + degreeId" class="quiz-btn-secondary">
+                    &larr; Back to Degree Details
+                </a>
+            </div>
+        </div>
+
+        <!-- Dedicated Results View (When quiz attempt exists) -->
+        <section v-if="degreeQuizLatestResult" class="quiz-results-card text-left" aria-labelledby="results-heading">
+            <div class="quiz-result-hero">
+                <div class="quiz-result-copy">
+                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <p class="quiz-eyebrow mb-0">Latest result</p>
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full border shadow-xs"
+                              :class="getMasteryBadgeClass(degreeQuizLatestResult.percentage)">
+                            {{ degreeQuizLatestResult.interpretation || getMasteryTitle(degreeQuizLatestResult.percentage) }}
+                        </span>
+                    </div>
+                    <h2 id="results-heading" class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1">
+                        {{ getMasteryTitle(degreeQuizLatestResult.percentage) }}
+                    </h2>
+                    <p class="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+                        {{ getMasteryDescription(degreeQuizLatestResult.percentage) }}
+                    </p>
+                </div>
+                <div class="quiz-score-ring" role="img" :aria-label="degreeQuizLatestResult.percentage + '% — ' + degreeQuizLatestResult.interpretation" :style="{ '--score': degreeQuizLatestResult.percentage + '%' }">
+                    <div class="quiz-score-core">
+                        <strong>{{ degreeQuizLatestResult.percentage }}%</strong>
+                        <span>{{ degreeQuizLatestResult.score }}/{{ degreeQuizLatestResult.total || questions.length }} correct</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quiz-result-progress" role="progressbar" :aria-valuenow="degreeQuizLatestResult.percentage" aria-valuemin="0" aria-valuemax="100" :aria-label="degreeQuizLatestResult.percentage + '% score'">
+                <span :style="{ width: degreeQuizLatestResult.percentage + '%' }"></span>
+            </div>
+
+            <!-- Topic & Stage Knowledge Breakdown -->
+            <div v-if="degreeQuizLatestResult.stage_breakdown && degreeQuizLatestResult.stage_breakdown.length" class="quiz-stage-breakdown">
+                <div class="quiz-stage-heading">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span>Topic & Stage Knowledge Breakdown</span>
+                </div>
+                <div class="quiz-stage-grid">
+                    <div v-for="stg in degreeQuizLatestResult.stage_breakdown" :key="stg.stage" class="quiz-stage-card">
+                        <div class="quiz-stage-header">
+                            <span class="quiz-stage-title">Stage {{ stg.stage }}: {{ stg.name }}</span>
+                            <span class="quiz-stage-pct">{{ stg.percentage }}% <small>({{ stg.score }}/{{ stg.total }})</small></span>
+                        </div>
+                        <div class="quiz-stage-track">
+                            <div class="quiz-stage-fill" 
+                                 :style="{ width: stg.percentage + '%' }" 
+                                 :class="stg.percentage >= 75 ? 'fill-high' : (stg.percentage >= 50 ? 'fill-mid' : 'fill-low')"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Quick Stats -->
+            <div class="quiz-result-stats mt-6">
+                <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">◎</span><div><strong>Total score</strong><span>{{ degreeQuizLatestResult.score }} / {{ degreeQuizLatestResult.total || questions.length }} correct</span></div></div>
+                <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">✓</span><div><strong>Accuracy rate</strong><span>{{ degreeQuizLatestResult.percentage }}%</span></div></div>
+                <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">◷</span><div><strong>Date taken</strong><span>{{ degreeQuizLatestResult.date }}</span></div></div>
+                <div class="quiz-result-stat"><span class="quiz-stat-icon" aria-hidden="true">↷</span><div><strong>Skipped</strong><span>{{ degreeQuizLatestResult.skipped || 0 }} questions</span></div></div>
+            </div>
+
+            <!-- Primary Actions -->
+            <div class="quiz-result-actions">
+                <button type="button" @click="enterReviewMode" class="quiz-btn-primary">
+                    <span>Review Answers</span>
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+                <a :href="'degree-profile?id=' + degreeId" class="quiz-btn-secondary">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    <span>Back to Degree Details</span>
+                </a>
+            </div>
+
+            <!-- Retake Assessment Section with Length Options -->
+            <div class="quiz-retake-section">
+                <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        Retake Assessment
+                    </span>
+                    <span class="text-xs text-slate-500 font-medium">Selected length: <strong class="text-emerald-800">{{ selectedLength }} Questions</strong></span>
+                </div>
+                <div class="quiz-retake-pills">
+                    <div role="button" tabindex="0" @click="setQuizLength(15)" @keydown.enter.prevent="setQuizLength(15)"
+                         :class="{ 'is-active': selectedLength === 15 }"
+                         class="quiz-retake-pill">
+                        <strong>15 Questions</strong>
+                        <small>Quick Check (~10m)</small>
+                    </div>
+                    <div role="button" tabindex="0" @click="setQuizLength(30)" @keydown.enter.prevent="setQuizLength(30)"
+                         :class="{ 'is-active': selectedLength === 30 }"
+                         class="quiz-retake-pill">
+                        <strong>30 Questions</strong>
+                        <small>Standard (~20m)</small>
+                    </div>
+                    <div role="button" tabindex="0" @click="setQuizLength(50)" @keydown.enter.prevent="setQuizLength(50)"
+                         :class="{ 'is-active': selectedLength === 50 }"
+                         class="quiz-retake-pill">
+                        <strong>50 Questions</strong>
+                        <small>Full Exam (~35m &bull; Default)</small>
+                    </div>
+                </div>
+                <button type="button" @click="retakeQuiz" class="quiz-btn-secondary font-bold w-full sm:w-auto">
+                    <svg class="w-4 h-4 mr-1 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Start Retake ({{ selectedLength }} Questions)</span>
+                </button>
+            </div>
+
+            <!-- Attempt History -->
+            <div class="quiz-history-wrap">
+                <button type="button" @click="showHistory = !showHistory" class="quiz-history-toggle" :aria-expanded="showHistory" aria-controls="quiz-history">
+                    <span>{{ showHistory ? 'Hide Previous Attempts' : 'View Previous Attempts' }}</span><span class="quiz-history-chevron" :class="{ 'is-open': showHistory }" aria-hidden="true">⌄</span>
+                </button>
+                <Transition name="quiz-section">
+                    <div v-if="showHistory" id="quiz-history" class="quiz-history-panel">
+                        <h4 class="font-bold mb-3 text-slate-900">Previous attempts</h4>
+                        <div class="overflow-x-auto"><table class="quiz-history-table w-full text-sm text-left">
+                            <thead><tr><th scope="col">Attempt</th><th scope="col">Score</th><th scope="col">Date</th><th scope="col">Result</th></tr></thead>
+                            <tbody><tr v-for="(hist, idx) in degreeQuizHistory" :key="idx"><td>Attempt {{ idx + 1 }}</td><td>{{ hist.percentage }}% ({{ hist.score }}/{{ hist.total || hist.score }})</td><td>{{ hist.date }}</td><td><span class="quiz-history-badge">{{ idx === degreeQuizHistory.length - 1 ? 'Latest' : 'Previous' }}</span></td></tr></tbody>
+                        </table></div>
+                    </div>
+                </Transition>
+            </div>
+        </section>
+    </div>
+
+    <!-- Preference Screen -->
     <div v-if="quizStarted && !degreeQuizPreference && !quizFinished" class="quiz-preference-panel max-w-3xl mx-auto p-5 sm:p-8 text-center mt-6">
         <p class="quiz-eyebrow mb-2">Choose your feedback style</p>
         <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mb-6">How would you like to see quiz answers?</h2>
@@ -103,8 +251,9 @@
         </div>
         
         <button @click="startWithPreference" :disabled="!tempPreference" 
-                class="bg-[#0e3223] text-white px-8 py-3.5 rounded-full font-bold text-base w-full sm:w-auto shadow-lg hover:bg-black transition active:scale-[.98] disabled:opacity-50 disabled:cursor-not-allowed">
-            Begin Quiz
+                class="quiz-btn-primary group w-full sm:w-auto">
+            <span>Begin Quiz</span>
+            <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
     </div>
 
@@ -176,19 +325,20 @@
         </Transition>
 
         <!-- Navigation -->
-        <div class="quiz-nav-row flex flex-wrap justify-center sm:justify-between items-center gap-3 mt-3">
-            <button @click="previousQuestion" :disabled="globalQuestionIndex === 0" class="quiz-nav-button px-4 py-3 sm:px-6 rounded-full font-bold text-sm sm:text-base bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition">
-                Previous
+        <div class="quiz-nav-row flex items-center justify-between gap-3 mt-4">
+            <button @click="previousQuestion" :disabled="globalQuestionIndex === 0" class="quiz-nav-button px-6 py-3 rounded-full font-bold text-sm sm:text-base bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition shadow-xs">
+                &larr; Previous
             </button>
             
-            <button @click="skipQuestion" class="quiz-nav-button px-4 py-3 sm:px-6 rounded-full font-bold text-sm sm:text-base text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition border border-transparent hover:border-amber-200">
+            <button @click="skipQuestion" class="quiz-nav-button px-5 py-3 rounded-full font-bold text-sm sm:text-base text-slate-500 hover:text-amber-700 hover:bg-amber-50 transition border border-transparent hover:border-amber-200">
                 Skip Question
             </button>
             
             <button @click="nextQuestion" 
                 :disabled="!currentAnswerState.selectedLetter && !currentAnswerState.skipped"
-                class="quiz-nav-button px-4 py-3 sm:px-6 rounded-full font-bold text-sm sm:text-base bg-[#0e3223] text-white hover:bg-black transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ globalQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question' }}
+                class="quiz-btn-primary px-7 py-3">
+                <span>{{ globalQuestionIndex === questions.length - 1 ? 'Finish Quiz' : 'Next Question' }}</span>
+                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
             </button>
         </div>
     </div>
@@ -301,6 +451,7 @@
             const degreeId = ref(null);
             const degreeTitle = ref("");
             const questions = ref([]);
+            const selectedLength = ref(50);
             
             const quizStarted = ref(false);
             const quizFinished = ref(false);
@@ -341,6 +492,54 @@
             const userAnswersMap = ref({});
             const shuffledOptionsMap = ref({});
 
+            const generateShuffles = () => {
+                shuffledOptionsMap.value = {};
+                questions.value.forEach((q, idx) => {
+                    let opts = [
+                        { content: q.options.A, originalLetter: 'A' },
+                        { content: q.options.B, originalLetter: 'B' },
+                        { content: q.options.C, originalLetter: 'C' },
+                        { content: q.options.D, originalLetter: 'D' }
+                    ];
+                    for (let i = opts.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [opts[i], opts[j]] = [opts[j], opts[i]];
+                    }
+                    const visualLetters = ['A', 'B', 'C', 'D'];
+                    shuffledOptionsMap.value[idx] = opts.map((opt, i) => ({
+                        letter: visualLetters[i],
+                        content: opt.content,
+                        originalLetter: opt.originalLetter
+                    }));
+                });
+            };
+
+            const fetchQuestions = async (limit = selectedLength.value) => {
+                try {
+                    const res = await fetch("api/get_course_questions?degree_id=" + degreeId.value + "&limit=" + limit);
+                    const data = await res.json();
+                    if (data.success && data.questions) {
+                        questions.value = data.questions;
+                        degreeTitle.value = data.degree_title;
+                        generateShuffles();
+                        return true;
+                    } else {
+                        error.value = data.error || "Failed to load questions.";
+                        return false;
+                    }
+                } catch (e) {
+                    error.value = "A network error occurred. Please try again later.";
+                    return false;
+                }
+            };
+
+            const setQuizLength = async (len) => {
+                selectedLength.value = len;
+                isLoading.value = true;
+                await fetchQuestions(len);
+                isLoading.value = false;
+            };
+
             onMounted(async () => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const id = urlParams.get('degree_id');
@@ -353,13 +552,17 @@
                 degreeId.value = id;
                 if (!(await ensureAuthenticated())) { isLoading.value = false; return; }
                 
-                
                 // Load local storage
                 try {
                     const hist = localStorage.getItem(quizStorageKey("degreeQuizHistory"));
                     if (hist) degreeQuizHistory.value = JSON.parse(hist);
                     const latest = localStorage.getItem(quizStorageKey("degreeQuizLatestResult"));
-                    if (latest) degreeQuizLatestResult.value = JSON.parse(latest);
+                    if (latest) {
+                        degreeQuizLatestResult.value = JSON.parse(latest);
+                        if (degreeQuizLatestResult.value && degreeQuizLatestResult.value.total) {
+                            selectedLength.value = degreeQuizLatestResult.value.total;
+                        }
+                    }
                     
                     const savedShuffles = localStorage.getItem(quizStorageKey("degreeQuizShuffles"));
                     if (savedShuffles) {
@@ -375,40 +578,7 @@
                     }
                 } catch(e) {}
                 
-                try {
-                    const res = await fetch("api/get_course_questions?degree_id=" + id);
-                    const data = await res.json();
-                    if (data.success && data.questions) {
-                        questions.value = data.questions;
-                        degreeTitle.value = data.degree_title;
-                        
-                        // Pre-shuffle options if not loaded from localStorage
-                        if (Object.keys(shuffledOptionsMap.value).length === 0) {
-                            questions.value.forEach((q, idx) => {
-                                let opts = [
-                                    { content: q.options.A, originalLetter: 'A' },
-                                    { content: q.options.B, originalLetter: 'B' },
-                                    { content: q.options.C, originalLetter: 'C' },
-                                    { content: q.options.D, originalLetter: 'D' }
-                                ];
-                                for (let i = opts.length - 1; i > 0; i--) {
-                                    const j = Math.floor(Math.random() * (i + 1));
-                                    [opts[i], opts[j]] = [opts[j], opts[i]];
-                                }
-                                const visualLetters = ['A', 'B', 'C', 'D'];
-                                shuffledOptionsMap.value[idx] = opts.map((opt, i) => ({
-                                    letter: visualLetters[i],
-                                    content: opt.content,
-                                    originalLetter: opt.originalLetter
-                                }));
-                            });
-                        }
-                    } else {
-                        error.value = data.error || "Failed to load questions.";
-                    }
-                } catch (e) {
-                    error.value = "A network error occurred. Please try again later.";
-                }
+                await fetchQuestions(selectedLength.value);
                 isLoading.value = false;
             });
 
@@ -567,28 +737,26 @@
                     }
                 });
                 
-                s = serverResult.score;
-                c = serverResult.correct;
-                inc = serverResult.incorrect;
-                skp = serverResult.skipped;
-                totalScore.value = s;
-                correctCount.value = c;
-                incorrectCount.value = inc;
-                finalSkippedCount.value = skp;
+                totalScore.value = serverResult.score;
+                correctCount.value = serverResult.correct;
+                incorrectCount.value = serverResult.incorrect;
+                finalSkippedCount.value = serverResult.skipped;
 
                 const pct = serverResult.percentage;
-                let interp = "Level 1 - Beginner";
-                if (pct >= 90) interp = "Level 4 - Advanced";
-                else if (pct >= 75) interp = "Level 3 - Proficient";
-                else if (pct >= 60) interp = "Level 2 - Developing";
+                const tier = serverResult.tier || 1;
+                const interp = serverResult.interpretation || getMasteryTitle(pct);
 
                 const resObj = {
-                    score: s,
+                    score: serverResult.score,
+                    total: serverResult.total || questions.value.length,
                     percentage: pct,
-                    correct: c,
-                    incorrect: inc,
-                    skipped: skp,
+                    correct: serverResult.correct,
+                    incorrect: serverResult.incorrect,
+                    skipped: serverResult.skipped,
+                    tier: tier,
                     interpretation: interp,
+                    mastery: serverResult.mastery || null,
+                    stage_breakdown: serverResult.stage_breakdown || [],
                     date: new Date().toLocaleDateString()
                 };
 
@@ -609,6 +777,8 @@
 
             const retakeQuiz = async () => {
                 if (!(await ensureAuthenticated())) return;
+                isLoading.value = true;
+                await fetchQuestions(selectedLength.value);
                 quizFinished.value = false;
                 reviewMode.value = false;
                 showSubmitWarning.value = false;
@@ -616,37 +786,42 @@
                 tempPreference.value = null;
                 globalQuestionIndex.value = 0;
                 userAnswersMap.value = {};
-                shuffledOptionsMap.value = {};
-                
-                questions.value.forEach((q, idx) => {
-                    let opts = [
-                        { content: q.options.A, originalLetter: 'A' },
-                        { content: q.options.B, originalLetter: 'B' },
-                        { content: q.options.C, originalLetter: 'C' },
-                        { content: q.options.D, originalLetter: 'D' }
-                    ];
-                    for (let i = opts.length - 1; i > 0; i--) {
-                        const j = Math.floor(Math.random() * (i + 1));
-                        [opts[i], opts[j]] = [opts[j], opts[i]];
-                    }
-                    const visualLetters = ['A', 'B', 'C', 'D'];
-                    shuffledOptionsMap.value[idx] = opts.map((opt, i) => ({
-                        letter: visualLetters[i],
-                        content: opt.content,
-                        originalLetter: opt.originalLetter
-                    }));
-                });
-                
+                isLoading.value = false;
                 quizStarted.value = true;
+            };
+
+            const getMasteryTitle = (pct) => {
+                if (pct >= 90) return "Tier 5 — Expert Mastery";
+                if (pct >= 75) return "Tier 4 — Proficient Competence";
+                if (pct >= 60) return "Tier 3 — Intermediate Foundation";
+                if (pct >= 40) return "Tier 2 — Basic Familiarity";
+                return "Tier 1 — Beginner / Exploratory";
+            };
+
+            const getMasteryDescription = (pct) => {
+                if (pct >= 90) return "Outstanding command of the domain. You demonstrate comprehensive mastery across core theories, complex applications, and specialized professional standards.";
+                if (pct >= 75) return "Strong working knowledge of academic and professional concepts. You show high accuracy in core principles with minor gaps in specialized problem scenarios.";
+                if (pct >= 60) return "Solid grasp of foundational subject matter. You understand key terminology and standard methods, but will benefit from reinforcing advanced applications.";
+                if (pct >= 40) return "Introductory awareness of the subject. You recognize basic terminology but need deeper study into core academic principles and applied problem solving.";
+                return "Early exploratory stage. You are just beginning your journey in this field. We recommend starting with fundamental courses and introductory resources.";
+            };
+
+            const getMasteryBadgeClass = (pct) => {
+                if (pct >= 90) return "bg-emerald-100 text-emerald-800 border-emerald-300";
+                if (pct >= 75) return "bg-green-100 text-green-800 border-green-300";
+                if (pct >= 60) return "bg-blue-100 text-blue-800 border-blue-300";
+                if (pct >= 40) return "bg-amber-100 text-amber-800 border-amber-300";
+                return "bg-slate-100 text-slate-800 border-slate-300";
             };
             
             const scorePercentage = computed(() => questions.value.length ? Math.round((totalScore.value / questions.value.length) * 100) : 0);
             const resultData = computed(() => {
                 const pct = scorePercentage.value;
-                if (pct >= 90) return { title: "Level 4 — Advanced", short: "Level 4", desc: "You demonstrate an advanced understanding of the concepts covered by this degree quiz. You performed strongly across the assessed topics.", color: { text: "text-emerald-600", bg: "bg-emerald-100" } };
-                if (pct >= 75) return { title: "Level 3 — Proficient", short: "Level 3", desc: "You demonstrate a strong understanding of the concepts covered by this quiz. You are able to handle many questions involving understanding and application.", color: { text: "text-amber-600", bg: "bg-amber-100" } };
-                if (pct >= 60) return { title: "Level 2 — Developing", short: "Level 2", desc: "You have a developing understanding of this degree. You understand many basic concepts but may need more practice with application and more difficult topics.", color: { text: "text-indigo-600", bg: "bg-indigo-100" } };
-                return { title: "Level 1 — Beginner", short: "Level 1", desc: "You are still developing your foundational knowledge in this degree. Review the basic concepts and continue practicing to strengthen your understanding.", color: { text: "text-blue-600", bg: "bg-blue-100" } };
+                if (pct >= 90) return { title: "Tier 5 — Expert Mastery", short: "Tier 5", desc: getMasteryDescription(pct), color: { text: "text-emerald-700", bg: "bg-emerald-100" } };
+                if (pct >= 75) return { title: "Tier 4 — Proficient Competence", short: "Tier 4", desc: getMasteryDescription(pct), color: { text: "text-green-700", bg: "bg-green-100" } };
+                if (pct >= 60) return { title: "Tier 3 — Intermediate Foundation", short: "Tier 3", desc: getMasteryDescription(pct), color: { text: "text-blue-700", bg: "bg-blue-100" } };
+                if (pct >= 40) return { title: "Tier 2 — Basic Familiarity", short: "Tier 2", desc: getMasteryDescription(pct), color: { text: "text-amber-700", bg: "bg-amber-100" } };
+                return { title: "Tier 1 — Beginner / Exploratory", short: "Tier 1", desc: getMasteryDescription(pct), color: { text: "text-slate-700", bg: "bg-slate-100" } };
             });
 
             const isCorrectQ = (idx) => {
@@ -716,6 +891,7 @@
 
             return {
                 isLoading, error, degreeId, degreeTitle, questions,
+                selectedLength, setQuizLength, getMasteryTitle, getMasteryDescription, getMasteryBadgeClass,
                 quizStarted, quizFinished, reviewMode, showSubmitWarning,
                 tempPreference, degreeQuizPreference, startWithPreference,
                 degreeQuizHistory, degreeQuizLatestResult, showHistory,

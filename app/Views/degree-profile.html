@@ -125,48 +125,80 @@
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <div class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1">PSYCHOMETRIC ALIGNMENT</div>
-                        <h2 class="text-2xl font-bold font-serif text-gray-900">{{ degree.holland_code || 'ESC' }} Holland Code Fit</h2>
+                        <h2 class="text-2xl font-bold font-serif text-gray-900">{{ degree.holland_code || 'N/A' }} Holland Code Fit</h2>
+                        <div class="text-xs text-gray-500 font-medium mt-1">{{ fullHollandCodeName }}</div>
                     </div>
-                    <span class="bg-amber-100 text-amber-900 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase">96% Overall Match</span>
+                    <span class="text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider" :style="{ backgroundColor: overallMatch.badgeBg, color: overallMatch.badgeText }">
+                        {{ overallMatch.percent }}% {{ overallMatch.label }}
+                    </span>
+                </div>
+
+                <!-- Personalized Banner (when user has taken assessment) -->
+                <div v-if="overallMatch.isPersonalized" class="bg-emerald-50/60 border border-emerald-100/80 rounded-2xl p-4 mb-6 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl font-bold text-xs flex items-center justify-center text-white flex-shrink-0 shadow-sm" style="background-color: #0e3223;">
+                            {{ overallMatch.userCode }}
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-gray-900">Your Holland Code: {{ overallMatch.userCode }}</div>
+                            <div class="text-[11px] text-gray-500">Comparing your RIASEC test results to this program</div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-bold px-3 py-1 rounded-full flex-shrink-0" :style="{ backgroundColor: overallMatch.badgeBg, color: overallMatch.badgeText }">
+                        {{ overallMatch.percent }}% Match
+                    </span>
+                </div>
+
+                <!-- Benchmark / Guest Banner (when user has not taken assessment) -->
+                <div v-else class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 mb-6 flex items-center justify-between gap-3">
+                    <div class="text-xs text-amber-900">
+                        <span class="font-bold">Standard Curriculum Benchmark.</span> Take the assessment to view your personalized compatibility!
+                    </div>
+                    <a href="assessment" class="text-xs font-bold text-amber-900 hover:underline flex-shrink-0">Take Assessment &rsaquo;</a>
                 </div>
                 
                 <p class="text-sm text-gray-600 leading-relaxed mb-8">
-                    This degree corresponds exceptionally well with candidates whose RIASEC assessment scores reflect Enterprising, Social, and Conventional dimensions.
+                    {{ psychometricDescription }}
                 </p>
                 
-                <div class="space-y-5">
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
-                            <span>Enterprising (E) - Leadership & Decision Making</span>
-                            <span class="text-emerald-700">88%</span>
+                <!-- Clean, Elegant Trait Progress Bars -->
+                <div class="space-y-6">
+                    <div v-for="trait in psychometricTraits" :key="trait.code">
+                        <div class="flex justify-between items-baseline text-xs mb-2">
+                            <div class="font-bold text-gray-900 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" :style="{ backgroundColor: trait.hexColor }"></span>
+                                <span class="text-sm font-bold text-gray-900">{{ trait.name }} ({{ trait.letter }})</span>
+                                <span class="text-gray-400 font-normal text-xs hidden sm:inline">&mdash; {{ trait.role }}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="font-bold text-sm" :style="{ color: trait.hexColor }">{{ trait.curriculumWeight }}%</span>
+                                <span class="text-[10px] text-gray-400 font-normal ml-0.5">fit</span>
+                            </div>
                         </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div class="bg-emerald-700 h-2 rounded-full" style="width: 88%"></div>
+                        
+                        <!-- Single Clean Progress Bar with generous height and smooth fill -->
+                        <div class="w-full rounded-full h-2.5 overflow-hidden" style="background-color: #f1f5f9;">
+                            <div class="h-2.5 rounded-full transition-all duration-700" :style="{ width: trait.curriculumWeight + '%', backgroundColor: trait.hexColor }"></div>
                         </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
-                            <span>Social (S) - Communication & Team Collaboration</span>
-                            <span class="text-blue-600">76%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div class="bg-blue-600 h-2 rounded-full" style="width: 76%"></div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
-                            <span>Conventional (C) - Systems, Data & Process Management</span>
-                            <span class="text-amber-500">82%</span>
-                        </div>
-                        <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div class="bg-amber-500 h-2 rounded-full" style="width: 82%"></div>
+
+                        <!-- Subtitle with Role & User Score -->
+                        <div class="flex justify-between items-center text-xs mt-2">
+                            <span class="text-gray-400 font-medium">{{ trait.levelLabel }}</span>
+                            <span v-if="trait.userScore !== null" class="font-semibold text-[11px]" :style="{ color: trait.userScore >= 80 ? '#059669' : (trait.userScore >= 60 ? '#2563eb' : '#d97706') }">
+                                Your Strength: {{ trait.userScore }}% &bull; {{ trait.userScore >= 80 ? 'High Alignment' : (trait.userScore >= 60 ? 'Moderate Fit' : 'Growth Area') }}
+                            </span>
+                            <span v-else class="text-[11px] text-gray-400">Curriculum Requirement</span>
                         </div>
                     </div>
                 </div>
                 
-                <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center text-sm">
-                    <span class="text-gray-500">Not sure if this degree fits your interests?</span>
-                    <a href="assessment" class="font-bold text-gray-900 hover:text-emerald-600 transition">Take the Holland Code assessment &rsaquo;</a>
+                <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-sm">
+                    <span class="text-gray-500 text-xs sm:text-sm">
+                        {{ overallMatch.isPersonalized ? 'Want to review your full Holland profile?' : 'Not sure if this degree fits your interests?' }}
+                    </span>
+                    <a :href="overallMatch.isPersonalized ? 'results' : 'assessment'" class="font-bold text-gray-900 hover:text-emerald-600 transition text-xs sm:text-sm flex items-center gap-1">
+                        {{ overallMatch.isPersonalized ? 'View My Assessment Results' : 'Take the Holland Code assessment' }} &rsaquo;
+                    </a>
                 </div>
             </div>
 
@@ -193,10 +225,6 @@
                         <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">Executive</span>
                     </div>
                 </div>
-                
-                <div class="mt-8 text-center">
-                    <a href="#" class="text-sm font-bold text-gray-900 hover:text-emerald-600 transition">Explore 46 Partner Colleges offering this degree &rsaquo;</a>
-                </div>
             </div>
         </div>
 
@@ -213,12 +241,245 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const { createApp, ref, onMounted } = Vue;
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    const RIASEC_MAP = {
+        R: {
+            code: 'R',
+            letter: 'R',
+            name: 'Realistic',
+            role: 'Practical & Technical Execution',
+            description: 'Hands-on problem solving, physical engineering, tools, systems architecture, and physical environments.',
+            action: 'practical engineering and direct hands-on execution',
+            hexColor: '#059669',
+            lightBg: '#ecfdf5'
+        },
+        I: {
+            code: 'I',
+            letter: 'I',
+            name: 'Investigative',
+            role: 'Scientific Inquiry & Research',
+            description: 'Empirical analysis, mathematical modeling, scientific research, and complex problem diagnostics.',
+            action: 'scientific inquiry, diagnostic research, and critical analysis',
+            hexColor: '#2563eb',
+            lightBg: '#eff6ff'
+        },
+        A: {
+            code: 'A',
+            letter: 'A',
+            name: 'Artistic',
+            role: 'Creative Expression & Innovation',
+            description: 'Visual communication, original design, creative storytelling, aesthetics, and conceptual innovation.',
+            action: 'creative expression, visual conceptualization, and original design',
+            hexColor: '#9333ea',
+            lightBg: '#faf5ff'
+        },
+        S: {
+            code: 'S',
+            letter: 'S',
+            name: 'Social',
+            role: 'Human Development & Collaborative Care',
+            description: 'Interpersonal mentorship, healthcare guidance, pedagogical instruction, teamwork, and community service.',
+            action: 'interpersonal communication, human development, and community impact',
+            hexColor: '#0284c7',
+            lightBg: '#f0f9ff'
+        },
+        E: {
+            code: 'E',
+            letter: 'E',
+            name: 'Enterprising',
+            role: 'Strategic Leadership & Enterprise',
+            description: 'Organizational leadership, business enterprise, persuasive negotiation, project ownership, and commercial strategy.',
+            action: 'strategic leadership, commercial initiative, and decisive negotiation',
+            hexColor: '#d97706',
+            lightBg: '#fffbeb'
+        },
+        C: {
+            code: 'C',
+            letter: 'C',
+            name: 'Conventional',
+            role: 'Systems, Data & Workflow Precision',
+            description: 'Systematic organization, quantitative precision, regulatory compliance, structured workflows, and data governance.',
+            action: 'methodical organization, quantitative precision, and structured compliance',
+            hexColor: '#475569',
+            lightBg: '#f8fafc'
+        }
+    };
+
+    const PAIR_COMPLEMENTS = {
+        'RI': 'C', 'IR': 'C',
+        'RC': 'I', 'CR': 'I',
+        'RE': 'C', 'ER': 'C',
+        'RA': 'I', 'AR': 'I',
+        'RS': 'E', 'SR': 'E',
+        'IC': 'R', 'CI': 'R',
+        'IE': 'C', 'EI': 'C',
+        'IA': 'S', 'AI': 'S',
+        'IS': 'A', 'SI': 'A',
+        'AS': 'E', 'SA': 'E',
+        'AE': 'S', 'EA': 'S',
+        'ES': 'C', 'SE': 'C',
+        'EC': 'S', 'CE': 'S',
+        'SC': 'E', 'CS': 'E'
+    };
+
+    const SINGLE_COMPLEMENTS = {
+        'R': ['I', 'C'],
+        'I': ['R', 'A'],
+        'A': ['I', 'S'],
+        'S': ['A', 'E'],
+        'E': ['S', 'C'],
+        'C': ['E', 'R']
+    };
 
     createApp({
         setup() {
             const degree = ref(null);
             const latestQuizResult = ref(null);
+            const userAssessment = ref(null);
+            const userScores = ref(null);
+            const userHollandCode = ref('');
+
+            const fullHollandCodeName = computed(() => {
+                if (!degree.value || !degree.value.holland_code) return 'Holland Code Alignment';
+                const letters = degree.value.holland_code.trim().toUpperCase().split('');
+                const names = letters.map(l => RIASEC_MAP[l] ? RIASEC_MAP[l].name : l);
+                return names.join(' • ');
+            });
+
+            const psychometricTraits = computed(() => {
+                if (!degree.value || !degree.value.holland_code) return [];
+                
+                const rawCode = degree.value.holland_code.trim().toUpperCase();
+                const letters = rawCode.split('').filter(l => RIASEC_MAP[l]);
+                
+                let traitCodes = [];
+                if (letters.length >= 3) {
+                    traitCodes = letters.slice(0, 3);
+                } else if (letters.length === 2) {
+                    const key = letters.join('');
+                    const complement = PAIR_COMPLEMENTS[key] || PAIR_COMPLEMENTS[letters[1] + letters[0]] || 'C';
+                    traitCodes = [letters[0], letters[1], complement];
+                } else if (letters.length === 1) {
+                    const comps = SINGLE_COMPLEMENTS[letters[0]] || ['I', 'C'];
+                    traitCodes = [letters[0], comps[0], comps[1]];
+                } else {
+                    traitCodes = ['E', 'S', 'C'];
+                }
+                
+                const weights = [94, 85, 76];
+                const roleLabels = ['Primary Core Focus', 'Secondary Focus', 'Supporting Competency'];
+                
+                return traitCodes.map((code, index) => {
+                    const meta = RIASEC_MAP[code] || RIASEC_MAP['E'];
+                    let userScore = null;
+                    if (userScores.value && userScores.value[code] !== undefined) {
+                        userScore = Math.min(100, Math.round(((Number(userScores.value[code]) || 0) / 50) * 100));
+                    }
+                    
+                    return {
+                        code: meta.code,
+                        letter: meta.letter,
+                        name: meta.name,
+                        role: meta.role,
+                        description: meta.description,
+                        action: meta.action,
+                        levelLabel: roleLabels[index] || 'Supporting Dimension',
+                        curriculumWeight: weights[index] || 70,
+                        userScore: userScore,
+                        hexColor: meta.hexColor,
+                        lightBg: meta.lightBg
+                    };
+                });
+            });
+
+            const overallMatch = computed(() => {
+                if (!degree.value || !degree.value.holland_code) {
+                    return { percent: 94, isPersonalized: false, label: 'Curriculum Fit', userCode: '', badgeBg: '#fffbeb', badgeText: '#92400e' };
+                }
+                
+                if (userScores.value) {
+                    const rawCode = (degree.value.holland_code || '').toUpperCase().trim();
+                    const letters = rawCode.split('').filter(l => RIASEC_MAP[l]);
+                    if (letters.length > 0) {
+                        const maxVal = 50;
+                        const getTraitScore = (l) => Math.min(100, Math.round(((Number(userScores.value[l]) || 0) / maxVal) * 100));
+                        
+                        let score = 0;
+                        if (letters.length >= 3) {
+                            score = 0.50 * getTraitScore(letters[0]) + 0.30 * getTraitScore(letters[1]) + 0.20 * getTraitScore(letters[2]);
+                        } else if (letters.length === 2) {
+                            score = 0.60 * getTraitScore(letters[0]) + 0.40 * getTraitScore(letters[1]);
+                        } else {
+                            score = getTraitScore(letters[0]);
+                        }
+                        
+                        const sortedUserTraits = Object.keys(userScores.value)
+                            .sort((a, b) => (Number(userScores.value[b]) || 0) - (Number(userScores.value[a]) || 0));
+                            
+                        if (sortedUserTraits[0] === letters[0]) score += 5;
+                        else if (sortedUserTraits.slice(0, 3).includes(letters[0])) score += 3;
+                        
+                        const finalScore = Math.max(30, Math.min(99, Math.round(score)));
+                        
+                        let label = 'Moderate Match';
+                        let badgeBg = '#fffbeb';
+                        let badgeText = '#92400e';
+                        if (finalScore >= 80) {
+                            label = 'Top Personal Match';
+                            badgeBg = '#ecfdf5';
+                            badgeText = '#065f46';
+                        } else if (finalScore >= 60) {
+                            label = 'Moderate Match';
+                            badgeBg = '#eff6ff';
+                            badgeText = '#1e40af';
+                        } else {
+                            label = 'Exploratory Fit';
+                            badgeBg = '#fffbeb';
+                            badgeText = '#92400e';
+                        }
+                        
+                        return {
+                            percent: finalScore,
+                            isPersonalized: true,
+                            label: label,
+                            userCode: userHollandCode.value || sortedUserTraits.slice(0, 3).join(''),
+                            badgeBg: badgeBg,
+                            badgeText: badgeText
+                        };
+                    }
+                }
+                
+                return {
+                    percent: 94,
+                    isPersonalized: false,
+                    label: 'Curriculum Fit',
+                    userCode: '',
+                    badgeBg: '#fffbeb',
+                    badgeText: '#92400e'
+                };
+            });
+
+            const psychometricDescription = computed(() => {
+                if (!degree.value || !degree.value.holland_code) return '';
+                const traits = psychometricTraits.value;
+                if (traits.length === 0) return '';
+                
+                const primary = traits[0];
+                const secondary = traits[1];
+                
+                if (userScores.value && overallMatch.value.isPersonalized) {
+                    return `Based on your Holland Profile (${overallMatch.value.userCode}), you have a ${overallMatch.value.percent}% compatibility rating with this degree. This program places primary emphasis on ${primary.name} (${primary.role.toLowerCase()}) alongside ${secondary.name} (${secondary.role.toLowerCase()}). Compare your personal strengths with the curriculum expectations below.`;
+                }
+                
+                if (traits.length >= 3) {
+                    return `This degree curriculum is structured primarily around ${primary.name} and ${secondary.name} dimensions, reinforced by ${traits[2].name} competencies. It is tailored for students who thrive in ${primary.action}, supported by ${secondary.action}.`;
+                } else if (traits.length === 2) {
+                    return `This degree curriculum is structured around ${primary.name} and ${secondary.name} dimensions. It is tailored for individuals seeking mastery in ${primary.action} and ${secondary.action}.`;
+                } else {
+                    return `This degree strongly focuses on the ${primary.name} dimension, providing deep academic training in ${primary.action}.`;
+                }
+            });
 
             onMounted(async () => {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -233,8 +494,42 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     } catch (e) {}
 
+                    // Fetch user assessment for psychometric alignment
                     try {
-                        const res = await fetch('api/get_degree?id=' + id);
+                        const apiBase = window.location.pathname.startsWith('/riasec') ? '/riasec/' : '';
+                        const assessRes = await fetch(`${apiBase}api/get_my_assessment`);
+                        if (assessRes.ok) {
+                            const assessData = await assessRes.json();
+                            if (assessData && assessData.has_result && assessData.result) {
+                                userAssessment.value = assessData.result;
+                                userScores.value = assessData.result.scores || null;
+                                userHollandCode.value = assessData.result.holland_code || '';
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Backend assessment fetch error:', e);
+                    }
+
+                    // Fallback to localStorage if needed
+                    if (!userScores.value) {
+                        try {
+                            const user = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+                            const key = user && user.user_id ? 'talunton_assessment_scores_' + user.user_id : 'talunton_assessment_scores';
+                            const savedData = localStorage.getItem(key);
+                            if (savedData) {
+                                const parsed = JSON.parse(savedData);
+                                if (parsed.scores) {
+                                    userScores.value = parsed.scores;
+                                    userHollandCode.value = parsed.holland_code || Object.keys(parsed.scores).sort((a,b) => (Number(parsed.scores[b]) || 0) - (Number(parsed.scores[a]) || 0)).slice(0,3).join('');
+                                    userAssessment.value = parsed;
+                                }
+                            }
+                        } catch (e) {}
+                    }
+
+                    try {
+                        const apiBase = window.location.pathname.startsWith('/riasec') ? '/riasec/' : '';
+                        const res = await fetch(`${apiBase}api/get_degree?id=` + id);
                         if (res.ok) {
                             degree.value = await res.json();
                         }
@@ -247,7 +542,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             return {
-                degree, latestQuizResult
+                degree,
+                latestQuizResult,
+                userAssessment,
+                userScores,
+                userHollandCode,
+                fullHollandCodeName,
+                psychometricTraits,
+                overallMatch,
+                psychometricDescription
             };
         }
     }).mount('#app');

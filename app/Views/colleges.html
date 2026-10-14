@@ -61,22 +61,24 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
+function initCollegesPage() {
     const grid = document.getElementById('colleges-grid');
     const filter = document.getElementById('typeFilter');
     const searchInput = document.getElementById('searchColleges');
     const countBadge = document.getElementById('collegeCountBadge');
     let collegesData = [];
 
-    try {
-        const res = await fetch('api/get_colleges');
-        if (!res.ok) throw new Error('Failed to fetch colleges');
-        collegesData = await res.json();
-        applyFilters();
-    } catch (e) {
-        console.error(e);
-        grid.innerHTML = '<div class="text-red-500 py-6 col-span-full text-center bg-red-50 rounded-2xl p-6 border border-red-100">Failed to load colleges. Please check your connection.</div>';
-        if (countBadge) countBadge.textContent = '0 Campuses';
+    async function loadColleges() {
+        try {
+            const res = await fetch('api/get_colleges');
+            if (!res.ok) throw new Error('Failed to fetch colleges');
+            collegesData = await res.json();
+            applyFilters();
+        } catch (e) {
+            console.error(e);
+            if (grid) grid.innerHTML = '<div class="text-red-500 py-6 col-span-full text-center bg-red-50 rounded-2xl p-6 border border-red-100">Failed to load colleges. Please check your connection.</div>';
+            if (countBadge) countBadge.textContent = '0 Campuses';
+        }
     }
 
     function applyFilters() {
@@ -109,6 +111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (searchInput) searchInput.addEventListener('input', applyFilters);
 
     function renderColleges(colleges) {
+        if (!grid) return;
         if (colleges.length === 0) {
             grid.innerHTML = '<div class="text-gray-500 py-12 col-span-full text-center bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">No institutions found matching your filter criteria.</div>';
             return;
@@ -121,33 +124,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             const badgeText = isPublic ? 'Public (Free Tuition)' : (college.type || 'Private');
             
             // Generate clean relative profile URLs without hardcoded /riasec/
-            let profileUrl = `school-profile?id=${college.short_name}`;
+            let profileUrl = `school-profile?id=${encodeURIComponent(college.short_name || '')}`;
             if (college.profile_url) {
                 profileUrl = college.profile_url.replace('.html', '').replace(/^\/?riasec\//, '');
             }
             const imageUrl = college.image_url || 'assets/images/placeholder.jpg';
 
             return `
-            <div class="bg-white rounded-[1.75rem] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col group card-hover-effect">
+            <div class="bg-white rounded-[1.75rem] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col group card-hover-effect cursor-pointer" onclick="if (!event.target.closest('button, a')) { window.location.href = '${profileUrl}'; }">
                 <div class="bg-gray-950 relative overflow-hidden" style="aspect-ratio: 16 / 10;">
-                    <img src="${imageUrl}" onerror="this.onerror=null;this.src='assets/images/placeholder.jpg'" alt="${college.name}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <div class="absolute top-4 left-4 ${badgeClass} text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">${badgeText}</div>
-                    <button onclick="if(window.saveCollege) window.saveCollege(this, ${college.id}); event.stopPropagation();" data-saved="${isSaved}" aria-pressed="${isSaved}" aria-label="${isSaved ? 'Remove from' : 'Add to'} campus shortlist" class="absolute top-4 right-4 bg-white/90 hover:bg-white ${isSaved ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-700'} p-2 rounded-full shadow-sm transition-transform active:scale-90" title="Shortlist Campus">
+                    <a href="${profileUrl}" class="block absolute inset-0 w-full h-full" aria-label="View ${college.name} profile">
+                        <img src="${imageUrl}" onerror="this.onerror=null;this.src='assets/images/placeholder.jpg'" alt="${college.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </a>
+                    <div class="absolute top-4 left-4 ${badgeClass} text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider pointer-events-none">${badgeText}</div>
+                    <button type="button" onclick="if(window.saveCollege) window.saveCollege(this, ${college.id}); event.stopPropagation();" data-saved="${isSaved}" data-icon-only="true" aria-pressed="${isSaved}" aria-label="${isSaved ? 'Remove from' : 'Add to'} campus shortlist" class="absolute top-4 right-4 bg-white/90 hover:bg-white ${isSaved ? 'text-emerald-700' : 'text-gray-700 hover:text-emerald-700'} p-2 rounded-full shadow-sm transition-transform active:scale-90 z-10" title="Shortlist Campus">
                         <svg class="w-4 h-4" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
                     </button>
                 </div>
                 <div class="p-6 flex flex-col flex-grow">
-                    <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover:text-emerald-700 transition-colors leading-snug">${college.name}</h3>
+                    <a href="${profileUrl}" class="block group/title">
+                        <h3 class="text-lg font-bold text-gray-900 mb-1 group-hover/title:text-emerald-700 group-hover:text-emerald-700 transition-colors leading-snug">${college.name}</h3>
+                    </a>
                     <div class="text-xs text-gray-500 mb-3 flex items-center gap-1.5">
                         <svg class="location-pin w-3.5 h-3.5 min-w-[14px] min-h-[14px] text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span class="truncate">${college.address || 'Dasmariñas City, Cavite'}</span>
                     </div>
-                    <p class="text-xs text-gray-500 mb-6 flex-grow leading-relaxed line-clamp-3">${college.description || 'Providing quality higher education programs.'}</p>
+                    <p class="text-xs text-gray-500 mb-6 flex-grow leading-relaxed line-clamp-3">${college.description || college.about || 'Providing quality higher education programs.'}</p>
                     <div class="mt-auto pt-3 border-t border-gray-100 flex items-center gap-2 min-w-0">
                         <a href="${profileUrl}" class="flex-1 min-w-0 max-w-full whitespace-normal break-words bg-emerald-50 hover:bg-emerald-700 hover:text-white border border-emerald-100 hover:border-emerald-700 text-emerald-800 text-xs font-bold py-2.5 rounded-xl transition-all duration-200 block text-center shadow-2xs">
                             View Campus Profile
                         </a>
-                        <a href="school-programs?id=${college.short_name}" class="p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition" title="View Programs">
+                        <a href="school-programs?id=${encodeURIComponent(college.short_name || '')}" class="p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 hover:text-gray-900 transition" title="View Programs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </a>
                     </div>
@@ -156,5 +163,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
         }).join('');
     }
-});
+
+    loadColleges();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCollegesPage);
+} else {
+    initCollegesPage();
+}
 </script>

@@ -202,6 +202,50 @@ class ProfileController extends Controller {
                 $assessment['scores'] = json_decode($assessment['scores'], true);
             }
 
+            // 5. Course Quiz Attempts (Knowledge checks taken by student)
+            $quiz_attempts = [];
+            $tableCheck = $conn->query("SHOW TABLES LIKE 'course_quiz_attempts'");
+            if ($tableCheck && $tableCheck->num_rows > 0) {
+                $sqlQuizzes = "SELECT cqa.id, cqa.degree_id, cqa.score, cqa.total_questions, 
+                                      cqa.correct_count, cqa.incorrect_count, cqa.skipped_count, 
+                                      cqa.taken_at, d.title as degree_title, d.category as degree_category
+                               FROM course_quiz_attempts cqa
+                               LEFT JOIN degrees d ON cqa.degree_id = d.id
+                               WHERE cqa.user_id = ?
+                               ORDER BY cqa.taken_at DESC
+                               LIMIT 12";
+                $stmtQ = $conn->prepare($sqlQuizzes);
+                if ($stmtQ) {
+                    $stmtQ->bind_param("i", $user_id);
+                    $stmtQ->execute();
+                    $resQ = $stmtQ->get_result();
+                    while ($qRow = $resQ->fetch_assoc()) {
+                        $pct = $qRow['total_questions'] > 0 
+                            ? (int)round(($qRow['score'] / $qRow['total_questions']) * 100) 
+                            : 0;
+                        $qRow['percentage'] = $pct;
+                        if ($pct >= 90) {
+                            $qRow['tier_title'] = "Tier 5 (Expert)";
+                            $qRow['tier_badge'] = "badge-expert";
+                        } elseif ($pct >= 75) {
+                            $qRow['tier_title'] = "Tier 4 (Proficient)";
+                            $qRow['tier_badge'] = "badge-proficient";
+                        } elseif ($pct >= 60) {
+                            $qRow['tier_title'] = "Tier 3 (Intermediate)";
+                            $qRow['tier_badge'] = "badge-intermediate";
+                        } elseif ($pct >= 40) {
+                            $qRow['tier_title'] = "Tier 2 (Basic)";
+                            $qRow['tier_badge'] = "badge-basic";
+                        } else {
+                            $qRow['tier_title'] = "Tier 1 (Beginner)";
+                            $qRow['tier_badge'] = "badge-beginner";
+                        }
+                        $quiz_attempts[] = $qRow;
+                    }
+                    $stmtQ->close();
+                }
+            }
+
             $conn->close();
 
             echo json_encode([
@@ -209,7 +253,8 @@ class ProfileController extends Controller {
                 'user' => $user,
                 'saved_degrees' => $saved_degrees,
                 'saved_colleges' => $saved_colleges,
-                'latest_assessment' => $assessment
+                'latest_assessment' => $assessment,
+                'quiz_attempts' => $quiz_attempts
             ]);
         } catch (Throwable $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
