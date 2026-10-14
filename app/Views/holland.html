@@ -1,44 +1,208 @@
-<div class="max-w-[1400px] mx-auto px-4 py-16 w-full">
-    <div class="text-center mb-12">
-        <h1 class="text-3xl font-serif-heading font-bold text-gray-900 mb-4">The Holland Codes (RIASEC)</h1>
-        <p class="text-gray-500 max-w-2xl mx-auto">Dr. John Holland's theory posits that people and work environments can be loosely classified into six different groups. Discover which traits resonate with your personality.</p>
-    </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- R -->
-            <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-center">
-                <div class="w-16 h-16 bg-gray-100 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-gray-800 mb-4">R</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Realistic (The Doer)</h3>
-                <p class="text-sm text-gray-500">Practical, visual, and hands-on tools, machinery, athletics, nature, and tangible physical objects.</p>
+<div class="bg-[#fdfaf6] min-h-screen py-16 px-4 md:px-8">
+    <div class="max-w-[1400px] mx-auto w-full">
+        <!-- Header -->
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/70 border border-emerald-200 text-emerald-800 text-xs font-black tracking-widest uppercase mb-4 shadow-2xs">
+                <span>Psychometric Framework</span>
             </div>
-            <!-- I -->
-            <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-center">
-                <div class="w-16 h-16 bg-emerald-50 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-emerald-800 mb-4">I</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Investigative (The Thinker)</h3>
-                <p class="text-sm text-gray-500">Analytical, intellectual, and scientific observing, analyzing, problem-solving, and interpreting data.</p>
-            </div>
-            <!-- A -->
-            <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-center">
-                <div class="w-16 h-16 bg-purple-50 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-purple-800 mb-4">A</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Artistic (The Creator)</h3>
-                <p class="text-sm text-gray-500">Creative, original, independent self-expression, graphic design, writing, music, performing arts.</p>
-            </div>
-            <!-- S -->
-            <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-center">
-                <div class="w-16 h-16 bg-blue-50 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-blue-800 mb-4">S</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Social (The Helper)</h3>
-                <p class="text-sm text-gray-500">Empathetic, communicative individuals. Enjoys teaching, mentoring, healing, counseling.</p>
-            </div>
-            <!-- E -->
-            <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-center">
-                <div class="w-16 h-16 bg-orange-50 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-orange-800 mb-4">E</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Enterprising (The Persuader)</h3>
-                <p class="text-sm text-gray-500">Ambitious, energetic leaders who enjoy entrepreneurship, business tactics, negotiation, marketing.</p>
-            </div>
-            <!-- C -->
-            <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm hover:shadow-md transition text-center">
-                <div class="w-16 h-16 bg-yellow-50 rounded-full mx-auto flex items-center justify-center text-3xl font-bold text-yellow-800 mb-4">C</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">Conventional (The Organizer)</h3>
-                <p class="text-sm text-gray-500">Organized, systematic, detail-oriented managing data structures, accounting ledgers, office logistics.</p>
-            </div>
+            <h1 class="text-4xl md:text-5xl font-serif-heading font-bold text-gray-900 mb-4">
+                The Holland Codes (RIASEC)
+            </h1>
+            <p class="text-gray-600 text-base md:text-lg leading-relaxed">
+                Dr. John L. Holland's theory posits that individuals and occupational environments can be categorized into six broad types. Finding harmony between your primary traits and your college major leads to higher career satisfaction and academic excellence.
+            </p>
         </div>
+
+        <!-- 6 Trait Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
+            
+            <!-- Realistic -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-16 h-16 bg-rose-100 text-rose-700 rounded-2xl flex items-center justify-center font-extrabold text-2xl group-hover:scale-110 transition-transform shadow-2xs">
+                        R
+                    </div>
+                    <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">The Doer</span>
+                </div>
+                
+                <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 group-hover:text-rose-700 transition-colors">
+                    Realistic
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Practical, hands-on, and tool-oriented. Realistic individuals thrive when working with machinery, mechanical structures, physical tools, and the natural outdoors.
+                </p>
+
+                <div class="bg-rose-50/50 rounded-xl p-4 border border-rose-100 mb-6 flex-grow">
+                    <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider mb-2">Top Cavite Degrees:</h4>
+                    <p class="text-xs text-rose-800 leading-relaxed font-medium">BS Civil Engineering, BS Mechanical Engineering, BS Architecture, BS Information Technology</p>
+                    
+                    <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider mt-3 mb-2">Sample Careers:</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">Structural Engineer, Architect, Network Hardware Tech, Robotics Specialist</p>
+                </div>
+
+                <a href="degrees?trait=R" class="w-full bg-gray-50 hover:bg-rose-600 hover:text-white border border-gray-200 hover:border-rose-600 text-gray-800 text-xs font-bold py-3 rounded-xl transition text-center shadow-2xs">
+                    Browse Realistic Degrees &rarr;
+                </a>
+            </div>
+
+            <!-- Investigative -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-16 h-16 bg-blue-100 text-blue-700 rounded-2xl flex items-center justify-center font-extrabold text-2xl group-hover:scale-110 transition-transform shadow-2xs">
+                        I
+                    </div>
+                    <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">The Thinker</span>
+                </div>
+                
+                <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
+                    Investigative
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Analytical, intellectual, and scientific. Investigative minds love untangling mathematical puzzles, analyzing raw data, and conducting scientific research.
+                </p>
+
+                <div class="bg-blue-50/50 rounded-xl p-4 border border-blue-100 mb-6 flex-grow">
+                    <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider mb-2">Top Cavite Degrees:</h4>
+                    <p class="text-xs text-blue-800 leading-relaxed font-medium">BS Computer Science, BS Medical Technology, BS Applied Mathematics, BS Biology</p>
+                    
+                    <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider mt-3 mb-2">Sample Careers:</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">Software Architect, Data Scientist, Clinical Researcher, Biochemist</p>
+                </div>
+
+                <a href="degrees?trait=I" class="w-full bg-gray-50 hover:bg-blue-600 hover:text-white border border-gray-200 hover:border-blue-600 text-gray-800 text-xs font-bold py-3 rounded-xl transition text-center shadow-2xs">
+                    Browse Investigative Degrees &rarr;
+                </a>
+            </div>
+
+            <!-- Artistic -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-16 h-16 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center font-extrabold text-2xl group-hover:scale-110 transition-transform shadow-2xs">
+                        A
+                    </div>
+                    <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">The Creator</span>
+                </div>
+                
+                <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 group-hover:text-purple-700 transition-colors">
+                    Artistic
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Creative, original, and independent. Creators seek expressive outlets across visual communication, interactive storytelling, digital illustration, and UX design.
+                </p>
+
+                <div class="bg-purple-50/50 rounded-xl p-4 border border-purple-100 mb-6 flex-grow">
+                    <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wider mb-2">Top Cavite Degrees:</h4>
+                    <p class="text-xs text-purple-800 leading-relaxed font-medium">BA Multimedia Arts, BS Digital Animation, BA Communication, BS Interior Design</p>
+                    
+                    <h4 class="text-xs font-bold text-purple-900 uppercase tracking-wider mt-3 mb-2">Sample Careers:</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">Product Designer, Graphic Artist, Animator, Creative Director</p>
+                </div>
+
+                <a href="degrees?trait=A" class="w-full bg-gray-50 hover:bg-purple-600 hover:text-white border border-gray-200 hover:border-purple-600 text-gray-800 text-xs font-bold py-3 rounded-xl transition text-center shadow-2xs">
+                    Browse Artistic Degrees &rarr;
+                </a>
+            </div>
+
+            <!-- Social -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center font-extrabold text-2xl group-hover:scale-110 transition-transform shadow-2xs">
+                        S
+                    </div>
+                    <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">The Helper</span>
+                </div>
+                
+                <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">
+                    Social
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Empathetic, communicative, and compassionate. Social individuals find profound meaning in teaching, healing, counseling, and nurturing human development.
+                </p>
+
+                <div class="bg-emerald-50/50 rounded-xl p-4 border border-emerald-100 mb-6 flex-grow">
+                    <h4 class="text-xs font-bold text-emerald-900 uppercase tracking-wider mb-2">Top Cavite Degrees:</h4>
+                    <p class="text-xs text-emerald-800 leading-relaxed font-medium">BS Nursing, Bachelor of Secondary Education, BS Psychology, BS Physical Therapy</p>
+                    
+                    <h4 class="text-xs font-bold text-emerald-900 uppercase tracking-wider mt-3 mb-2">Sample Careers:</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">Registered Nurse, Secondary Teacher, Guidance Counselor, Physical Therapist</p>
+                </div>
+
+                <a href="degrees?trait=S" class="w-full bg-gray-50 hover:bg-emerald-700 hover:text-white border border-gray-200 hover:border-emerald-700 text-gray-800 text-xs font-bold py-3 rounded-xl transition text-center shadow-2xs">
+                    Browse Social Degrees &rarr;
+                </a>
+            </div>
+
+            <!-- Enterprising -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-16 h-16 bg-orange-100 text-orange-700 rounded-2xl flex items-center justify-center font-extrabold text-2xl group-hover:scale-110 transition-transform shadow-2xs">
+                        E
+                    </div>
+                    <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200">The Persuader</span>
+                </div>
+                
+                <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 group-hover:text-orange-700 transition-colors">
+                    Enterprising
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Ambitious, charismatic, and strategic. Persuaders excel at commercial leadership, corporate negotiation, public relations, and organizing teams.
+                </p>
+
+                <div class="bg-orange-50/50 rounded-xl p-4 border border-orange-100 mb-6 flex-grow">
+                    <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wider mb-2">Top Cavite Degrees:</h4>
+                    <p class="text-xs text-orange-800 leading-relaxed font-medium">BS Business Administration, BS Marketing Management, BS Entrepreneurship, BS Hospitality</p>
+                    
+                    <h4 class="text-xs font-bold text-orange-900 uppercase tracking-wider mt-3 mb-2">Sample Careers:</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">Marketing Manager, Venture Founder, Corporate Sales Lead, Operations Director</p>
+                </div>
+
+                <a href="degrees?trait=E" class="w-full bg-gray-50 hover:bg-orange-600 hover:text-white border border-gray-200 hover:border-orange-600 text-gray-800 text-xs font-bold py-3 rounded-xl transition text-center shadow-2xs">
+                    Browse Enterprising Degrees &rarr;
+                </a>
+            </div>
+
+            <!-- Conventional -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col group relative overflow-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-700 rounded-2xl flex items-center justify-center font-extrabold text-2xl group-hover:scale-110 transition-transform shadow-2xs">
+                        C
+                    </div>
+                    <span class="text-xs uppercase font-extrabold tracking-widest px-3 py-1 rounded-full bg-slate-50 text-slate-700 border border-slate-200">The Organizer</span>
+                </div>
+                
+                <h3 class="text-2xl font-serif-heading font-bold text-gray-900 mb-2 group-hover:text-slate-700 transition-colors">
+                    Conventional
+                </h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-6">
+                    Organized, detail-oriented, and systematic. Organizers enjoy rigorous record-keeping, financial audits, database management, and structured procedures.
+                </p>
+
+                <div class="bg-slate-50/50 rounded-xl p-4 border border-slate-200 mb-6 flex-grow">
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">Top Cavite Degrees:</h4>
+                    <p class="text-xs text-slate-800 leading-relaxed font-medium">BS Accountancy, BS Management Accounting, BS Information Systems, BS Customs Admin</p>
+                    
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mt-3 mb-2">Sample Careers:</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed">Certified Public Accountant (CPA), Internal Auditor, Systems Admin, Financial Analyst</p>
+                </div>
+
+                <a href="degrees?trait=C" class="w-full bg-gray-50 hover:bg-slate-700 hover:text-white border border-gray-200 hover:border-slate-700 text-gray-800 text-xs font-bold py-3 rounded-xl transition text-center shadow-2xs">
+                    Browse Conventional Degrees &rarr;
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Take Assessment Banner -->
+        <div class="bg-white rounded-[2.5rem] p-10 md:p-14 border border-gray-100 shadow-xl text-center max-w-4xl mx-auto flex flex-col items-center">
+            <h3 class="text-3xl font-serif-heading font-bold text-gray-900 mb-3">Which Holland Code Are You?</h3>
+            <p class="text-gray-500 max-w-lg mx-auto mb-8 text-sm md:text-base leading-relaxed">
+                Most students have a blend of 2 to 3 dominant traits. Find out your personal ranking with our interactive career assessment.
+            </p>
+            <a href="assessment" class="bg-[#0e3223] hover:bg-black text-white px-10 py-4 rounded-full font-bold text-base transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 inline-flex items-center gap-3">
+                <span>Start Assessment</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+            </a>
+        </div>
+
+    </div>
 </div>

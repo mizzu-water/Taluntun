@@ -1,28 +1,301 @@
 <div class="max-w-[1400px] mx-auto px-4 py-16 w-full">
-    <div class="text-center mb-12">
-        <h1 class="text-3xl font-serif-heading font-bold text-gray-900 mb-4">Scholarships & Grants</h1>
-        <p class="text-gray-500 max-w-2xl mx-auto">Explore available financial assistance programs in Cavite and check if your profile makes you eligible to apply.</p>
-    </div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow flex flex-col">
-                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg mb-6">D</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">DOST-SEI Merit Scholarship</h3>
-                <p class="text-sm text-gray-600 mb-6 flex-grow">Highly competitive scholarship for students pursuing basic and applied sciences, engineering, and mathematics.</p>
-                <a href="https://sei.dost.gov.ph/" target="_blank" class="block text-center w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-bold py-2.5 rounded transition">Check Eligibility</a>
-            </div>
-            
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow flex flex-col">
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center font-bold text-lg mb-6">C</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">CHED Scholarship Program</h3>
-                <p class="text-sm text-gray-600 mb-6 flex-grow">Financial assistance for underprivileged but deserving students enrolling in CHED-recognized priority programs.</p>
-                <a href="https://ched.gov.ph/ched-scholarship-program/" target="_blank" class="block text-center w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-bold py-2.5 rounded transition">Check Eligibility</a>
-            </div>
+    <!-- Header -->
+    <div class="text-center mb-12 max-w-3xl mx-auto">
+        <span class="inline-block text-xs font-bold uppercase tracking-widest text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-100 mb-4">Financial Assistance & Grants</span>
+        <h1 class="text-3xl md:text-5xl font-serif-heading font-bold text-gray-900 mb-4">Cavite College Scholarships</h1>
+        <p class="text-gray-600 text-base md:text-lg leading-relaxed">
+            Discover verified scholarships, government subsidies, and private foundation grants available to students studying in Dasmariñas and across Cavite.
+        </p>
 
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-shadow flex flex-col">
-                <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center font-bold text-lg mb-6">U</div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2">UNIFAST Free Higher Ed</h3>
-                <p class="text-sm text-gray-600 mb-6 flex-grow">Free tuition and miscellaneous fees in State Universities and Colleges (SUCs) like TUP and CvSU.</p>
-                <a href="https://unifast.gov.ph/" target="_blank" class="block text-center w-full bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 text-sm font-bold py-2.5 rounded transition">Check Eligibility</a>
+        <!-- Search & Filter Controls -->
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div class="relative w-full max-w-md">
+                <input type="text" id="scholarshipSearch" placeholder="Search by name, course, or provider..." class="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                <svg class="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
         </div>
+
+        <!-- Filter Pills -->
+        <div class="flex flex-wrap items-center justify-center gap-2 mt-4" id="scholarshipFilters">
+            <button class="filter-pill active px-4 py-1.5 rounded-full text-xs font-bold transition bg-[#0e3223] text-white shadow-sm" data-category="ALL">All Grants</button>
+            <button class="filter-pill px-4 py-1.5 rounded-full text-xs font-bold transition bg-white text-gray-700 border border-gray-200 hover:border-emerald-500" data-category="GOV">National Government</button>
+            <button class="filter-pill px-4 py-1.5 rounded-full text-xs font-bold transition bg-white text-gray-700 border border-gray-200 hover:border-emerald-500" data-category="LGU">Cavite Local LGU</button>
+            <button class="filter-pill px-4 py-1.5 rounded-full text-xs font-bold transition bg-white text-gray-700 border border-gray-200 hover:border-emerald-500" data-category="PRIVATE">Private Foundations</button>
+        </div>
+    </div>
+
+    <!-- Scholarship Cards Grid -->
+    <div id="scholarshipsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        
+        <!-- DOST-SEI -->
+        <div class="scholarship-card bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative" data-category="GOV" data-keywords="dost science technology stem engineering mathematics merit ra 7687">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-14 h-14 bg-blue-50 text-blue-700 rounded-2xl flex items-center justify-center font-extrabold text-xl group-hover:scale-105 transition-transform">
+                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                </div>
+                <span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">National Gov</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">DOST-SEI S&T Scholarship</h3>
+            <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                Prestigious undergraduate scholarship for top STEM and non-STEM students enrolling in priority science, mathematics, computing, and engineering degrees.
+            </p>
+
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-2">
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Coverage:</strong> Tuition subsidy, ₱7,000/mo stipend, book allowance</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Applicable in:</strong> CvSU, TUP-Cavite, DLSU-D (accredited programs)</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-auto">
+                <a href="https://sei.dost.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 max-w-full whitespace-normal break-words text-center px-3 inline-flex items-center justify-center gap-1 bg-[#0e3223] hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition shadow-sm">
+                    Apply on DOST Portal &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- CHED CSP -->
+        <div class="scholarship-card bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative" data-category="GOV" data-keywords="ched scholarship program csp financial assistance priority courses full merit half merit">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-14 h-14 bg-emerald-50 text-emerald-700 rounded-2xl flex items-center justify-center font-extrabold text-xl group-hover:scale-105 transition-transform">
+                    <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                </div>
+                <span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">National Gov</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">CHED Scholarship Program (CSP)</h3>
+            <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                Direct financial grant for qualified graduating senior high school students enrolling in CHED-identified priority higher education degree programs.
+            </p>
+
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-2">
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Coverage:</strong> Up to ₱120,000/year for Full Merit beneficiaries</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Eligibility:</strong> General Weighted Average of 93% or higher</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-auto">
+                <a href="https://ched.gov.ph/ched-scholarship-program/" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 max-w-full whitespace-normal break-words text-center px-3 inline-flex items-center justify-center gap-1 bg-[#0e3223] hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition shadow-sm">
+                    CHED Application Details &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- UNIFAST Free SUC Higher Ed -->
+        <div class="scholarship-card bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative" data-category="GOV" data-keywords="unifast free higher education act ra 10931 sucs lucs tertiary education subsidy tes cvsu tup">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-14 h-14 bg-amber-50 text-amber-700 rounded-2xl flex items-center justify-center font-extrabold text-xl group-hover:scale-105 transition-transform">
+                    <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
+                </div>
+                <span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">Free Tuition Act</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">UNIFAST Free Higher Education</h3>
+            <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                Republic Act 10931 guarantees 100% free tuition and miscellaneous fees for all eligible Filipino students in State and Local Universities in Cavite.
+            </p>
+
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-2">
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Coverage:</strong> 100% Tuition & miscellaneous institutional fees</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Participating SUCs:</strong> CvSU Main/Campuses, TUP-Cavite</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-auto">
+                <a href="https://unifast.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 max-w-full whitespace-normal break-words text-center px-3 inline-flex items-center justify-center gap-1 bg-[#0e3223] hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition shadow-sm">
+                    View UNIFAST Guidelines &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- Cavite Provincial Government (PGC) -->
+        <div class="scholarship-card bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative" data-category="LGU" data-keywords="cavite provincial government scholarship pgc provincial youth financial assistance trece martires dasmarinas">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-14 h-14 bg-teal-50 text-teal-700 rounded-2xl flex items-center justify-center font-extrabold text-xl group-hover:scale-105 transition-transform">
+                    <svg class="w-7 h-7 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200">Cavite Provincial</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">Provincial Government of Cavite (PGC)</h3>
+            <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                Provincial educational assistance established to support bonafide Caviteño residents pursuing baccalaureate degrees in accredited higher education institutions.
+            </p>
+
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-2">
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Coverage:</strong> Semester financial subsidy and academic incentives</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Eligibility:</strong> Cavite residency certificate & voter's certification</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-auto">
+                <a href="https://cavite.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 max-w-full whitespace-normal break-words text-center px-3 inline-flex items-center justify-center gap-1 bg-[#0e3223] hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition shadow-sm">
+                    Visit Cavite.gov.ph &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- City of Dasmariñas KLD Assistance -->
+        <div class="scholarship-card bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative" data-category="LGU" data-keywords="dasmarinas kld kolehiyo ng lungsod ng dasmarinas educational assistance local city government">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-14 h-14 bg-purple-50 text-purple-700 rounded-2xl flex items-center justify-center font-extrabold text-xl group-hover:scale-105 transition-transform">
+                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
+                <span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-purple-50 text-purple-700 border border-purple-200">Dasma City LGU</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">Dasmariñas City Educational Assistance</h3>
+            <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                City scholarship programs and full subsidized college enrollment through Kolehiyo ng Lungsod ng Dasmariñas (KLD) for registered Dasmariño youth.
+            </p>
+
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-2">
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Coverage:</strong> 100% Free Tuition at KLD + City stipend programs</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Target:</strong> Midwifery, Nursing, IT, and Psychology students</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-auto">
+                <a href="https://dasmarinas.gov.ph/" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 max-w-full whitespace-normal break-words text-center px-3 inline-flex items-center justify-center gap-1 bg-[#0e3223] hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition shadow-sm">
+                    Inquire at Dasma LGU &rarr;
+                </a>
+            </div>
+        </div>
+
+        <!-- SM Foundation College Scholarship -->
+        <div class="scholarship-card bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col group relative" data-category="PRIVATE" data-keywords="sm foundation college scholarship private stem business accountancy allowance mentorship dlsu-d">
+            <div class="flex items-center justify-between mb-6">
+                <div class="w-14 h-14 bg-rose-50 text-rose-700 rounded-2xl flex items-center justify-center font-extrabold text-xl group-hover:scale-105 transition-transform">
+                    <svg class="w-7 h-7 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                </div>
+                <span class="text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">Private Foundation</span>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700 transition-colors">SM Foundation College Scholarship</h3>
+            <p class="text-sm text-gray-600 mb-6 flex-grow leading-relaxed">
+                One of the country's most comprehensive private scholarships supporting deserving public high school graduates with partner universities in Region IV-A.
+            </p>
+
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6 space-y-2">
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Coverage:</strong> 100% Tuition, monthly allowance, part-time jobs</span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <svg class="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span><strong>Priority:</strong> Computer Science, Engineering, Accountancy</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 mt-auto">
+                <a href="https://www.sm-foundation.org/" target="_blank" rel="noopener noreferrer" class="flex-1 min-w-0 max-w-full whitespace-normal break-words text-center px-3 inline-flex items-center justify-center gap-1 bg-[#0e3223] hover:bg-black text-white text-xs font-bold py-3 rounded-xl transition shadow-sm">
+                    SM Foundation Portal &rarr;
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Empty State for Search -->
+    <div id="noScholarshipFound" class="hidden text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm mt-8">
+        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <h3 class="text-xl font-bold text-gray-900 mb-2">No matching scholarships found</h3>
+        <p class="text-gray-500 max-w-md mx-auto text-sm">Try adjusting your search terms or clearing your category filters.</p>
+    </div>
+
+    <!-- Advisory Banner -->
+    <div class="mt-16 bg-emerald-50 rounded-3xl p-8 border border-emerald-100 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+            <h4 class="text-lg font-bold text-emerald-950 mb-1">Looking for University-Specific Grants?</h4>
+            <p class="text-sm text-emerald-800 leading-relaxed">
+                Many institutions like DLSU-D, PCU, EAC-Cavite, and NCST offer internal academic entrance scholarships, athlete waivers, and sibling discounts directly at their admissions offices.
+            </p>
+        </div>
+        <a href="colleges" class="flex-shrink-0 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-6 py-3.5 rounded-xl transition shadow-sm">
+            Explore Cavite Campuses &rarr;
+        </a>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('scholarshipSearch');
+    const filterPills = document.querySelectorAll('#scholarshipFilters .filter-pill');
+    const cards = document.querySelectorAll('.scholarship-card');
+    const emptyState = document.getElementById('noScholarshipFound');
+
+    let activeCategory = 'ALL';
+
+    function filterScholarships() {
+        const query = (searchInput.value || '').toLowerCase().trim();
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            const cardCat = card.getAttribute('data-category');
+            const cardText = (card.textContent || '').toLowerCase();
+            const cardKeywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+
+            const matchesCategory = (activeCategory === 'ALL' || cardCat === activeCategory);
+            const matchesQuery = (!query || cardText.includes(query) || cardKeywords.includes(query));
+
+            if (matchesCategory && matchesQuery) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (visibleCount === 0) {
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', filterScholarships);
+    }
+
+    filterPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            activeCategory = pill.getAttribute('data-category') || 'ALL';
+
+            filterPills.forEach(p => {
+                p.classList.remove('bg-[#0e3223]', 'text-white', 'shadow-sm');
+                p.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-200');
+            });
+
+            pill.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-200');
+            pill.classList.add('bg-[#0e3223]', 'text-white', 'shadow-sm');
+
+            filterScholarships();
+        });
+    });
+});
+</script>

@@ -35,23 +35,74 @@ function jsonResponse(bool $success, string $message, array $data = []): void {
 }
 
 function startAuthSession(): void {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    if (session_status() !== PHP_SESSION_NONE) return;
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.use_trans_sid', '0');
+    $secure = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || (($_SERVER['SERVER_PORT'] ?? null) == 443);
+    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Lax']);
+    session_start();
 }
 
 function isLoggedIn(): bool {
+    static $checkedUserId = null;
+    static $checkedResult = false;
     startAuthSession();
-    return isset($_SESSION['user_id']);
+    if (!isset($_SESSION['user_id']) || filter_var($_SESSION['user_id'], FILTER_VALIDATE_INT) === false || (int)$_SESSION['user_id'] < 1) return false;
+    $userId = (int)$_SESSION['user_id'];
+    if ($checkedUserId === $userId) return $checkedResult;
+    $checkedUserId = $userId;
+    try {
+        $conn = getDB();
+        $stmt = $conn->prepare('SELECT is_verified FROM users WHERE id = ? LIMIT 1');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $stmt->bind_result($isVerified);
+        $checkedResult = $stmt->fetch() && (bool)$isVerified;
+        $stmt->close();
+        $conn->close();
+    } catch (Throwable $error) {
+        $checkedResult = false;
+    }
+    if (!$checkedResult) {
+        unset($_SESSION['user_id'], $_SESSION['full_name'], $_SESSION['email'], $_SESSION['user_type']);
+    }
+    return $checkedResult;
+}
+function safeAuthReturnPath($candidate): ?string {
+    if (!is_string($candidate) || $candidate === '' || preg_match('/[\\x00-\\x1F\\\\]/', $candidate)) return null;
+    $parts = parse_url($candidate);
+    if ($parts === false || isset($parts['scheme']) || isset($parts['host']) || isset($parts['user']) || isset($parts['pass'])) return null;
+    $path = $parts['path'] ?? '';
+    if (strpos($path, '//') !== false) return null;
+    $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
+    $base = rtrim($scriptDir, '/');
+    if ($base !== '' && $base !== '.' && strpos($path, $base . '/') === 0) $path = substr($path, strlen($base) + 1);
+    $route = trim($path, '/');
+    if (strpos($route, '/') !== false || !in_array($route, ['assessment', 'results', 'course-quiz'], true)) return null;
+    parse_str($parts['query'] ?? '', $query);
+    $safeQuery = [];
+    if ($route === 'assessment' && isset($query['retake']) && in_array($query['retake'], ['standard', 'extended'], true)) $safeQuery['retake'] = $query['retake'];
+    if ($route === 'course-quiz' && isset($query['degree_id']) && ctype_digit((string)$query['degree_id']) && (int)$query['degree_id'] > 0) $safeQuery['degree_id'] = (string)(int)$query['degree_id'];
+    return $route . ($safeQuery ? '?' . http_build_query($safeQuery) : '');
 }
 
-function requireLogin(): void {
-    if (!isLoggedIn()) {
-        header('Location: login.html');
+function requireLogin(?string $returnTo = null, bool $isApi = false): void {
+    if (isLoggedIn()) return;
+    $target = safeAuthReturnPath($returnTo) ?? 'assessment';
+    $_SESSION['auth_return_to'] = $target;
+    $loginUrl = 'login?return=' . rawurlencode($target);
+    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
+    if ($isApi || strpos($requestPath, '/api/') !== false || stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false) {
+        http_response_code(401);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store, private');
+        echo json_encode(['success' => false, 'message' => 'Please sign in or create an account before taking an assessment.', 'redirect' => $loginUrl]);
         exit;
     }
+    header('Location: ' . $loginUrl, true, 302);
+    exit;
 }
-
 /**
  * Send an email verification code using PHPMailer.
  * Returns array: ['success' => bool, 'error' => string]

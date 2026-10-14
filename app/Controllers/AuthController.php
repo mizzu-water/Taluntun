@@ -4,8 +4,14 @@ require_once __DIR__ . '/../../auth/config.php';
 class AuthController extends Controller {
 
     public function login() {
+        startAuthSession();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && isset($_GET['return'])) {
+            $requestedReturn = safeAuthReturnPath($_GET['return']);
+            if ($requestedReturn !== null) $_SESSION['auth_return_to'] = $requestedReturn;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Content-Type: application/json');
+            $this->validateCsrf();
             require_once 'auth/config.php';
             $data = json_decode(file_get_contents('php://input'), true);
 
@@ -48,10 +54,14 @@ class AuthController extends Controller {
             $_SESSION['email']     = $user['email'];
             $_SESSION['user_type'] = $user['user_type'];
 
+            $redirect = safeAuthReturnPath($_SESSION['auth_return_to'] ?? '') ?? 'home';
+            unset($_SESSION['auth_return_to']);
             jsonResponse(true, 'Login successful.', [
+                'user_id'   => (int)$user['id'],
                 'full_name' => $user['full_name'],
+                'email'     => $user['email'],
                 'user_type' => $user['user_type'],
-                'redirect'  => '' 
+                'redirect'  => $redirect 
             ]);
             exit;
         }
@@ -68,6 +78,7 @@ class AuthController extends Controller {
             jsonResponse(false, 'Method not allowed.');
         }
 
+        $this->validateCsrf();
         require_once 'auth/config.php';
         $data = json_decode(file_get_contents('php://input'), true);
         $errors = [];
@@ -153,6 +164,10 @@ class AuthController extends Controller {
         require_once 'auth/config.php';
         startAuthSession();
         $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'] ?? '', $params['secure'], $params['httponly']);
+        }
         session_destroy();
         
         // Return a view instead of hardcoded HTML
@@ -161,6 +176,7 @@ class AuthController extends Controller {
     
     public function verifyCode() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonResponse(false, 'Method not allowed.');
+        $this->validateCsrf();
         require_once 'auth/config.php';
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -208,11 +224,14 @@ class AuthController extends Controller {
         $_SESSION['email']     = $email;
         $_SESSION['user_type'] = $user['user_type'];
 
-        jsonResponse(true, 'Account verified successfully!', ['redirect' => 'index']);
+        $redirect = safeAuthReturnPath($_SESSION['auth_return_to'] ?? '') ?? 'home';
+        unset($_SESSION['auth_return_to']);
+        jsonResponse(true, 'Account verified successfully!', ['user_id' => (int)$user['id'], 'full_name' => $user['full_name'], 'email' => $email, 'user_type' => $user['user_type'], 'redirect' => $redirect]);
     }
 
     public function resendCode() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') jsonResponse(false, 'Method not allowed.');
+        $this->validateCsrf();
         require_once 'auth/config.php';
         $data = json_decode(file_get_contents('php://input'), true);
         $email = trim($data['email'] ?? '');

@@ -1,4 +1,8 @@
 RewriteEngine On
+
+# Keep application internals, credentials, and the legacy assessment backup off the public web path.
+RewriteRule ^(?:app|auth|core|database)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:\.env|assessment_backup\.html)$ - [F,L,NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]

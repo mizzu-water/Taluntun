@@ -10,16 +10,14 @@ class Controller {
     }
 
     protected function validateCsrf() {
-        $headers = getallheaders();
-        $token = $headers['X-CSRF-Token'] ?? '';
-        if (empty($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (empty($token) || empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
             http_response_code(403);
-            header('Content-Type: application/json');
+            header('Content-Type: application/json; charset=utf-8');
             echo json_encode(['success' => false, 'message' => 'CSRF token validation failed.']);
             exit;
         }
-    }
-    public function view($view, $data = []) {
+    }    public function view($view, $data = []) {
         extract($data);
         $file = null;
         if (file_exists("app/Views/$view.php")) {

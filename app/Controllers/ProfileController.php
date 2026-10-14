@@ -5,47 +5,6 @@ class ProfileController extends Controller {
     public function index() {
         $this->view('profile');
     }
-    public function getCurrentUser() {
-        header('Content-Type: application/json');
-        require_once 'auth/config.php';
-        startAuthSession();
-        if (!isLoggedIn()) {
-            echo json_encode(['logged_in' => false]);
-            exit;
-        }
-
-        $userId = intval($_SESSION['user_id']);
-        $email = $_SESSION['email'] ?? '';
-        $fullName = $_SESSION['full_name'] ?? '';
-        $userType = $_SESSION['user_type'] ?? 'student';
-
-        if (empty($email) || empty($fullName)) {
-            $conn = getDB();
-            $stmt = $conn->prepare("SELECT full_name, email, user_type FROM users WHERE id = ?");
-            $stmt->bind_param("i", $userId);
-            $stmt->execute();
-            $res = $stmt->get_result();
-            if ($row = $res->fetch_assoc()) {
-                $fullName = $row['full_name'];
-                $email = $row['email'];
-                $userType = $row['user_type'];
-                $_SESSION['full_name'] = $fullName;
-                $_SESSION['email'] = $email;
-                $_SESSION['user_type'] = $userType;
-            }
-            $stmt->close();
-            $conn->close();
-        }
-
-        echo json_encode([
-            'logged_in' => true,
-            'id' => $userId,
-            'full_name' => $fullName ?: 'Student',
-            'email' => $email,
-            'user_type' => $userType
-        ]);
-        exit;
-    }
     public function settings() {
         $this->view('settings');
     }
@@ -153,152 +112,183 @@ class ProfileController extends Controller {
         }
     }
 
-    public function saveFavoriteSubjects() {
+    public function getProfileData() {
         header('Content-Type: application/json');
         require_once 'auth/config.php';
         startAuthSession();
         if (!isLoggedIn()) {
-            echo json_encode(['success' => false, 'error' => 'Not logged in']);
-            exit;
-        }
-
-        $data = json_decode(file_get_contents('php://input'), true);
-        $subjects = $data['subjects'] ?? [];
-        $subjects_str = is_array($subjects) ? json_encode(array_values(array_filter($subjects))) : '[]';
-
-        $user_id = intval($_SESSION['user_id']);
-        $conn = getDB();
-        $stmt = $conn->prepare("UPDATE users SET favorite_subjects = ? WHERE id = ?");
-        $stmt->bind_param("si", $subjects_str, $user_id);
-        $success = $stmt->execute();
-        $stmt->close();
-        $conn->close();
-
-        echo json_encode(['success' => $success, 'message' => 'Favorite subjects updated successfully']);
-        exit;
-    }
-
-    public function getFavoriteSubjects() {
-        header('Content-Type: application/json');
-        require_once 'auth/config.php';
-        startAuthSession();
-        if (!isLoggedIn()) {
-            echo json_encode(['success' => false, 'subjects' => []]);
+            echo json_encode(['success' => false, 'error' => 'Not authenticated', 'redirect' => 'login']);
             exit;
         }
 
         $user_id = intval($_SESSION['user_id']);
         $conn = getDB();
-        $stmt = $conn->prepare("SELECT favorite_subjects FROM users WHERE id = ?");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $subjects = [];
-        if ($row = $res->fetch_assoc()) {
-            if (!empty($row['favorite_subjects'])) {
-                $decoded = json_decode($row['favorite_subjects'], true);
-                if (is_array($decoded)) {
-                    $subjects = $decoded;
-                }
+
+        try {
+            // 1. User Info
+            $stmt = $conn->prepare("SELECT id, full_name, email, user_type, is_verified, created_at FROM users WHERE id = ?");
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $user = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+
+            if (!$user) {
+                echo json_encode(['success' => false, 'error' => 'User not found']);
+                exit;
             }
-        }
-        $stmt->close();
-        $conn->close();
 
-        echo json_encode(['success' => true, 'subjects' => $subjects]);
-        exit;
-    }
+            // 2. Shortlisted Degrees
+            $sqlDegrees = "SELECT d.*, 1 as is_saved, usd.saved_at,
+                                  GROUP_CONCAT(CONCAT(c.short_name, '::', c.profile_url) SEPARATOR '|') as campuses_list
+                           FROM user_saved_degrees usd
+                           JOIN degrees d ON usd.degree_id = d.id
+                           LEFT JOIN college_degrees cd ON d.id = cd.degree_id
+                           LEFT JOIN colleges c ON cd.college_id = c.id
+                           WHERE usd.user_id = ?
+                           GROUP BY d.id
+                           ORDER BY usd.saved_at DESC";
+            $stmtD = $conn->prepare($sqlDegrees);
+            $stmtD->bind_param("i", $user_id);
+            $stmtD->execute();
+            $resD = $stmtD->get_result();
+            $saved_degrees = [];
+            while ($row = $resD->fetch_assoc()) {
+                $campuses = [];
+                if (!empty($row['campuses_list'])) {
+                    $pairs = explode('|', $row['campuses_list']);
+                    foreach ($pairs as $pair) {
+                        $parts = explode('::', $pair);
+                        if (count($parts) === 2) {
+                            $campuses[] = [
+                                'name' => $parts[0],
+                                'url' => str_replace('.html', '', $parts[1])
+                            ];
+                        }
+                    }
+                }
+                $row['campuses'] = $campuses;
+                $row['is_saved'] = true;
+                $saved_degrees[] = $row;
+            }
+            $stmtD->close();
 
-    public function changePassword() {
-        header('Content-Type: application/json');
-        require_once 'auth/config.php';
-        startAuthSession();
-        if (!isLoggedIn()) {
-            echo json_encode(['success' => false, 'error' => 'Please log in to change your password.']);
-            exit;
-        }
+            // 3. Shortlisted Colleges
+            $sqlColleges = "SELECT c.*, usc.saved_at
+                            FROM user_saved_colleges usc
+                            JOIN colleges c ON usc.college_id = c.id
+                            WHERE usc.user_id = ?
+                            ORDER BY usc.saved_at DESC";
+            $stmtC = $conn->prepare($sqlColleges);
+            $stmtC->bind_param("i", $user_id);
+            $stmtC->execute();
+            $resC = $stmtC->get_result();
+            $saved_colleges = [];
+            while ($row = $resC->fetch_assoc()) {
+                $saved_colleges[] = $row;
+            }
+            $stmtC->close();
 
-        $data = json_decode(file_get_contents('php://input'), true);
-        $currentPassword = trim($data['current_password'] ?? '');
-        $newPassword = trim($data['new_password'] ?? '');
-        $confirmPassword = trim($data['confirm_password'] ?? '');
+            // 4. Latest Assessment Result
+            $sqlAssessment = "SELECT id, scores, holland_code, taken_at 
+                              FROM assessment_results 
+                              WHERE user_id = ? 
+                              ORDER BY taken_at DESC LIMIT 1";
+            $stmtA = $conn->prepare($sqlAssessment);
+            $stmtA->bind_param("i", $user_id);
+            $stmtA->execute();
+            $assessment = $stmtA->get_result()->fetch_assoc();
+            $stmtA->close();
+            if ($assessment && !empty($assessment['scores'])) {
+                $assessment['scores'] = json_decode($assessment['scores'], true);
+            }
 
-        if (empty($currentPassword) || empty($newPassword) || empty($confirmPassword)) {
-            echo json_encode(['success' => false, 'error' => 'All password fields are required.']);
-            exit;
-        }
-
-        if (strlen($newPassword) < 8) {
-            echo json_encode(['success' => false, 'error' => 'New password must be at least 8 characters long.']);
-            exit;
-        }
-
-        if ($newPassword !== $confirmPassword) {
-            echo json_encode(['success' => false, 'error' => 'New password and confirmation do not match.']);
-            exit;
-        }
-
-        $userId = intval($_SESSION['user_id']);
-        $conn = getDB();
-        $stmt = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $user = $res->fetch_assoc();
-        $stmt->close();
-
-        if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
-            echo json_encode(['success' => false, 'error' => 'Current password is incorrect.']);
             $conn->close();
-            exit;
-        }
 
-        $newHash = password_hash($newPassword, PASSWORD_BCRYPT);
-        $updateStmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
-        $updateStmt->bind_param("si", $newHash, $userId);
-        $success = $updateStmt->execute();
-        $updateStmt->close();
-        $conn->close();
-
-        if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Password updated successfully!']);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to update password. Please try again.']);
+            echo json_encode([
+                'success' => true,
+                'user' => $user,
+                'saved_degrees' => $saved_degrees,
+                'saved_colleges' => $saved_colleges,
+                'latest_assessment' => $assessment
+            ]);
+        } catch (Throwable $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
-        exit;
     }
 
-    public function updateProfileName() {
+    public function updateSettings() {
         header('Content-Type: application/json');
         require_once 'auth/config.php';
         startAuthSession();
         if (!isLoggedIn()) {
-            echo json_encode(['success' => false, 'error' => 'Please log in.']);
+            echo json_encode(['success' => false, 'error' => 'Not authenticated']);
             exit;
         }
 
+        $user_id = intval($_SESSION['user_id']);
         $data = json_decode(file_get_contents('php://input'), true);
-        $fullName = trim($data['full_name'] ?? '');
 
-        if (empty($fullName)) {
-            echo json_encode(['success' => false, 'error' => 'Full name cannot be empty.']);
-            exit;
-        }
-
-        $userId = intval($_SESSION['user_id']);
         $conn = getDB();
-        $stmt = $conn->prepare("UPDATE users SET full_name = ? WHERE id = ?");
-        $stmt->bind_param("si", $fullName, $userId);
-        $success = $stmt->execute();
-        $stmt->close();
-        $conn->close();
 
-        if ($success) {
-            $_SESSION['full_name'] = $fullName;
-            echo json_encode(['success' => true, 'message' => 'Profile name updated successfully!', 'full_name' => $fullName]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to update profile name.']);
+        try {
+            // Update personal details if provided
+            if (isset($data['full_name']) && !empty(trim($data['full_name']))) {
+                $newName = trim($data['full_name']);
+                $newType = isset($data['user_type']) ? $data['user_type'] : $_SESSION['user_type'];
+                $stmt = $conn->prepare("UPDATE users SET full_name = ?, user_type = ? WHERE id = ?");
+                $stmt->bind_param("ssi", $newName, $newType, $user_id);
+                $stmt->execute();
+                $stmt->close();
+                $_SESSION['full_name'] = $newName;
+                $_SESSION['user_type'] = $newType;
+            }
+
+            // Update password if requested
+            if (!empty($data['new_password'])) {
+                if (empty($data['current_password'])) {
+                    echo json_encode(['success' => false, 'error' => 'Current password is required to set a new password.']);
+                    exit;
+                }
+
+                // Verify current password
+                $stmt = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $user = $stmt->get_result()->fetch_assoc();
+                $stmt->close();
+
+                if (!$user || !password_verify($data['current_password'], $user['password_hash'])) {
+                    echo json_encode(['success' => false, 'error' => 'Incorrect current password.']);
+                    exit;
+                }
+
+                if (strlen($data['new_password']) < 8) {
+                    echo json_encode(['success' => false, 'error' => 'New password must be at least 8 characters.']);
+                    exit;
+                }
+
+                if ($data['new_password'] !== ($data['confirm_password'] ?? '')) {
+                    echo json_encode(['success' => false, 'error' => 'New password and confirmation do not match.']);
+                    exit;
+                }
+
+                $newHash = password_hash($data['new_password'], PASSWORD_BCRYPT);
+                $stmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
+                $stmt->bind_param("si", $newHash, $user_id);
+                $stmt->execute();
+                $stmt->close();
+            }
+
+            $conn->close();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Settings updated successfully!',
+                'full_name' => $_SESSION['full_name'],
+                'user_type' => $_SESSION['user_type']
+            ]);
+        } catch (Throwable $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
-        exit;
     }
 }

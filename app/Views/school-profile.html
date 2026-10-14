@@ -5,22 +5,22 @@
             Back to Colleges
         </a>
     </div>
-        <div style="height: clamp(240px, 35vh, 320px); position: relative; overflow: hidden; border-radius: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 2rem; background-color: #111827;" class="w-full">
-        <img id="college-banner-img" src="" alt="Campus Image" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.45) 50%, rgba(0,0,0,0.1) 100%); z-index: 2;"></div>
-        <div style="position: absolute; bottom: 24px; left: 24px; right: 24px; z-index: 10; color: #ffffff;">
-            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
-                <span style="background-color: #059669; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; color: #ffffff;">CHED Recognized</span>
-                <span id="college-type-badge" style="background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.3); font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; color: #ffffff;">Private</span>
+    <div style="height: clamp(240px, 35vh, 320px);" class="w-full bg-gray-900 relative overflow-hidden rounded-[2rem] shadow-lg mb-8">
+        <img id="college-banner-img" src="" alt="Campus Image" class="w-full h-full object-contain object-center">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+        <div class="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 z-10 text-white">
+            <div class="flex flex-wrap gap-2 mb-3">
+                <span class="bg-emerald-600 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">CHED Recognized</span>
+                <span id="college-type-badge" class="bg-white/20 backdrop-blur-md border border-white/30 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">Private</span>
             </div>
-            <h1 id="college-name" class="font-serif-heading font-bold drop-shadow-lg leading-tight" style="font-size: clamp(1.75rem, 4vw, 2.75rem); margin: 0 0 8px 0; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">University Profile</h1>
-            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.95); text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
-                <svg style="width: 16px; height: 16px; color: #34d399; flex-shrink: 0;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"></path></svg>
+            <h1 id="college-name" class="text-3xl sm:text-4xl md:text-5xl font-serif-heading font-bold mb-3 drop-shadow-lg leading-tight">University Profile</h1>
+            <div class="flex items-center gap-2 text-sm sm:text-base font-medium opacity-90 drop-shadow">
+                <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"></path></svg>
                 <span id="college-address">Location details</span> &bull; <span id="college-uni-type">University</span>
             </div>
         </div>
-        <div style="position: absolute; top: 20px; right: 20px; z-index: 10; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(4px); color: #1f2937; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 9999px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid rgba(255, 255, 255, 0.6); display: flex; align-items: center; gap: 8px;">
-            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #10b981;"></span> Main Campus Grounds
+        <div class="absolute top-6 right-6 bg-white/95 backdrop-blur-sm text-gray-800 text-xs font-bold px-4 py-2 rounded-full shadow-md flex items-center gap-2 hidden sm:flex border border-white/50">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span> Main Campus Grounds
         </div>
     </div>
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -77,74 +77,13 @@
                 </ul>
             </div>
             
-                                    <div id="map-section" class="bg-white border border-gray-100 rounded-2xl p-5 sm:p-6 shadow-sm hidden" style="width: 100%; box-sizing: border-box; overflow: hidden;">
-                <!-- Header with Title & Pinned Badge -->
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; gap: 8px;">
-                    <h3 class="font-bold text-gray-900 text-base sm:text-lg" style="margin: 0; line-height: 1.2;">Location &amp; Map</h3>
-                    <span style="display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 9999px; background-color: #ecfdf5; border: 1px solid rgba(167, 243, 208, 0.8); color: #047857; font-size: 11px; font-weight: 600; flex-shrink: 0;">
-                        <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #10b981;"></span>
-                        Pinned
-                    </span>
-                </div>
-                <!-- Address Subtitle nicely wrapping underneath -->
-                <div id="college-map-school-name" style="font-size: 13px; font-weight: 700; color: #111827; margin: 2px 0 3px 0; line-height: 1.3;"></div>
-                <p id="college-map-address" style="margin: 0 0 12px 0; font-size: 12px; color: #6b7280; line-height: 1.35; word-break: break-word;">
-                    Dasmariñas City, Cavite
-                </p>
-                
-                                <!-- Map Container with Leaflet, My Location & Fullscreen Controls -->
-                <div id="school-map-box" style="position: relative; border-radius: 14px; border: 1px solid #e5e7eb; overflow: hidden; height: 220px; width: 100%; box-sizing: border-box; background: #f3f4f6;">
-                    <!-- Floating 'My location' button -->
-                    <button id="my-location-btn" type="button" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.96); color: #1f2937; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid rgba(229, 231, 235, 0.9); display: flex; align-items: center; gap: 6px; cursor: pointer; backdrop-filter: blur(4px); user-select: none;">
-                        <svg style="width: 13px; height: 13px; min-width: 13px; color: #2563eb;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="3" stroke-width="2"></circle>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
-                        </svg>
-                        <span id="locating-text">My location</span>
-                    </button>
-
-                    <!-- Full Screen Toggle Button -->
-                    <button id="fullscreen-map-btn" type="button" title="Full Screen Map" style="position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.96); color: #1f2937; width: 34px; height: 34px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid rgba(229, 231, 235, 0.9); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); user-select: none; transition: transform 0.15s, background-color 0.15s;">
-                        <svg id="fullscreen-expand-icon" style="width: 16px; height: 16px; color: #374151;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
-                        </svg>
-                        <svg id="fullscreen-compress-icon" style="width: 16px; height: 16px; color: #dc2626; display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
-
-                    <!-- Leaflet Map Container -->
-                    <div id="school-leaflet-map" style="width: 100%; height: 100%; position: relative; z-index: 1;"></div>
-
-                    <!-- Bottom floating bar for Full Screen Mode -->
-                    <div id="map-fullscreen-bottom-bar" style="display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255, 255, 255, 0.98); border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); border: 1px solid rgba(229, 231, 235, 0.9); padding: 12px 20px; backdrop-filter: blur(8px); max-width: 90vw; align-items: center; gap: 16px;">
-                        <div style="min-width: 0;">
-                            <div id="fs-school-name" style="font-weight: 800; font-size: 13px; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                            <div id="fs-school-address" style="font-size: 11px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-                        </div>
-                        <a id="fs-google-maps-btn" href="#" target="_blank" style="flex-shrink: 0; background-color: #2563eb; color: #ffffff; padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
-                            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            Open in Google Maps
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Caption with coordinates below map -->
-                <p style="margin: 8px 0 0 0; font-size: 11px; color: #9ca3af; text-align: center; user-select: none;">
-                    Drag the pin or tap the map to adjust. <span id="map-coords-display" style="font-family: monospace; color: #6b7280; font-weight: 500;">14.3242, 120.9586</span>
-                </p>
-                
-                <!-- Google Maps exact routing button -->
-                <a id="college-map-link" href="#" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; background-color: #2563eb; color: #ffffff; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 14px; text-decoration: none; margin-top: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: background-color 0.2s;">
-                    <svg style="width: 16px; height: 16px; min-width: 16px; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span>Open in Google Maps for exact route</span>
+            <div id="map-section" class="bg-blue-50 border border-blue-100 rounded-xl p-6 hidden">
+                <h3 class="font-bold text-blue-900 mb-2">Location & Map</h3>
+                <p id="college-map-address" class="text-sm text-blue-700 mb-4"></p>
+                <a id="college-map-link" href="#" target="_blank" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold text-sm shadow-sm transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg> 
+                    Open in Google Maps
                 </a>
-                <span style="display: block; font-size: 11px; color: #9ca3af; text-align: center; margin-top: 6px; user-select: none;">
-                    Opens Google Maps with this exact pin
-                </span>
             </div>
             
             <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
@@ -168,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const res = await fetch(`/riasec/api/get_college?id=${encodeURIComponent(shortName)}`);
+        const res = await fetch(`api/get_college?id=${encodeURIComponent(shortName)}`);
         if (!res.ok) throw new Error('Failed to fetch college');
         const college = await res.json();
         
@@ -188,9 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         document.title = `${college.name} - Talunton Cavite`;
         
-        if (window.initSchoolLocationMap) {
-            window.initSchoolLocationMap(college);
-        } else if (college.map_query) {
+        if (college.map_query) {
             document.getElementById('map-section').classList.remove('hidden');
             document.getElementById('college-map-address').textContent = college.address || "Cavite, Philippines";
             document.getElementById('college-map-link').href = "https://www.google.com/maps/search/" + encodeURIComponent(college.map_query);
@@ -215,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const isHidden = index >= 4;
                 const displayStyle = isHidden ? 'style="display: none;"' : '';
                 html += `
-                <a href="/riasec/degree-profile?id=${deg.id}" ${displayStyle} class="program-card border border-gray-200 p-5 rounded-2xl bg-white shadow-sm hover:border-emerald-500 hover:shadow-md transition flex flex-col h-full group">
+                <a href="degree-profile?id=${deg.id}" ${displayStyle} class="program-card border border-gray-200 p-5 rounded-2xl bg-white shadow-sm hover:border-emerald-500 hover:shadow-md transition flex flex-col h-full group">
                     <div class="font-bold text-gray-900 group-hover:text-emerald-700 transition text-lg mb-2">${deg.title}</div>
                     <div class="text-sm text-gray-500 mb-3 flex-grow line-clamp-2">${deg.description || 'A degree program.'}</div>
                     <div class="flex justify-between items-center mt-auto pt-3 border-t border-gray-100">

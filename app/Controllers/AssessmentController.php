@@ -10,10 +10,8 @@ class AssessmentController extends Controller {
     }
     public function save() {
         header('Content-Type: application/json');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
-            exit;
-        }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { http_response_code(405); echo json_encode(['success' => false, 'error' => 'Method not allowed']); exit; }
+        $this->validateCsrf();
 
         require_once 'auth/config.php';
         startAuthSession();
@@ -39,47 +37,9 @@ class AssessmentController extends Controller {
         $stmt->bind_param("iss", $user_id, $scores, $holland_code);
 
         if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Assessment saved successfully']);
+            echo json_encode(['success' => true, 'message' => 'Assessment saved successfully', 'user_id' => $user_id]);
         } else {
             echo json_encode(['success' => false, 'error' => 'Failed to save assessment']);
-        }
-
-        $stmt->close();
-        $conn->close();
-    }
-
-    public function getLatestAssessment() {
-        header('Content-Type: application/json');
-        require_once 'auth/config.php';
-        startAuthSession();
-        $user_id = isLoggedIn() ? intval($_SESSION['user_id']) : 0;
-
-        if ($user_id === 0) {
-            echo json_encode(['success' => false, 'is_logged_in' => false, 'error' => 'Not logged in']);
-            exit;
-        }
-
-        $conn = getDB();
-        $stmt = $conn->prepare("SELECT holland_code, scores, taken_at FROM assessment_results WHERE user_id = ? ORDER BY taken_at DESC LIMIT 1");
-        $stmt->bind_param("i", $user_id);
-        $stmt->execute();
-        $res = $stmt->get_result();
-
-        if ($row = $res->fetch_assoc()) {
-            $scores = json_decode($row['scores'], true);
-            echo json_encode([
-                'success' => true,
-                'is_logged_in' => true,
-                'holland_code' => $row['holland_code'],
-                'scores' => $scores,
-                'taken_at' => $row['taken_at']
-            ]);
-        } else {
-            echo json_encode([
-                'success' => false,
-                'is_logged_in' => true,
-                'error' => 'No assessment found'
-            ]);
         }
 
         $stmt->close();
@@ -138,7 +98,7 @@ class AssessmentController extends Controller {
                 if($map) {
                     foreach ($map as $k => $v) {
                         if (stripos($row['title'], $k) !== false) {
-                            $img = '/riasec/' . $v;
+                            $img = $v;
                             break;
                         }
                     }
@@ -152,6 +112,24 @@ class AssessmentController extends Controller {
         echo json_encode($degrees);
     }
 
+    public function getMyAssessment() {
+        header('Content-Type: application/json; charset=utf-8');
+        $userId = (int)$_SESSION['user_id'];
+        $conn = getDB();
+        $stmt = $conn->prepare('SELECT scores, holland_code, taken_at FROM assessment_results WHERE user_id = ? ORDER BY taken_at DESC, id DESC LIMIT 1');
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $conn->close();
+        if (!$result) {
+            echo json_encode(['success' => true, 'has_result' => false, 'user_id' => $userId]);
+            exit;
+        }
+        $result['scores'] = json_decode($result['scores'], true) ?: [];
+        echo json_encode(['success' => true, 'has_result' => true, 'user_id' => $userId, 'result' => $result]);
+        exit;
+    }
     public function getRecommendedDegrees() {
         header('Content-Type: application/json');
         require_once 'auth/config.php';
@@ -281,7 +259,7 @@ class AssessmentController extends Controller {
             if($map) {
                 foreach ($map as $k => $v) {
                     if (stripos($degree['title'], $k) !== false) {
-                        $img = '/riasec/' . $v;
+                        $img = $v;
                         break;
                     }
                 }
@@ -356,16 +334,14 @@ class AssessmentController extends Controller {
         $user_id = isLoggedIn() ? intval($_SESSION['user_id']) : 0;
         $conn = getDB();
         
-        if ($user_id > 0) {
-            $sql = "SELECT c.*, IF(usc.id IS NOT NULL, 1, 0) as is_saved 
-                    FROM colleges c 
-                    LEFT JOIN user_saved_colleges usc ON c.id = usc.college_id AND usc.user_id = $user_id 
-                    ORDER BY c.name ASC";
-        } else {
-            $sql = "SELECT c.*, 0 as is_saved FROM colleges c ORDER BY c.name ASC";
-        }
-        
-        $result = $conn->query($sql);
+        $stmt = $conn->prepare("SELECT c.*, EXISTS(
+                                    SELECT 1 FROM user_saved_colleges usc
+                                    WHERE usc.college_id = c.id AND usc.user_id = ?
+                                ) AS is_saved
+                                FROM colleges c ORDER BY c.name ASC");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $colleges = [];
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
@@ -373,6 +349,7 @@ class AssessmentController extends Controller {
                 $colleges[] = $row;
             }
         }
+        $stmt->close();
         $conn->close();
         echo json_encode($colleges);
     }
@@ -413,28 +390,17 @@ class AssessmentController extends Controller {
         }
     }
 
-    public function pauseAssessment() {
-        return $this->saveProgress();
-    }
-
     public function saveProgress() {
         header('Content-Type: application/json');
+        $this->validateCsrf();
         require_once 'auth/config.php';
         startAuthSession();
-        if (!isLoggedIn()) {
-            echo json_encode(['success' => false, 'error' => 'Not logged in']);
-            exit;
-        }
+        if (!isLoggedIn()) { http_response_code(401); echo json_encode(['success' => false, 'error' => 'Not logged in']); exit; }
 
         $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['answers'])) {
-            echo json_encode(['success' => false, 'error' => 'Missing data']);
-            exit;
-        }
-
         $user_id = intval($_SESSION['user_id']);
-        $test_type_int = (isset($data['test_type']) && $data['test_type'] === 'extended') ? 120 : 60;
-        $current_index = isset($data['current_question_index']) ? intval($data['current_question_index']) : 0;
+        $test_type_int = ($data['test_type'] === 'extended') ? 120 : 60;
+        $current_index = intval($data['current_question_index']);
         $answers_json = json_encode($data['answers']);
 
         $conn = getDB();

@@ -1,4 +1,4 @@
-﻿<div class="max-w-7xl mx-auto py-16 px-6 w-full"><div class="text-center mb-16">
+<div class="max-w-7xl mx-auto py-16 px-6 w-full"><div class="text-center mb-16">
                 <div class="text-sm font-bold text-emerald-600 tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
                     <span class="w-12 h-px bg-emerald-300"></span>
                     <span>Start Here</span>
@@ -74,7 +74,8 @@
                     const all = await res.json();
                     
                     let userTraits = [];
-                    const savedData = localStorage.getItem('talunton_assessment_scores');
+                    const user = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+                    const savedData = user && user.user_id ? localStorage.getItem('talunton_assessment_scores_' + user.user_id) : null;
                     if (savedData) {
                         try {
                             const parsed = JSON.parse(savedData);
@@ -116,7 +117,7 @@
                 fetchDegrees();
             });
 
-                        const selectDegree = (deg) => { window.location.href = '/riasec/degree-profile?id=' + deg.id; };;
+                        const selectDegree = (deg) => { window.location.href = 'degree-profile?id=' + deg.id; };;
 
                         return {
                 recommendedDegrees,

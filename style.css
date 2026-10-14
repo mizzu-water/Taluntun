@@ -8,8 +8,8 @@
 
 /* Premium Animated Card */
 @keyframes slideInRight {
-    0% { transform: translateX(60px) scale(0.98); opacity: 0; }
-    100% { transform: translateX(0) scale(1); opacity: 1; }
+    0% { transform: translateY(8px) scale(0.99); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 .question-card {

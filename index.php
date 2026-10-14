@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth/config.php';
+startAuthSession();
 
 // Simple Autoloader
 spl_autoload_register(function ($class) {
@@ -22,32 +23,31 @@ $router->add('/logout', 'AuthController@logout');
 $router->add('/verify_code', 'AuthController@verifyCode');
 $router->add('/resend_code', 'AuthController@resendCode');
 
-$router->add('/assessment', 'AssessmentController@index');
-$router->add('/results', 'AssessmentController@results');
-$router->add('/api/save_assessment', 'AssessmentController@save');
+$router->add('/assessment', 'AssessmentController@index', true);
+$router->add('/results', 'AssessmentController@results', true);
+$router->add('/api/save_assessment', 'AssessmentController@save', true);
 $router->add('/api/get_degrees', 'AssessmentController@getDegrees');
-$router->add('/api/get_recommended_degrees', 'AssessmentController@getRecommendedDegrees');
+$router->add('/api/get_recommended_degrees', 'AssessmentController@getRecommendedDegrees', true);
+$router->add('/api/get_my_assessment', 'AssessmentController@getMyAssessment', true);
 $router->add('/api/get_role_model', 'AssessmentController@getRoleModel');
-$router->add('/api/get_questions', 'AssessmentController@getQuestions');
-$router->add('/api/pause_assessment', 'AssessmentController@pauseAssessment');
-$router->add('/api/check_progress', 'AssessmentController@checkProgress');
+$router->add('/api/get_questions', 'AssessmentController@getQuestions', true);
+$router->add('/api/pause_assessment', 'AssessmentController@saveProgress', true);
+$router->add('/api/check_progress', 'AssessmentController@checkProgress', true);
 $router->add('/api/get_degree', 'AssessmentController@getDegree');
 $router->add('/api/get_college', 'AssessmentController@getCollege');
-$router->add('/api/get_latest_assessment', 'AssessmentController@getLatestAssessment');
 $router->add('/api/get_colleges', 'AssessmentController@getColleges');
 
-$router->add('/course-quiz', 'CourseQuizController@index');
-$router->add('/api/get_course_questions', 'CourseQuizController@getQuestions');
+$router->add('/course-quiz', 'CourseQuizController@index', true);
+$router->add('/api/get_course_questions', 'CourseQuizController@getQuestions', true);
+$router->add('/api/authorize_assessment', 'CourseQuizController@authorize', true);
+$router->add('/api/submit_course_quiz', 'CourseQuizController@submit', true);
 
-$router->add('/profile', 'ProfileController@index');
-$router->add('/settings', 'ProfileController@settings');
-$router->add('/api/get_current_user', 'ProfileController@getCurrentUser');
-$router->add('/api/save_college', 'ProfileController@saveCollege');
-$router->add('/api/save_degree', 'ProfileController@saveDegree');
-$router->add('/api/save_favorite_subjects', 'ProfileController@saveFavoriteSubjects');
-$router->add('/api/get_favorite_subjects', 'ProfileController@getFavoriteSubjects');
-$router->add('/api/change_password', 'ProfileController@changePassword');
-$router->add('/api/update_profile_name', 'ProfileController@updateProfileName');
+$router->add('/profile', 'ProfileController@index', true);
+$router->add('/settings', 'ProfileController@settings', true);
+$router->add('/api/get_profile_data', 'ProfileController@getProfileData', true);
+$router->add('/api/update_settings', 'ProfileController@updateSettings', true);
+$router->add('/api/save_college', 'ProfileController@saveCollege', true);
+$router->add('/api/save_degree', 'ProfileController@saveDegree', true);
 
 $router->add('/careers', 'PagesController@careers');
 $router->add('/colleges', 'PagesController@colleges');

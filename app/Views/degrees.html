@@ -13,11 +13,36 @@
                 <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                     <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" id="searchDegrees" placeholder="Search degrees by name or keyword..." class="block w-full pl-14 pr-6 py-4 bg-white border-2 border-gray-100 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-lg transition-all text-lg">
+                <input type="text" id="searchDegrees" placeholder="Search degrees by name or keyword..." class="block w-full pl-14 pr-6 py-4 bg-white border-2 border-gray-100 rounded-full text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-lg transition-all text-base md:text-lg">
+            </div>
+
+            <!-- Holland Trait Filter Pills -->
+            <div class="flex flex-wrap justify-center items-center gap-2 mt-6" id="traitFilterPills">
+                <button data-trait="ALL" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-[#0e3223] text-white shadow-sm hover:scale-105">
+                    All Programs (50)
+                </button>
+                <button data-trait="R" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-white text-gray-700 hover:bg-rose-50 hover:text-rose-700 border border-gray-200 hover:scale-105">
+                    <span class="w-2 h-2 rounded-full bg-rose-500 inline-block mr-1"></span> Realistic
+                </button>
+                <button data-trait="I" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 border border-gray-200 hover:scale-105">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 inline-block mr-1"></span> Investigative
+                </button>
+                <button data-trait="A" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 border border-gray-200 hover:scale-105">
+                    <span class="w-2 h-2 rounded-full bg-purple-500 inline-block mr-1"></span> Artistic
+                </button>
+                <button data-trait="S" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-white text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border border-gray-200 hover:scale-105">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> Social
+                </button>
+                <button data-trait="E" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-white text-gray-700 hover:bg-orange-50 hover:text-orange-700 border border-gray-200 hover:scale-105">
+                    <span class="w-2 h-2 rounded-full bg-orange-500 inline-block mr-1"></span> Enterprising
+                </button>
+                <button data-trait="C" class="trait-pill px-4 py-2 rounded-full text-xs font-bold transition-all bg-white text-gray-700 hover:bg-slate-50 hover:text-slate-700 border border-gray-200 hover:scale-105">
+                    <span class="w-2 h-2 rounded-full bg-slate-500 inline-block mr-1"></span> Conventional
+                </button>
             </div>
         </div>
         
-                <!-- Recommendations (Only visible if logged in and has scores) -->
+        <!-- Recommendations (Only visible if logged in and has scores) -->
         <div id="recommendations-section" class="hidden mb-12 border-b border-gray-100 pb-12">
             <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
                 <span class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
@@ -29,12 +54,29 @@
                 <!-- Recommended degrees will be injected here -->
             </div>
         </div>
+
         <!-- List Container -->
         <div id="degree-list">
-            <!-- Loading -->
-            <div class="text-center text-gray-500 py-16 col-span-full" id="loading-message">
-                <svg class="animate-spin h-8 w-8 text-emerald-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                Loading degree programs...
+            <!-- Loading Skeleton Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8" id="loading-skeletons">
+                <div class="skeleton-card shadow-sm">
+                    <div class="h-48 rounded-2xl skeleton-shimmer"></div>
+                    <div class="h-6 w-3/4 rounded-md skeleton-shimmer mt-3"></div>
+                    <div class="h-4 w-1/2 rounded-md skeleton-shimmer"></div>
+                    <div class="h-10 w-full rounded-md skeleton-shimmer mt-auto"></div>
+                </div>
+                <div class="skeleton-card shadow-sm">
+                    <div class="h-48 rounded-2xl skeleton-shimmer"></div>
+                    <div class="h-6 w-3/4 rounded-md skeleton-shimmer mt-3"></div>
+                    <div class="h-4 w-1/2 rounded-md skeleton-shimmer"></div>
+                    <div class="h-10 w-full rounded-md skeleton-shimmer mt-auto"></div>
+                </div>
+                <div class="skeleton-card shadow-sm">
+                    <div class="h-48 rounded-2xl skeleton-shimmer"></div>
+                    <div class="h-6 w-3/4 rounded-md skeleton-shimmer mt-3"></div>
+                    <div class="h-4 w-1/2 rounded-md skeleton-shimmer"></div>
+                    <div class="h-10 w-full rounded-md skeleton-shimmer mt-auto"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -54,6 +96,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     let allDegrees = [];
 
+    const setCampusDropdown = (button, expanded) => {
+        const dropdown = button.nextElementSibling;
+        if (!dropdown) return;
+
+        const isVisible = !dropdown.classList.contains('hidden');
+        const currentOpacity = isVisible ? Number(getComputedStyle(dropdown).opacity) : 0;
+        dropdown.__dropdownAnimation?.cancel();
+        button.setAttribute('aria-expanded', String(expanded));
+        dropdown.setAttribute('aria-hidden', String(!expanded));
+        dropdown.inert = !expanded;
+
+        if (expanded) dropdown.classList.remove('hidden');
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || typeof dropdown.animate !== 'function') {
+            dropdown.classList.toggle('hidden', !expanded);
+            return;
+        }
+
+        const animation = dropdown.animate([
+            { opacity: currentOpacity, transform: expanded ? 'translateY(6px)' : 'translateY(0)' },
+            { opacity: expanded ? 1 : 0, transform: expanded ? 'translateY(0)' : 'translateY(6px)' }
+        ], { duration: 180, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+        dropdown.__dropdownAnimation = animation;
+        animation.onfinish = () => {
+            if (button.getAttribute('aria-expanded') !== String(expanded)) return;
+            dropdown.classList.toggle('hidden', !expanded);
+            dropdown.__dropdownAnimation = null;
+        };
+    };
+
+    window.toggleCampusDropdown = (button) => {
+        const expanded = button.getAttribute('aria-expanded') === 'true';
+        document.querySelectorAll('.campus-dropdown').forEach(dropdown => {
+            const control = dropdown.previousElementSibling;
+            if (control !== button && control.getAttribute('aria-expanded') === 'true') {
+                setCampusDropdown(control, false);
+            }
+        });
+        setCampusDropdown(button, !expanded);
+    };
+
     const createCardHTML = (deg, isTopMatch = false) => {
         const isSaved = deg.is_saved;
         const btnClass = isSaved ? 'text-emerald-600 bg-emerald-50' : 'text-gray-400 hover:text-emerald-600 bg-gray-50 hover:bg-emerald-50';
@@ -67,13 +149,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         const topMatchBadge = isTopMatch ? `<span class="bg-emerald-200 text-emerald-800 text-[10px] font-bold px-2 py-1.5 rounded uppercase tracking-wider mr-2 mb-2 inline-block">Top Recommended Degree</span>` : '';
-        const hasTakenQuiz = localStorage.getItem(`degreeQuizLatestResult_${deg.id}`) !== null;
+        const quizAccount = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+        const hasTakenQuiz = !!(quizAccount && quizAccount.user_id && localStorage.getItem('degreeQuizLatestResult_' + quizAccount.user_id + '_' + deg.id));
         const quizBadge = hasTakenQuiz ? `<span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1.5 rounded uppercase tracking-wider mr-2 mb-2 inline-block">Quiz Taken</span>` : '';
         
         return `
         <div class="bg-white rounded-[2rem] border ${isTopMatch ? 'border-emerald-200 bg-emerald-50' : 'border-gray-100'} p-8 shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 flex flex-col group relative">
                                     <div class="w-full h-48 mb-6 rounded-2xl overflow-hidden shadow-sm">
-                <img src="${deg.image_url || '/riasec/assets/images/placeholder.jpg'}" onerror="this.src='/riasec/assets/images/placeholder.jpg'" alt="${deg.title}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+                <img src="${deg.image_url || 'assets/images/placeholder.jpg'}" onerror="this.src='assets/images/placeholder.jpg'" alt="${deg.title}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
             </div>
             <div class="flex justify-between items-start mb-6">
                 <div class="flex-wrap flex">
@@ -84,20 +167,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <span class="text-xs font-bold text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm" title="Holland Code Match">${deg.holland_code || 'N/A'}</span>
             </div>
             
-            <a href="/riasec/degree-profile?id=${deg.id}" class="block flex-grow">
+            <a href="degree-profile?id=${deg.id}" class="block flex-grow">
                 <h3 class="text-2xl font-bold text-gray-900 mb-3 group-hover:text-emerald-700 transition-colors">${deg.title}</h3>
                 <p class="text-gray-500 mb-8 leading-relaxed text-sm">${deg.description}</p>
             </a>
             
             <div class="flex items-center justify-between mt-auto pt-5 border-t border-gray-100 relative">
                 <div class="relative inline-block text-left">
-                    <button type="button" onclick="document.querySelectorAll('.campus-dropdown').forEach(el => { if(el !== this.nextElementSibling) el.classList.add('hidden'); }); this.nextElementSibling.classList.toggle('hidden'); event.stopPropagation();" class="flex items-center text-sm text-gray-500 font-semibold hover:text-emerald-600 transition focus:outline-none">
+                    <button type="button" aria-expanded="false" aria-controls="campus-dropdown-${deg.id}" onclick="event.stopPropagation(); window.toggleCampusDropdown(this)" class="flex items-center text-sm text-gray-500 font-semibold hover:text-emerald-600 transition focus:outline-none">
                         <svg class="w-5 h-5 text-emerald-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         <span>Offered in ${deg.campuses ? deg.campuses.length : 0} campuses in Dasma</span>
                         <svg class="w-4 h-4 ml-1 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
                     
-                    <div class="campus-dropdown absolute left-0 bottom-full mb-2 w-48 rounded-xl shadow-lg bg-white border border-gray-100 ring-1 ring-black ring-opacity-5 hidden z-20">
+                    <div id="campus-dropdown-${deg.id}" class="campus-dropdown absolute left-0 bottom-full mb-2 w-48 rounded-xl shadow-lg bg-white border border-gray-100 ring-1 ring-black ring-opacity-5 hidden z-20" aria-hidden="true" inert>
                         <div class="py-1 text-sm font-semibold text-gray-600">
                             ${campusLinks}
                         </div>
@@ -157,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (user) {
             try {
-                const res = await fetch('/riasec/api/get_recommended_degrees');
+                const res = await fetch('api/get_recommended_degrees');
                 if (res.ok) {
                     matches = await res.json();
                 }
@@ -167,8 +250,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         // Fallback for guests or if backend fails/empty
-        if ((!matches || matches.length === 0) && localStorage.getItem('talunton_assessment_scores')) {
-            const savedData = localStorage.getItem('talunton_assessment_scores');
+        const scoreAccount = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+        const savedScoreKey = scoreAccount && scoreAccount.user_id ? 'talunton_assessment_scores_' + scoreAccount.user_id : null;
+        if ((!matches || matches.length === 0) && savedScoreKey && localStorage.getItem(savedScoreKey)) {
+            const savedData = localStorage.getItem(savedScoreKey);
             try {
                 const parsed = JSON.parse(savedData);
                 if (parsed.scores) {
@@ -226,7 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <h3 class="text-xl font-bold text-gray-900 mb-2">No Recommendations Yet</h3>
                     <p class="text-gray-500 mb-6 max-w-md mx-auto">Take the assessment to discover which degree programs best fit your personality and strengths.</p>
-                    <a href="/riasec/assessment" class="inline-flex items-center justify-center bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm">
+                    <a href="assessment" class="inline-flex items-center justify-center bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl hover:bg-emerald-700 transition shadow-sm">
                         Take the Assessment
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </a>
@@ -235,39 +320,100 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    let activeTrait = 'ALL';
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramTrait = (urlParams.get('trait') || '').toUpperCase();
+    if (['R', 'I', 'A', 'S', 'E', 'C'].includes(paramTrait)) {
+        activeTrait = paramTrait;
+    }
+
+    function filterAndRender() {
+        const q = (search ? search.value : '').toLowerCase().trim();
+        
+        // Hide recommendations when searching or filtering by trait
+        if (q.length > 0 || activeTrait !== 'ALL') {
+            recSection.style.display = 'none';
+        } else {
+            recSection.style.display = '';
+        }
+
+        let filtered = allDegrees;
+        if (activeTrait !== 'ALL') {
+            filtered = filtered.filter(d => d.holland_code && d.holland_code.includes(activeTrait));
+        }
+        if (q.length > 0) {
+            filtered = filtered.filter(d => 
+                (d.title && d.title.toLowerCase().includes(q)) || 
+                (d.description && d.description.toLowerCase().includes(q)) ||
+                (d.category && d.category.toLowerCase().includes(q))
+            );
+        }
+        renderDegrees(filtered);
+    }
+
     try {
-        const res = await fetch('/riasec/api/get_degrees');
+        const res = await fetch('api/get_degrees');
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
         allDegrees = data;
         
         checkRecommendations(allDegrees);
-        renderDegrees(allDegrees);
+        filterAndRender();
     } catch(err) {
         console.error("Fetch error: ", err);
         list.innerHTML = '<div class="col-span-full text-center text-red-500 py-16 bg-red-50 rounded-3xl border border-red-100 text-lg">Failed to load degrees. Check your connection.</div>';
     }
 
-    search.addEventListener('input', (e) => {
-        const q = e.target.value.toLowerCase();
-        
-        // Hide recommendations when searching
-        if (q.length > 0) {
-            recSection.style.display = 'none';
-        } else {
-            recSection.style.display = '';
-        }
-        
-        const filtered = allDegrees.filter(d => 
-            d.title.toLowerCase().includes(q) || 
-            (d.description && d.description.toLowerCase().includes(q))
-        );
-        renderDegrees(filtered);
+    if (search) {
+        search.addEventListener('input', filterAndRender);
+    }
+
+    // Trait filter pill events
+    const traitPills = document.querySelectorAll('.trait-pill');
+    if (activeTrait !== 'ALL') {
+        traitPills.forEach(p => {
+            if (p.getAttribute('data-trait') === activeTrait) {
+                p.classList.remove('bg-white', 'text-gray-700');
+                p.classList.add('bg-[#0e3223]', 'text-white', 'shadow-sm');
+            } else {
+                p.classList.remove('bg-[#0e3223]', 'text-white', 'shadow-sm');
+                p.classList.add('bg-white', 'text-gray-700');
+            }
+        });
+    }
+
+    traitPills.forEach(pill => {
+        pill.addEventListener('click', () => {
+            activeTrait = pill.getAttribute('data-trait') || 'ALL';
+            
+            // Update active styling
+            traitPills.forEach(p => {
+                p.classList.remove('bg-[#0e3223]', 'text-white', 'shadow-sm');
+                p.classList.add('bg-white', 'text-gray-700');
+            });
+            pill.classList.remove('bg-white', 'text-gray-700');
+            pill.classList.add('bg-[#0e3223]', 'text-white', 'shadow-sm');
+
+            filterAndRender();
+        });
     });
     
     // Close dropdowns when clicking outside
     document.addEventListener('click', () => {
-        document.querySelectorAll('.campus-dropdown').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.campus-dropdown').forEach(dropdown => {
+            const control = dropdown.previousElementSibling;
+            if (control.getAttribute('aria-expanded') === 'true') setCampusDropdown(control, false);
+        });
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        document.querySelectorAll('.campus-dropdown').forEach(dropdown => {
+            const control = dropdown.previousElementSibling;
+            if (control.getAttribute('aria-expanded') === 'true') {
+                setCampusDropdown(control, false);
+                control.focus();
+            }
+        });
     });
 });
 </script>

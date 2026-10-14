@@ -1,4 +1,4 @@
-<div v-if="!assessmentStarted && !showLengthSelection" class="max-w-3xl mx-auto py-16 px-8 md:px-16 bg-white rounded-[2rem] shadow-xl border border-gray-100 text-center mt-12 mb-24 relative overflow-hidden">
+<div v-if="!assessmentStarted && !showLengthSelection" class="assessment-welcome-screen max-w-3xl mx-auto py-16 px-8 md:px-16 bg-white rounded-[2rem] shadow-xl border border-gray-100 text-center mt-12 mb-24 relative overflow-hidden">
     <!-- Decorative background blobs -->
     <div class="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-full -mr-16 -mt-16 z-0"></div>
     <div class="absolute bottom-0 left-0 w-48 h-48 bg-amber-50 rounded-tr-full -ml-12 -mb-12 z-0"></div>
@@ -34,7 +34,7 @@
             <p v-if="validationError" class="text-red-500 text-sm mt-2 font-bold">{{ validationError }}</p>
         </div>
         
-        <button @click="tryStart" :class="{'opacity-50': !privacyAgreed, 'hover:bg-black hover:-translate-y-1 hover:shadow-2xl': privacyAgreed}" class="bg-[#0e3223] text-white px-12 py-4 rounded-full font-bold text-xl transition-all duration-300 shadow-xl inline-flex items-center gap-3">
+        <button id="btnStartAssessment" @click="tryStart" :class="{'opacity-50': !privacyAgreed, 'hover:bg-black hover:-translate-y-1 hover:shadow-2xl': privacyAgreed}" class="bg-[#0e3223] text-white px-12 py-4 rounded-full font-bold text-xl transition-all duration-300 shadow-xl inline-flex items-center gap-3">
             Start Assessment
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
@@ -43,7 +43,7 @@
 
 
 <!-- Length Selection Screen -->
-<div v-if="showLengthSelection && !assessmentStarted" class="max-w-3xl mx-auto py-16 px-8 md:px-16 bg-white rounded-[2rem] shadow-xl border border-gray-100 text-center mt-12 mb-24 relative overflow-hidden">
+<div v-if="showLengthSelection && !assessmentStarted" class="assessment-length-screen max-w-3xl mx-auto py-16 px-8 md:px-16 bg-white rounded-[2rem] shadow-xl border border-gray-100 text-center mt-12 mb-24 relative overflow-hidden">
     <div class="relative z-10">
         <h2 class="text-4xl md:text-5xl font-serif-heading font-bold text-gray-900 mb-6">Choose Your Assessment</h2>
         <p class="text-gray-500 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
@@ -51,7 +51,7 @@
         </p>
         
         
-        <div v-if="hasProgress" class="mb-8 p-6 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div v-if="hasProgress" class="assessment-resume-card mb-8 p-6 bg-emerald-50 rounded-2xl border-2 border-emerald-200 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="text-left">
                 <h3 class="font-bold text-emerald-900 text-xl mb-1 flex items-center gap-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
@@ -60,25 +60,48 @@
                 <p class="text-emerald-700 text-sm">You paused a {{ savedTestType === "extended" ? "120-Question" : "60-Question" }} test at Question {{ savedQuestionIndex + 1 }}.</p>
             </div>
             <div class="flex items-center gap-3 w-full sm:w-auto">
-                <button @click="discardProgress" class="text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 font-bold text-sm px-4 py-2 rounded-full transition-all w-full sm:w-auto">Start Over</button>
+                <button @click="promptDiscardProgress" class="text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100 font-bold text-sm px-4 py-2 rounded-full transition-all w-full sm:w-auto">Start Over</button>
                 <button @click="resumeTest" class="bg-emerald-600 text-white font-bold px-8 py-3 rounded-full hover:bg-emerald-700 shadow-md hover:shadow-lg transition-all w-full sm:w-auto flex-shrink-0">Resume Test</button>
             </div>
         </div>
+
+        <!-- Discard Progress Confirmation Modal -->
+        <teleport to="body">
+            <div v-if="showDiscardModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; z-index: 99999; background-color: rgba(17, 24, 39, 0.4); backdrop-filter: blur(4px);" @click="cancelDiscardProgress">
+                <div id="discardProgressDialog" role="dialog" aria-modal="true" aria-labelledby="discardProgressTitle" tabindex="-1" class="bg-white shadow-2xl text-center relative overflow-hidden" style="z-index: 100000; border-radius: 2rem; padding: 2rem; max-width: 380px; width: 90%;" @click.stop @keydown.esc.stop.prevent="cancelDiscardProgress" @keydown.tab="trapModalFocus">
+                    <div class="mx-auto flex items-center justify-center rounded-full mb-4" style="height: 4rem; width: 4rem; background-color: #fee2e2; color: #ef4444;">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                    <h3 id="discardProgressTitle" class="font-serif-heading font-bold mb-2 text-xl text-gray-900">Discard Progress?</h3>
+                    <p class="mb-6 text-gray-500 text-sm">This will clear your saved answers up to Question {{ savedQuestionIndex + 1 }} and start the test from the beginning.</p>
+                    <div class="flex flex-col gap-2.5">
+                        <button @click="confirmDiscardProgress" class="w-full py-3 px-6 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow transition">
+                            Yes, Discard & Start Over
+                        </button>
+                        <button id="discardProgressCancel" @click="cancelDiscardProgress" class="w-full py-3 px-6 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm transition">
+                            Keep Saved Progress
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </teleport>
 <div v-if="!hasProgress" class="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-8">
-            <button @click="startTest('standard')" :disabled="isLoading" class="p-8 border-2 border-emerald-100 hover:border-emerald-500 rounded-2xl text-left transition-all hover:shadow-lg group bg-white relative overflow-hidden">
+            <button id="btnStartStandardTest" @click="startTest('standard')" :disabled="isLoading" class="p-8 border-2 border-emerald-100 hover:border-emerald-500 rounded-2xl text-left transition-all hover:shadow-lg group bg-white relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
                 <div class="relative z-10">
                     <h3 class="text-2xl font-bold text-gray-900 mb-2 group-hover:text-emerald-700">Standard Test</h3>
-                    <p class="text-emerald-600 font-bold mb-4">60 Q's ? ~5 Minutes</p>
+                    <p class="text-emerald-600 font-bold mb-4">60 Q's &bull; ~5 Minutes</p>
                     <p class="text-gray-500 text-sm">A quick, highly accurate overview of your career personality.</p>
                 </div>
             </button>
             
-            <button @click="startTest('extended')" :disabled="isLoading" class="p-8 border-2 border-amber-100 hover:border-amber-500 rounded-2xl text-left transition-all hover:shadow-lg group bg-white relative overflow-hidden">
+            <button id="btnStartExtendedTest" @click="startTest('extended')" :disabled="isLoading" class="p-8 border-2 border-amber-100 hover:border-amber-500 rounded-2xl text-left transition-all hover:shadow-lg group bg-white relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-amber-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
                 <div class="relative z-10">
                     <h3 class="text-2xl font-bold text-gray-900 mb-2 group-hover:text-amber-700">Deep-Dive Test</h3>
-                    <p class="text-amber-600 font-bold mb-4">120 Q's ? ~15 Minutes</p>
+                    <p class="text-amber-600 font-bold mb-4">120 Q's &bull; ~15 Minutes</p>
                     <p class="text-gray-500 text-sm">A comprehensive, highly detailed analysis for maximum precision.</p>
                 </div>
             </button>
@@ -87,123 +110,52 @@
     </div>
 </div>
 
-<div v-else-if="assessmentStarted" class="max-w-4xl mx-auto w-full px-4 py-2">
-<!-- Milestone Celebration Modal -->
+<div v-else-if="assessmentStarted" class="assessment-active-shell">
 <teleport to="body">
-    <transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
-        <div v-if="showMilestone" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; z-index: 99998; background-color: rgba(15, 23, 42, 0.72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);" @click="resumeAfterMilestone">
-            <div class="bg-white rounded-3xl shadow-2xl text-center relative overflow-hidden border border-emerald-100 mx-4" style="max-width: 420px; width: 92%; padding: 2.25rem 2rem; z-index: 100000; animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);" @click.stop>
-                <!-- Decorative background radial accents -->
-                <div class="absolute -top-16 -right-16 w-36 h-36 bg-emerald-100/70 rounded-full blur-2xl pointer-events-none"></div>
-                <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-teal-100/70 rounded-full blur-2xl pointer-events-none"></div>
-
-                <div class="relative z-10 flex flex-col items-center">
-                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-sm mb-4">
-                        <span style="font-size: 1rem;">🎉</span> Milestone Reached
-                    </div>
-
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-3xl bg-emerald-50 border-2 border-emerald-100 flex items-center justify-center mb-4 shadow-sm" style="animation: bounce 1.2s infinite ease-in-out;">
-                        <span style="font-size: 3.25rem; line-height: 1;" class="select-none">{{ milestoneEmoji }}</span>
-                    </div>
-
-                    <h3 class="text-2xl sm:text-3xl font-serif-heading font-extrabold text-gray-900 mb-2">
-                        {{ milestoneTitle }}
-                    </h3>
-
-                    <p class="text-gray-600 mb-5 text-base sm:text-lg leading-relaxed">
-                        {{ milestoneMessage }}
-                    </p>
-
-                    <!-- Mini progress badge -->
-                    <div class="w-full bg-emerald-50/80 rounded-2xl p-3 mb-6 border border-emerald-100/80 flex items-center justify-between text-xs font-semibold text-emerald-800">
-                        <span class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Question Progress
-                        </span>
-                        <span class="font-bold text-emerald-700">{{ currentQuestionIndex + 1 }} / {{ questions.length }} Completed</span>
-                    </div>
-
-                    <button @click="resumeAfterMilestone" 
-                            style="width: 100%; border-radius: 1rem; padding: 1rem 1.5rem; background-color: #059669; color: #ffffff !important; font-weight: 700; font-size: 1.125rem; border: none; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.35), 0 4px 6px -4px rgba(5, 150, 105, 0.2); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;"
-                            onmouseover="this.style.backgroundColor='#047857'; this.style.transform='translateY(-1px)';"
-                            onmouseout="this.style.backgroundColor='#059669'; this.style.transform='translateY(0)';"
-                            onmousedown="this.style.transform='scale(0.98)';">
-                        <span style="color: #ffffff !important; font-weight: 700; font-size: 1.125rem;">Keep Going!</span>
-                        <svg style="width: 1.25rem; height: 1.25rem; stroke: #ffffff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                    </button>
-                </div>
-            </div>
+<transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-300 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+    <div v-if="showMilestone" class="assessment-milestone-overlay px-4 py-6">
+        <div class="text-center p-8 bg-white rounded-3xl shadow-2xl border-2 border-emerald-100 max-w-sm w-full">
+            <div class="text-7xl mb-6 drop-shadow-md">{{ milestoneEmoji }}</div>
+            <h3 class="text-3xl font-serif-heading font-bold text-gray-900 mb-3">{{ milestoneTitle }}</h3>
+            <p class="text-gray-600 mb-8 text-lg">{{ milestoneMessage }}</p>
+            <button @click="resumeAfterMilestone" class="bg-emerald-600 text-white px-10 py-4 rounded-full font-bold text-xl shadow-xl hover:bg-emerald-700 hover:-translate-y-1 transition-all duration-300 w-full">
+                Keep Going!
+            </button>
         </div>
-    </transition>
+    </div>
+</transition>
+
 </teleport>
-
-<!-- Brainstorming Fullscreen Screen -->
 <teleport to="body">
-    <transition enter-active-class="transition duration-400 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-400 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="isBrainstorming" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; background: radial-gradient(circle at 50% 35%, #ecfdf5 0%, #ffffff 65%, #f0fdf4 100%); padding: 2rem;">
-            <!-- Ambient Glow -->
-            <div class="absolute w-96 h-96 bg-emerald-200/50 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-
-            <div class="relative z-10 flex flex-col items-center max-w-lg w-full text-center px-4">
-                <!-- Glowing Brain Animation -->
-                <div class="relative w-36 h-36 mb-8 flex items-center justify-center">
-                    <!-- Spinning Rings -->
-                    <div class="absolute inset-0 rounded-full border-4 border-emerald-400/50 border-dashed" style="animation: spinSlow 6s linear infinite;"></div>
-                    <div class="absolute -inset-2 rounded-full border-2 border-teal-300/40 border-dotted" style="animation: spinSlowReverse 10s linear infinite;"></div>
-                    <div class="absolute inset-2 bg-gradient-to-tr from-emerald-100 to-teal-50 rounded-full shadow-inner"></div>
-                    <!-- Brain Image -->
-                    <img src="brain.png" class="w-20 h-20 object-contain relative z-10 drop-shadow-lg" style="animation: brainPulse 2.2s infinite ease-in-out;" alt="Brainstorming RIASEC Results">
-                </div>
-
-                <!-- Status pill -->
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300/70 shadow-sm mb-4 animate-pulse">
-                    <span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
-                    AI Analysis in Progress
-                </div>
-
-                <!-- Main Title -->
-                <h2 class="text-3xl sm:text-4xl font-serif-heading font-extrabold text-gray-900 mb-3 tracking-tight">
-                    Brainstorming Your Results
-                </h2>
-
-                <!-- Dynamic Status Subtitle -->
-                <p class="text-emerald-700 font-semibold text-base sm:text-lg mb-8 min-h-[1.75rem] transition-all duration-300 flex items-center justify-center gap-2">
-                    <svg class="w-4 h-4 animate-spin text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                    <span>{{ brainstormingStatusText }}</span>
-                </p>
-
-                <!-- Modern Animated Progress Bar -->
-                <div class="w-full bg-gray-100 h-3.5 rounded-full overflow-hidden p-0.5 shadow-inner border border-emerald-100 mb-6">
-                    <div class="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-full transition-all duration-700 ease-out relative overflow-hidden progress-bar-shimmer" :style="{ width: brainstormingProgress + '%' }"></div>
-                </div>
-
-                <!-- Educational Footer Insight -->
-                <div class="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-500 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-2xl px-4 py-2.5 shadow-sm max-w-md">
-                    <span class="text-base">💡</span>
-                    <span>Matching your Holland traits with accredited programs across Cavite colleges</span>
-                </div>
-            </div>
+<transition enter-active-class="transition duration-500 ease-out" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition duration-500 ease-in" leave-from-class="opacity-100" leave-to-class="opacity-0">
+    <div v-if="isBrainstorming" class="assessment-brainstorm-overlay">
+        <div class="relative w-32 h-32 mb-8">
+            <div class="absolute inset-0 rounded-full border-4 border-emerald-400 border-dashed opacity-50" style="animation: spin 3s linear infinite;"></div>
+            <img src="brain.png" class="w-full h-full object-contain mix-blend-multiply" alt="Brainstorming">
         </div>
-    </transition>
+        <h2 class="text-3xl font-serif-heading font-bold text-gray-900 mb-3 animate-pulse">🧠 Brainstorming...</h2>
+        <p class="text-gray-600 text-lg">Please wait while we analyze your results.</p>
+    </div>
+</transition>
 </teleport>
 
 <teleport to="body">
     <transition name="modal-overlay">
         <div v-if="showExitModal" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; z-index: 99999; background-color: rgba(17, 24, 39, 0.4); backdrop-filter: blur(4px);" @click="cancelExit">
             <transition name="modal" appear>
-                <div v-if="showExitModal" class="bg-white shadow-2xl text-center relative overflow-hidden" style="z-index: 100000; border-radius: 2rem; padding: 2rem; max-width: 350px; width: 90%;" @click.stop>
+                <div v-if="showExitModal" id="exitAssessmentDialog" role="dialog" aria-modal="true" aria-labelledby="exitAssessmentTitle" tabindex="-1" class="bg-white shadow-2xl text-center relative overflow-hidden" style="z-index: 100000; border-radius: 2rem; padding: 2rem; max-width: 350px; width: 90%;" @click.stop @keydown.esc.stop.prevent="cancelExit" @keydown.tab="trapModalFocus">
                     <div class="mx-auto flex items-center justify-center rounded-full mb-4" style="height: 4rem; width: 4rem; background-color: #fee2e2; color: #ef4444;">
                         <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </div>
-                    <h3 class="font-serif-heading font-bold mb-2" style="font-size: 1.5rem; color: #111827;">Exit Assessment?</h3>
+                    <h3 id="exitAssessmentTitle" class="font-serif-heading font-bold mb-2" style="font-size: 1.5rem; color: #111827;">Exit Assessment?</h3>
                     <p class="mb-6" style="color: #6b7280; font-size: 1rem;">Your progress will be lost.</p>
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
                         <button @click="confirmExit" style="width: 100%; border-radius: 1rem; padding: 0.75rem 1.5rem; background-color: #ef4444; color: white; font-weight: bold; font-size: 1.125rem; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                             Confirm Exit
                         </button>
-                        <button @click="cancelExit" style="width: 100%; border-radius: 1rem; padding: 0.75rem 1.5rem; background-color: #f3f4f6; color: #374151; font-weight: bold; font-size: 1.125rem; border: none; cursor: pointer;">
+                        <button id="exitAssessmentCancel" @click="cancelExit" style="width: 100%; border-radius: 1rem; padding: 0.75rem 1.5rem; background-color: #f3f4f6; color: #374151; font-weight: bold; font-size: 1.125rem; border: none; cursor: pointer;">
                             Cancel
                         </button>
                     </div>
@@ -213,108 +165,117 @@
     </transition>
 </teleport>
 
-<div class="flex flex-col items-center justify-center mb-6 relative">
-    <div class="absolute top-0 left-0">
-        <button @click="promptExit" class="text-gray-500 font-bold text-sm hover:text-gray-900 transition flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            Exit
-        </button>
+<div class="assessment-header-block">
+    <div class="assessment-topbar">
+        <button type="button" @click="promptExit" class="assessment-exit"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5M7.5 10H17"/></svg> Exit assessment</button>
+        <div class="assessment-wordmark"><span class="assessment-wordmark-mark" aria-hidden="true">T</span><span>CAREER DISCOVERY <small>RIASEC PROFILE</small></span></div>
+        <span class="assessment-save-state" :class="{ 'is-saving': isSaving }"><span></span>{{ isSaving ? 'Saving your progress' : 'Progress saves when you pause' }}</span>
     </div>
     
     <transition name="fade" mode="out-in">
-        <div :key="currentCategory.name" :class="[currentCategory.bg, currentCategory.color]" class="px-6 py-2 rounded-full text-xs sm:text-sm font-black tracking-widest uppercase mb-4 flex items-center gap-3 shadow-sm border">
-            {{ currentCategory.name }}
+        <div :key="currentCategory.name" :class="'trait-' + (currentQuestion.trait || 'R')" class="assessment-trait-badge">
+            <span class="assessment-trait-mark">{{ currentQuestion.trait || 'R' }}</span><span><small>EXPLORING</small><strong>{{ currentCategory.name }}</strong></span>
         </div>
     </transition>
     
-    <div class="text-xs font-bold text-gray-500 uppercase tracking-widest text-center">
-        Question {{ currentQuestionIndex + 1 }} / {{ questions.length }}
+    <div class="assessment-progress-copy">
+        <span>QUESTION <strong>{{ String(currentQuestionIndex + 1).padStart(2, '0') }}</strong> <i>/ {{ String(questions.length).padStart(2, '0') }}</i></span>
+        <strong class="assessment-progress-percent">{{ Math.round(answeredProgressPercentage) }}<small>%</small></strong>
     </div>
 
-    <div class="w-full max-w-sm mx-auto flex items-center justify-center gap-3 mt-2 mb-2">
-        <div class="flex-grow h-2 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-            <div class="h-full rounded-full transition-all duration-500 ease-out progress-bar-shimmer" 
-                 :style="{ width: answeredProgressPercentage + '%' }">
-            </div>
-        </div>
-        <span class="text-xs font-bold text-emerald-700 min-w-[2.5rem] text-right">
-            {{ Math.round(answeredProgressPercentage) }}%
-        </span>
-    </div>
+    <div class="assessment-progress-track" role="progressbar" :aria-valuenow="Math.round(answeredProgressPercentage)" aria-valuemin="0" aria-valuemax="100" :aria-label="Math.round(answeredProgressPercentage) + '% of questions answered'"><span :style="{ width: answeredProgressPercentage + '%' }"></span><i :style="{ left: answeredProgressPercentage + '%' }"></i></div>
 
     <!-- Brain Progress Visual -->
-    <div class="flex flex-col items-center justify-center mb-2 relative">
-        <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] bg-white flex items-center justify-center transition-all duration-500" :class="{'ring-4 ring-emerald-100': answeredProgressPercentage > 0}">
-            <div class="absolute inset-2 rounded-full border border-emerald-400 border-dashed opacity-40" style="animation: spin 20s linear infinite;"></div>
-            <!-- Gray Brain Background -->
-            <img src="brain.png" class="w-12 h-12 sm:w-16 sm:h-16 object-contain absolute" style="filter: grayscale(100%) contrast(1.5) brightness(1.1); mix-blend-mode: multiply; opacity: 0.3;" alt="Brain base">
-            <!-- Colored Brain Foreground (masked) -->
-            <img src="brain.png" class="w-20 h-20 object-contain absolute transition-all duration-1000 ease-out" style="mix-blend-mode: multiply; filter: contrast(1.2) brightness(1.05);" :style="{ 'clip-path': 'inset(' + (100 - answeredProgressPercentage) + '% 0 0 0)' }" alt="Brain progress">
-        </div>
-    </div>
+    <div class="assessment-header-rule"><span>Curiosity is a good place to begin</span><span>{{ activeTestType === 'extended' ? 'DEEP-DIVE' : 'STANDARD' }} REFLECTION</span></div>
 </div>
 
-<!-- Animated Card Wrapper -->
-<transition name="slide-fade" mode="out-in">
-    <div :key="currentQuestionIndex" class="w-full question-card mb-8">
-        <div class="min-h-[100px] sm:min-h-[120px] flex items-center justify-center">
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-serif-heading font-bold text-gray-900 leading-tight px-4 text-center">
-                "{{ currentQuestion.text }}"
-            </h1>
-        </div>
-        
-        <p class="text-center text-gray-500 text-xs sm:text-sm mb-6 mt-1">
-            Answer based on what you genuinely enjoy doing, not what you think you <i>should</i> do.
-        </p>
-
-        <!-- Rating Scale -->
-        <div class="mt-4 mb-2 max-w-2xl mx-auto w-full">
-            <div class="flex justify-between text-[11px] font-extrabold text-gray-400 uppercase tracking-widest mb-3 px-4">
-                <span>Strongly Disagree</span>
-                <span class="text-emerald-700">Strongly Agree</span>
-            </div>
-            
-            <div class="flex justify-between items-center gap-2 sm:gap-4 relative px-4">
-                <div class="absolute top-1/2 left-4 right-4 h-1.5 bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
                 
-                <button v-for="n in 5" :key="n"
-                        @click="selectRating(n)"
-                        class="rating-btn w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-2xl font-bold text-gray-500 transition-all duration-200 hover:border-emerald-400 hover:shadow-md focus:outline-none active:scale-95"
-                        :class="{'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-lg scale-110 z-10 anim-pop': selectedRating === n, 'hover:-translate-y-1': selectedRating !== n}">
-                    {{ n }}
-                </button>
-            </div>
-        </div>
-    </div>
-</transition>
+                <!-- Animated Card Wrapper -->
+                <div class="assessment-card-stage">
+                <Transition :name="questionTransitionName" mode="out-in">
+                <article :key="currentQuestionIndex" class="assessment-question-card">
+                        <div class="assessment-question-art" aria-hidden="true"><svg viewBox="0 0 100 76" fill="none"><path d="M50 8v58M50 18 27 29v21l23 13M50 18l23 11v21L50 63M27 29 14 20m13 9 1-17m-1 38-13 9m13-9 1 17m45-38 13-9m-13 9-1-17m1 38 13 9m-13-9-1 17M27 29h46M27 50h46"/><circle cx="50" cy="8" r="4"/><circle cx="27" cy="29" r="4"/><circle cx="73" cy="29" r="4"/><circle cx="14" cy="20" r="3"/><circle cx="86" cy="20" r="3"/><circle cx="27" cy="50" r="4"/><circle cx="73" cy="50" r="4"/><circle cx="14" cy="59" r="3"/><circle cx="86" cy="59" r="3"/><circle cx="50" cy="66" r="4"/></svg><span>PERSONALITY DISCOVERY</span></div>
+                        <div class="assessment-question-copy">
+                            <h1 class="assessment-question-text">
+                                {{ currentQuestion.text }}
+                            </h1>
+                        </div>
+                        
+                        <p class="assessment-question-hint">
+                            Answer based on what you genuinely enjoy doing, not what you think you <i>should</i> do.
+                        </p>
+
+                        <!-- Rating Scale -->
+                        <div class="assessment-rating-block">
+                            <div class="assessment-scale-labels">
+                                <span><b>1</b> Strongly disagree</span>
+                                <span>Strongly agree <b>5</b></span>
+                            </div>
+                            
+                            <div class="assessment-rating-scale" role="group" aria-label="Rate how much you agree with this statement" aria-describedby="assessment-rating-help">
+                                <div class="assessment-rating-track" aria-hidden="true"><span :style="{ width: selectedRating ? ((selectedRating - 1) * 25) + '%' : '0%' }"></span></div>
+                                
+                                <button v-for="n in 5" :key="n"
+                                        @click="selectRating(n)"
+                                        :disabled="isTransitioning"
+                                        type="button" class="rating-btn assessment-rating-btn"
+                                        :aria-label="n + ', ' + ratingLabels[n]"
+                                        :aria-pressed="selectedRating === n"
+                                        :class="{
+                                            'is-selected': selectedRating === n,
+                                            'is-muted': selectedRating !== null && selectedRating !== n,
+                                            'is-disabled': isTransitioning
+                                        }">
+                                    {{ n }}<span v-if="selectedRating === n" class="assessment-selected-check" aria-hidden="true">&#10003;</span>
+                                </button>
+                            </div>
+
+                            <!-- Dynamic Rating Feedback & Keyboard Tip -->
+                            <div id="assessment-rating-help" class="assessment-rating-response" aria-live="polite" aria-atomic="true">
+                                <div>
+                                    <span v-if="selectedRating !== null" class="rating-feedback">
+                                        <span class="rating-feedback-score">{{ selectedRating }}</span>
+                                        <span class="rating-feedback-copy">{{ ratingLabels[selectedRating] }}</span>
+                                    </span>
+                                    <span v-else>
+                                        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 9v5m0-8h.01"/></svg>
+                                        Choose a rating, or press a number from 1 to 5
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="selectedRating === null" class="assessment-required-note" role="status">Select a response to continue</div>
+                </article>
+                </Transition>
+                </div>
 
                 <!-- Navigation -->
-<div class="flex items-center justify-between border-t border-gray-200 pt-4 mt-2 max-w-3xl mx-auto w-full px-4">
-    <button @click="prevQuestion" :disabled="currentQuestionIndex === 0" class="text-gray-500 font-bold text-sm hover:text-gray-900 transition flex items-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed w-32">
+<nav class="assessment-navigation" aria-label="Assessment question navigation">
+    <button type="button" @click="prevQuestion" :disabled="currentQuestionIndex === 0 || isTransitioning" class="assessment-nav-previous">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         Previous
     </button>
     
-    <button @click="pauseTest" :disabled="isSaving" class="text-emerald-600 font-bold text-sm hover:bg-emerald-50 px-4 py-2 rounded-full transition flex items-center gap-2">
+    <button type="button" @click="pauseTest" :disabled="isSaving" class="assessment-nav-save">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-        {{ isSaving ? 'Saving...' : 'Save & Pause' }}
+        <span>{{ isSaving ? 'Saving…' : 'Save & Pause' }}</span>
     </button>
 
-    <div class="w-32 flex justify-end">
-        <button v-if="currentQuestionIndex < questions.length - 1" @click="nextQuestion" :disabled="selectedRating === null" class="bg-[#0e3223] hover:bg-black text-white px-6 py-3 rounded-full font-bold text-sm transition shadow flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-            Next
+    <div class="assessment-nav-next-wrap">
+        <button v-if="currentQuestionIndex < questions.length - 1" type="button" @click="nextQuestion" :disabled="selectedRating === null || isTransitioning" class="assessment-nav-next">
+            <span>Next question</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
         
-        <button v-else @click="finishAssessment" :disabled="selectedRating === null" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-full font-bold text-sm transition shadow flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap">
-            Finish
+        <button v-else type="button" @click="finishAssessment" :disabled="selectedRating === null || isTransitioning" class="assessment-nav-next assessment-nav-finish">
+            <span>See my results</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         </button>
     </div>
-</div>
+</nav>
 </div><script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
-    const { createApp, ref, computed, watch } = Vue;
+    const { createApp, ref, computed, watch, onMounted, onUnmounted } = Vue;
 
     createApp({
         setup() {
@@ -326,17 +287,52 @@
             const savedAnswers = ref([]);
             const isSaving = ref(false);
             const isBrainstorming = ref(false);
-            const brainstormingStatusText = ref("Calculating your RIASEC trait scores...");
-            const brainstormingProgress = ref(25);
             const activeTestType = ref("standard");
+            const isTransitioning = ref(false);
+            const questionTransitionName = ref("question-forward");
+            const showDiscardModal = ref(false);
+
+            const ratingLabels = {
+                1: 'Strongly disagree',
+                2: 'Disagree',
+                3: 'Neutral',
+                4: 'Agree',
+                5: 'Strongly agree'
+            };
+
+            // Keyboard navigation listener
+            const handleKeydown = (e) => {
+                if (!assessmentStarted.value || showMilestone.value || showExitModal.value || showDiscardModal.value || isBrainstorming.value || isTransitioning.value) return;
+                if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+                if (e.target && e.target.closest && e.target.closest('button, a, [role="button"]') && ['Enter', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+
+                if (['1', '2', '3', '4', '5'].includes(e.key)) {
+                    selectRating(parseInt(e.key));
+                } else if (e.key === 'Enter' || e.key === 'ArrowRight') {
+                    if (selectedRating.value !== null) {
+                        if (currentQuestionIndex.value < questions.value.length - 1) {
+                            nextQuestion();
+                        } else {
+                            finishAssessment();
+                        }
+                    }
+                } else if (e.key === 'ArrowLeft') {
+                    if (currentQuestionIndex.value > 0) {
+                        prevQuestion();
+                    }
+                }
+            };
 
             // Check progress on mount
-            Vue.onMounted(async () => {
+            onMounted(async () => {
+                window.addEventListener('keydown', handleKeydown);
+
                 const urlParams = new URLSearchParams(window.location.search);
                 const retakeType = urlParams.get('retake');
                 
                 if (retakeType === 'standard' || retakeType === 'extended') {
-                    localStorage.removeItem('talunton_assessment_scores');
+                    const account = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+                    if (account && account.user_id) localStorage.removeItem('talunton_assessment_scores_' + account.user_id);
                     privacyAgreed.value = true;
                     window.history.replaceState({}, document.title, window.location.pathname);
                     startTest(retakeType);
@@ -346,6 +342,7 @@
                 try {
                     const res = await fetch("api/check_progress");
                     const data = await res.json();
+                    if (res.status === 401) { if (data.redirect) window.location.assign(data.redirect); return; }
                     if (data.success && data.has_progress) {
                         hasProgress.value = true;
                         savedTestType.value = data.progress.test_type_str;
@@ -355,9 +352,53 @@
                 } catch(e) {}
             });
 
-            const discardProgress = () => {
+            onUnmounted(() => {
+                window.removeEventListener('keydown', handleKeydown);
+            });
+
+            let modalReturnFocus = null;
+            const focusModalElement = (selector) => {
+                window.setTimeout(() => document.querySelector(selector)?.focus(), 0);
+            };
+            const restoreModalFocus = () => {
+                const trigger = modalReturnFocus;
+                modalReturnFocus = null;
+                window.setTimeout(() => trigger?.focus(), 0);
+            };
+            const trapModalFocus = (event) => {
+                if (event.key !== 'Tab') return;
+                const dialog = event.currentTarget;
+                const controls = [...dialog.querySelectorAll('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled)')];
+                if (controls.length === 0) return;
+                const first = controls[0];
+                const last = controls[controls.length - 1];
+                if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
+                    event.preventDefault();
+                    last.focus();
+                } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                }
+            };
+
+            const promptDiscardProgress = () => {
+                modalReturnFocus = document.activeElement;
+                showDiscardModal.value = true;
+                focusModalElement('#discardProgressCancel');
+            };
+
+            const confirmDiscardProgress = () => {
+                showDiscardModal.value = false;
                 hasProgress.value = false;
                 savedAnswers.value = [];
+                if (window.showToast) window.showToast("Previous progress cleared. Ready to start fresh! 🎯", "info");
+                modalReturnFocus = null;
+                focusModalElement('#btnStartStandardTest');
+            };
+
+            const cancelDiscardProgress = () => {
+                showDiscardModal.value = false;
+                restoreModalFocus();
             };
 
             const resumeTest = () => {
@@ -386,14 +427,15 @@
                         })
                     });
                     const data = await res.json();
+                    if (res.status === 401) { if (data.redirect) window.location.assign(data.redirect); return; }
                     if(data.success) {
-                        alert("Progress saved successfully! You can safely close this page.");
+                        window.queueToast?.("Progress saved! You can resume anytime.", "success");
                         window.location.href = "home";
                     } else {
-                        alert("Error saving: " + data.error);
+                        window.showToast?.(data.error || "Failed to save progress", "error");
                     }
                 } catch(e) {
-                    alert("Failed to save progress.");
+                    window.showToast?.("Network error while saving progress", "error");
                 }
                 isSaving.value = false;
             };
@@ -411,16 +453,20 @@
             const showExitModal = ref(false);
             
             const promptExit = () => {
+                modalReturnFocus = document.activeElement;
                 showExitModal.value = true;
+                focusModalElement('#exitAssessmentCancel');
             };
             
             const cancelExit = () => {
                 showExitModal.value = false;
+                restoreModalFocus();
             };
             
             const confirmExit = () => {
                 // Clear saved progress
-                localStorage.removeItem('talunton_assessment_scores');
+                const account = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+                    if (account && account.user_id) localStorage.removeItem('talunton_assessment_scores_' + account.user_id);
                 
                 // Reset state
                 assessmentStarted.value = false;
@@ -471,6 +517,7 @@
                 try {
                     const res = await fetch("api/get_questions?type=" + type);
                     const data = await res.json();
+                    if (res.status === 401) { if (data.redirect) window.location.assign(data.redirect); isLoading.value = false; return; }
                     if (data.success && data.questions) {
                         let fetched = data.questions;
                         
@@ -490,7 +537,7 @@
                     }
                 } catch (e) {
                     console.error("Failed to load questions:", e);
-                    alert("Failed to load questions. Please try again.");
+                    window.showToast?.("Failed to load questions. Please try again.", "error");
                 }
                 isLoading.value = false;
             };
@@ -518,19 +565,26 @@
             });
 
             const selectRating = (n) => {
+                if (isTransitioning.value) return;
+                isTransitioning.value = true;
                 selectedRating.value = n;
+                answers.value[currentQuestionIndex.value] = n;
+                const motionDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 320;
                 setTimeout(() => {
                     if (currentQuestionIndex.value < questions.value.length - 1) {
-                        nextQuestion();
+                        nextQuestion(true);
                     } else {
+                        isTransitioning.value = false;
                         finishAssessment();
                     }
-                }, 350);
+                }, motionDelay);
             };
 
-            const nextQuestion = () => {
-                if (selectedRating.value !== null) {
+            const nextQuestion = (fromRating = false) => {
+                if (selectedRating.value === null || (isTransitioning.value && !fromRating)) return;
+                isTransitioning.value = true;
                     answers.value[currentQuestionIndex.value] = selectedRating.value;
+                    questionTransitionName.value = "question-forward";
                     currentQuestionIndex.value++;
                     
                     let qNum = currentQuestionIndex.value;
@@ -572,22 +626,25 @@ setTimeout(() => {
                     } else {
                         selectedRating.value = answers.value[currentQuestionIndex.value];
                     }
-                }
+                const motionDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 350;
+                setTimeout(() => { isTransitioning.value = false; }, motionDelay);
             };
 
             const prevQuestion = () => {
-                if (currentQuestionIndex.value > 0) {
+                if (currentQuestionIndex.value > 0 && !isTransitioning.value) {
+                    isTransitioning.value = true;
+                    questionTransitionName.value = "question-back";
                     answers.value[currentQuestionIndex.value] = selectedRating.value;
                     currentQuestionIndex.value--;
                     selectedRating.value = answers.value[currentQuestionIndex.value];
+                    const motionDelay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 350;
+                    setTimeout(() => { isTransitioning.value = false; }, motionDelay);
                 }
             };
 
             const finishAssessment = async () => {
-                if (isBrainstorming.value) return;
+                if (isBrainstorming.value || isTransitioning.value) return;
                 isBrainstorming.value = true;
-                brainstormingStatusText.value = "Calculating your RIASEC trait scores...";
-                brainstormingProgress.value = 25;
                 
                 if (selectedRating.value !== null) {
                     answers.value[currentQuestionIndex.value] = selectedRating.value;
@@ -607,24 +664,6 @@ setTimeout(() => {
                 const sortedTraits = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
                 const holland_code = sortedTraits.slice(0, 3).join("");
 
-                localStorage.setItem("talunton_assessment_scores", JSON.stringify({ scores, holland_code }));
-                sessionStorage.setItem("talunton_just_completed_assessment", "true");
-
-                // Dynamic progress animation stages
-                setTimeout(() => {
-                    brainstormingStatusText.value = "Evaluating your Holland Code traits (" + holland_code + ")...";
-                    brainstormingProgress.value = 55;
-                }, 800);
-
-                setTimeout(() => {
-                    brainstormingStatusText.value = "Matching degree programs with Cavite colleges...";
-                    brainstormingProgress.value = 85;
-                }, 1600);
-
-                setTimeout(() => {
-                    brainstormingStatusText.value = "Finalizing your personalized career pathways...";
-                    brainstormingProgress.value = 98;
-                }, 2400);
 
                 // Add an artificial delay for the brainstorming screen
                 setTimeout(async () => {
@@ -642,24 +681,35 @@ setTimeout(() => {
                         });
                         
                         const data = await res.json();
-                        window.location.href = data.redirect || "results";
-                        
-                    } catch (e) {
-                        console.error("Backend save failed, but scores are saved locally.", e);
-                        window.location.href = "results";
-                    }
-                }, 3000);
+                        if (data.success) {
+                            localStorage.setItem("talunton_assessment_scores_" + data.user_id, JSON.stringify({ scores, holland_code }));
+                            window.queueToast?.("Your assessment has been saved. Your results are ready.", "success");
+                            window.location.href = data.redirect || "results";
+                        } else if (res.status === 401) {
+                            
+                            window.location.assign(data.redirect || "login?return=assessment");
+                        } else {
+                            isBrainstorming.value = false;
+                            window.queueToast?.(data.message || data.error || "Your assessment could not be saved. Please try again.", "error");
+                        }                    } catch (e) {
+                        console.error("Assessment save failed.", e);
+                        isBrainstorming.value = false;
+                        window.queueToast?.("Your assessment could not be saved. Please check your connection and try again.", "error");
+                    }                }, 2500);
             };
 
             return {
                 isBrainstorming,
-                brainstormingStatusText,
-                brainstormingProgress,
                 hasProgress,
                 savedTestType,
                 savedQuestionIndex,
                 isSaving,
-                discardProgress,
+                showDiscardModal,
+                trapModalFocus,
+                promptDiscardProgress,
+                confirmDiscardProgress,
+                cancelDiscardProgress,
+                isTransitioning,
                 resumeTest,
                 pauseTest,
                 showMilestone,
@@ -683,6 +733,8 @@ setTimeout(() => {
                 currentQuestionIndex,
                 currentQuestion,
                 currentCategory,
+                questionTransitionName,
+                ratingLabels,
                 selectedRating,
                 selectRating,
                 nextQuestion,

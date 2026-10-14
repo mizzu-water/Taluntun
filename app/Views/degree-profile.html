@@ -1,11 +1,11 @@
-<div class="bg-[#fdfaf6] min-h-screen pt-12 pb-24 font-sans text-gray-900" id="app">
+<div class="bg-[#fdfaf6] min-h-screen pt-12 pb-24 font-sans text-gray-900">
 
     <div class="max-w-[1200px] mx-auto px-4 md:px-8 w-full" v-if="degree">
         
         <!-- Back Button -->
         <a href="degrees" class="inline-flex items-center text-emerald-700 font-bold hover:text-emerald-800 transition mb-6 text-sm">
             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Back to Degree Catalog
+            Back
         </a>
 
         <!-- Header Card -->
@@ -13,7 +13,7 @@
             <div class="flex-1 z-10">
                 <div class="flex flex-wrap gap-2 mb-6">
                     <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-3 py-1 rounded uppercase tracking-widest">{{ degree.category || 'PROGRAM' }}</span>
-                    <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-3 py-1 rounded uppercase tracking-widest">HOLLAND CODE : {{ degree.holland_code || 'N/A' }}</span>
+                    <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-3 py-1 rounded uppercase tracking-widest">HOLLAND CODE: {{ degree.holland_code || 'N/A' }}</span>
                 </div>
                 
                 <h1 class="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-6 leading-tight">{{ degree.title }}</h1>
@@ -22,8 +22,8 @@
                     {{ degree.description || 'A comprehensive degree program.' }}
                 </p>
                 
-                <div class="buttons-row mb-10">
-                    <a :href="'/riasec/lesson?id=' + degree.id" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-bold transition shadow inline-flex items-center gap-2 text-sm">
+                <div class="buttons-row mb-10" aria-label="Degree program actions">
+                    <a :href="'lesson?id=' + degree.id" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-bold transition shadow inline-flex items-center gap-2 text-sm">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
                         Take Intro Lesson
                     </a>
@@ -31,7 +31,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Take a Quiz
                     </a>
-                    <button class="bg-[#0e3223] hover:bg-black text-white px-6 py-3 rounded-full font-bold transition shadow inline-flex items-center gap-2 text-sm" onclick="if(window.saveDegree) { window.saveDegree(this, new URLSearchParams(window.location.search).get('id')); } else { alert('Degree saved to shortlist!'); }">
+                    <button class="bg-[#0e3223] hover:bg-black text-white px-6 py-3 rounded-full font-bold transition shadow inline-flex items-center gap-2 text-sm" @click="window.saveDegree ? window.saveDegree($event.currentTarget, degree.id) : (window.showToast ? window.showToast('Program saved to shortlist! 🎓', 'success') : alert('Program saved!'))">
                         Save to Shortlist
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
                     </button>
@@ -59,10 +59,10 @@
             
             <div class="hero-image-container relative">
                 <div class="w-full h-[360px] md:h-[420px] rounded-[2rem] overflow-hidden shadow-lg relative">
-                    <img :src="degree.image_url" :alt="degree.title" class="w-full h-full object-cover object-center" onerror="this.src='/riasec/assets/images/placeholder.jpg'">
+                    <img :src="degree.image_url" :alt="degree.title" class="w-full h-full object-cover object-center" onerror="this.src='assets/images/placeholder.jpg'">
                     <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-xs font-bold text-gray-800 flex items-center gap-1.5">
                         <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        Program Overview
+                        Student Cohort
                     </div>
                 </div>
                 <!-- Decorative element -->
@@ -75,114 +75,127 @@
             <div class="flex justify-between items-end mb-6">
                 <div>
                     <h2 class="text-2xl font-bold font-serif text-gray-900">4 Major Tracks Included</h2>
-                    <p class="text-gray-500 text-sm mt-1">Specialized curriculum pathways designed for mastery and career readiness</p>
+                    <p class="text-gray-500 text-sm mt-1">Comprehensive curriculum preparing you for executive leadership</p>
                 </div>
-                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-100">ACADEMIC PATHWAYS</span>
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider border border-emerald-100">MULTI-DISCIPLINARY</span>
             </div>
             
             <div class="tracks-grid">
-                <div v-for="(t, idx) in programTracks" :key="idx" class="bg-white track-card rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center mb-3 text-emerald-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div class="bg-white track-card rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center mb-3 text-blue-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
                     </div>
-                    <h3 class="font-bold text-gray-900 mb-1 text-sm">{{ t.name }}</h3>
-                    <p class="text-[11px] text-gray-500 leading-snug mb-3">{{ t.desc }}</p>
-                    <div class="bg-gray-50 text-[9px] text-gray-600 font-bold px-2 py-1 rounded uppercase tracking-wider mt-auto">{{ t.tag }}</div>
+                    <h3 class="font-bold text-gray-900 mb-1 text-sm">Marketing Management</h3>
+                    <p class="text-[11px] text-gray-500 leading-snug mb-3">Consumer psychology, branding, omni-channel campaigns & strategic market positioning.</p>
+                    <div class="bg-gray-50 text-[9px] text-gray-600 font-bold px-2 py-1 rounded uppercase tracking-wider">Key: Digital Strategy & Brand Equity</div>
+                </div>
+                
+                <div class="bg-white track-card rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-cyan-50 flex items-center justify-center mb-3 text-cyan-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1 text-sm">Financial Management</h3>
+                    <p class="text-[11px] text-gray-500 leading-snug mb-3">Corporate finance, capital investments, portfolio modeling and risk advisory.</p>
+                    <div class="bg-gray-50 text-[9px] text-gray-600 font-bold px-2 py-1 rounded uppercase tracking-wider">Key: Corporate Valuation & Audit</div>
+                </div>
+                
+                <div class="bg-white track-card rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center mb-3 text-emerald-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1 text-sm">Human Resource Mgmt</h3>
+                    <p class="text-[11px] text-gray-500 leading-snug mb-3">Talent acquisition, organizational sociology, compensation architecture and labor law.</p>
+                    <div class="bg-gray-50 text-[9px] text-gray-600 font-bold px-2 py-1 rounded uppercase tracking-wider">Key: Leadership & People Strategy</div>
+                </div>
+                
+                <div class="bg-white track-card rounded-2xl border border-gray-100 shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center mb-3 text-amber-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-1 text-sm">Operations Management</h3>
+                    <p class="text-[11px] text-gray-500 leading-snug mb-3">Supply chain logistics, lean optimization, quality control and systems efficiency.</p>
+                    <div class="bg-gray-50 text-[9px] text-gray-600 font-bold px-2 py-1 rounded uppercase tracking-wider">Key: Global Supply Chain & Six Sigma</div>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- Psychometric Alignment (Accurate & Dynamic) -->
+            <!-- Psychometric Alignment -->
             <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                        <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-1">PSYCHOMETRIC ALIGNMENT</div>
-                        <h2 class="text-2xl font-bold font-serif text-gray-900">{{ hollandTitle }} Holland Code Fit</h2>
+                        <div class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1">PSYCHOMETRIC ALIGNMENT</div>
+                        <h2 class="text-2xl font-bold font-serif text-gray-900">{{ degree.holland_code || 'ESC' }} Holland Code Fit</h2>
                     </div>
-                    <span class="bg-emerald-100 text-emerald-900 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase">{{ overallMatchPercent }}</span>
+                    <span class="bg-amber-100 text-amber-900 text-[10px] font-bold px-3 py-1.5 rounded-full uppercase">96% Overall Match</span>
                 </div>
                 
                 <p class="text-sm text-gray-600 leading-relaxed mb-8">
-                    {{ psychometricExplanation }}
+                    This degree corresponds exceptionally well with candidates whose RIASEC assessment scores reflect Enterprising, Social, and Conventional dimensions.
                 </p>
                 
-                <!-- Dynamic RIASEC Trait Bars -->
-                <div class="space-y-6">
-                    <div v-for="trait in psychometricTraits" :key="trait.letter">
-                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-1">
-                            <span>{{ trait.name }} - {{ trait.role }}</span>
-                            <span :class="trait.textClass">{{ trait.pct }}%</span>
+                <div class="space-y-5">
+                    <div>
+                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                            <span>Enterprising (E) - Leadership & Decision Making</span>
+                            <span class="text-emerald-700">88%</span>
                         </div>
-                        <p class="text-[11px] text-gray-400 mb-2 leading-tight">{{ trait.desc }}</p>
-                        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                            <div class="h-2 rounded-full transition-all duration-700" :style="{ width: trait.pct + '%', backgroundColor: trait.barBg }"></div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-emerald-700 h-2 rounded-full" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                            <span>Social (S) - Communication & Team Collaboration</span>
+                            <span class="text-blue-600">76%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: 76%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs font-bold text-gray-900 mb-2">
+                            <span>Conventional (C) - Systems, Data & Process Management</span>
+                            <span class="text-amber-500">82%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-amber-500 h-2 rounded-full" style="width: 82%"></div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="mt-8 pt-6 border-t border-gray-100 flex justify-between items-center text-sm">
-                    <span class="text-gray-500">Haven't discovered your Holland Code?</span>
-                    <a href="/riasec/assessment" class="font-bold text-gray-900 hover:text-emerald-600 transition flex items-center gap-1">
-                        Take the Holland Test
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                    </a>
+                    <span class="text-gray-500">Not sure if this degree fits your interests?</span>
+                    <a href="assessment" class="font-bold text-gray-900 hover:text-emerald-600 transition">Take the Holland Code assessment &rsaquo;</a>
                 </div>
             </div>
 
-            <!-- Employment Outlook & Campuses -->
-            <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm flex flex-col">
+            <!-- Employment Outlook -->
+            <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm">
                 <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">EMPLOYMENT OUTLOOK</div>
                 <h2 class="text-2xl font-bold font-serif text-gray-900 mb-6">Promising Career Pathways</h2>
                 
                 <div class="space-y-4">
-                    <div v-for="(cp, idx) in careerPathways" :key="idx" class="flex justify-between items-center py-3 border-b border-gray-50">
-                        <span class="text-sm text-gray-800 font-medium">{{ cp.role }}</span>
-                        <span :class="'text-xs font-bold ' + cp.badgeClass">{{ cp.demand }}</span>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-50">
+                        <span class="text-sm text-gray-800">Financial Analyst / Trader</span>
+                        <span class="text-xs font-bold text-emerald-600">High Demand</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-50">
+                        <span class="text-sm text-gray-800">Brand & Product Manager</span>
+                        <span class="text-xs font-bold text-emerald-600">Rapid Growth</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-50">
+                        <span class="text-sm text-gray-800">Operations Strategy Consultant</span>
+                        <span class="text-xs font-bold text-blue-600">Global Roles</span>
+                    </div>
+                    <div class="flex justify-between items-center py-3 border-b border-gray-50">
+                        <span class="text-sm text-gray-800">People & Culture Director</span>
+                        <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">Executive</span>
                     </div>
                 </div>
                 
-                <!-- Real Dasmariñas Partner Campuses -->
-                <div v-if="degree.colleges && degree.colleges.length > 0" class="mt-auto pt-8 border-t border-gray-100">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: #10b981;"></span>
-                            OFFERED IN DASMARIÑAS &middot; {{ degree.colleges.length }} {{ degree.colleges.length === 1 ? 'CAMPUS' : 'CAMPUSES' }}
-                        </div>
-                        <span class="text-xs font-medium px-3 py-0.5 rounded-full" style="color: #059669; background-color: #ffffff; border: 1px solid #6ee7b7;">
-                            Cavite
-                        </span>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <a v-for="c in degree.colleges" :key="c.id" 
-                           :href="c.profile_url ? c.profile_url.replace('.html', '') : 'school-profile?id=' + c.short_name" 
-                           class="group flex items-center justify-between campus-card-link transition-all duration-200"
-                           style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 16px;">
-                            <div class="flex items-center gap-3.5 min-w-0">
-                                <div class="flex-shrink-0 flex items-center justify-center" style="width: 42px; height: 42px; min-width: 42px; background-color: #ecfdf5; border-radius: 10px; color: #059669;">
-                                    <svg style="width: 22px; height: 22px; min-width: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                    </svg>
-                                </div>
-                                <div class="min-w-0">
-                                    <div class="text-sm sm:text-[15px] font-bold text-gray-900 group-hover:text-emerald-800 transition-colors leading-snug">
-                                        {{ cleanCollegeName(c.name) }}
-                                    </div>
-                                    <div class="text-xs flex items-center gap-1.5 mt-0.5">
-                                        <span class="font-bold text-emerald-600">{{ c.short_name || 'Campus' }}</span>
-                                        <span class="text-gray-300">&middot;</span>
-                                        <span class="text-gray-400">{{ c.type || 'Private' }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-center group-hover:translate-x-0.5 transition-all flex-shrink-0 ml-3" style="color: #cbd5e1;">
-                                <svg style="width: 18px; height: 18px; min-width: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </div>
-                        </a>
-                    </div>
+                <div class="mt-8 text-center">
+                    <a href="#" class="text-sm font-bold text-gray-900 hover:text-emerald-600 transition">Explore 46 Partner Colleges offering this degree &rsaquo;</a>
                 </div>
             </div>
         </div>
@@ -200,342 +213,28 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const { createApp, ref, computed, onMounted } = Vue;
+    const { createApp, ref, onMounted } = Vue;
 
     createApp({
         setup() {
             const degree = ref(null);
             const latestQuizResult = ref(null);
-            const userScores = ref(null);
-
-            const traitMeta = {
-                'R': {
-                    name: 'Realistic (R)',
-                    role: 'Physical Execution, Tools & Technical Design',
-                    color: 'text-rose-600',
-                    bar: 'bg-rose-500',
-                    barBg: '#f43f5e',
-                    desc: 'Focuses on practical, mechanical, hands-on physical building, materials, and real-world construction.'
-                },
-                'I': {
-                    name: 'Investigative (I)',
-                    role: 'Scientific Inquiry, Mathematics & Analysis',
-                    color: 'text-blue-600',
-                    bar: 'bg-blue-600',
-                    barBg: '#2563eb',
-                    desc: 'Centers around mathematical modeling, analytical logic, physics, scientific inquiry, and empirical problem solving.'
-                },
-                'A': {
-                    name: 'Artistic (A)',
-                    role: 'Creative Innovation, Aesthetics & Spatial Design',
-                    color: 'text-purple-600',
-                    bar: 'bg-purple-600',
-                    barBg: '#9333ea',
-                    desc: 'Emphasizes creative expression, spatial visualization, aesthetic conception, and original architectural design.'
-                },
-                'S': {
-                    name: 'Social (S)',
-                    role: 'Human Relations, Counseling & Teamwork',
-                    color: 'text-emerald-600',
-                    bar: 'bg-emerald-600',
-                    barBg: '#059669',
-                    desc: 'Involves communication, human welfare, collaborative teamwork, coaching, and public service.'
-                },
-                'E': {
-                    name: 'Enterprising (E)',
-                    role: 'Project Leadership, Strategy & Persuasion',
-                    color: 'text-amber-600',
-                    bar: 'bg-amber-500',
-                    barBg: '#f59e0b',
-                    desc: 'Drives project supervision, team direction, resource coordination, and strategic decision-making.'
-                },
-                'C': {
-                    name: 'Conventional (C)',
-                    role: 'Systems Accuracy, Data & Quality Control',
-                    color: 'text-slate-600',
-                    bar: 'bg-slate-600',
-                    barBg: '#475569',
-                    desc: 'Prioritizes systematic precision, standards compliance, structured workflows, documentation, and quality control.'
-                }
-            };
-
-            const hollandLetters = computed(() => {
-                if (!degree.value || !degree.value.holland_code) return ['R', 'I', 'E'];
-                const letters = degree.value.holland_code.replace(/[^A-Za-z]/g, '').toUpperCase().split('');
-                return letters.length > 0 ? letters.slice(0, 3) : ['R', 'I', 'E'];
-            });
-
-            const hollandTitle = computed(() => {
-                return hollandLetters.value.join('-');
-            });
-
-            const psychometricTraits = computed(() => {
-                const letters = hollandLetters.value;
-                const scores = userScores.value;
-                
-                return letters.map((letter, idx) => {
-                    const info = traitMeta[letter] || {
-                        name: `${letter} Dimension`,
-                        role: 'Specialized Discipline',
-                        color: 'text-emerald-600',
-                        bar: 'bg-emerald-600',
-                        barBg: '#059669',
-                        desc: 'Core occupational domain essential to this degree path.'
-                    };
-                    
-                    let scorePct = 90 - (idx * 6);
-                    let hasRealScore = false;
-                    if (scores && scores[letter] !== undefined) {
-                        const raw = Number(scores[letter]);
-                        // Scale accurately against maximum trait score of 50 points
-                        scorePct = Math.min(100, Math.max(0, Math.round((raw / 50) * 100)));
-                        hasRealScore = true;
-                    }
-                    
-                    return {
-                        letter,
-                        name: info.name,
-                        role: info.role,
-                        desc: info.desc,
-                        pct: scorePct,
-                        hasRealScore: hasRealScore,
-                        barBg: info.barBg,
-                        barClass: info.bar,
-                        textClass: info.color
-                    };
-                });
-            });
-
-            const psychometricExplanation = computed(() => {
-                const traitNames = hollandLetters.value.map(l => {
-                    if (l === 'R') return 'Realistic';
-                    if (l === 'I') return 'Investigative';
-                    if (l === 'A') return 'Artistic';
-                    if (l === 'S') return 'Social';
-                    if (l === 'E') return 'Enterprising';
-                    if (l === 'C') return 'Conventional';
-                    return l;
-                });
-                
-                const traitString = traitNames.join(', ');
-                if (userScores.value && Object.values(userScores.value).some(v => Number(v) > 0)) {
-                    const userSorted = Object.keys(userScores.value)
-                        .map(k => ({ code: k, score: Number(userScores.value[k]) }))
-                        .sort((a, b) => b.score - a.score);
-                    const userTopCode = userSorted.slice(0, 3).map(t => t.code).join('-');
-                    
-                    return `This program requires ${traitString} competencies. Based on your official RIASEC profile (${userTopCode}), your individual strengths and cognitive preferences correspond directly with this degree's academic requirements.`;
-                }
-                
-                return `This degree corresponds exceptionally well with candidates whose RIASEC assessment scores reflect ${traitString} dimensions.`;
-            });
-
-            const overallMatchPercent = computed(() => {
-                if (!userScores.value) return '94% Core Match';
-                const hasScores = Object.values(userScores.value).some(v => Number(v) > 0);
-                if (!hasScores) return '94% Core Match';
-
-                const letters = hollandLetters.value;
-                if (!letters || letters.length === 0) return '94% Core Match';
-
-                // Weighted alignment based on trait priority in degree curriculum:
-                // Primary (1st trait): 50% weight, Secondary (2nd trait): 30% weight, Auxiliary (3rd trait): 20% weight
-                const weights = [0.50, 0.30, 0.20];
-                let weightedSum = 0;
-                let weightTotal = 0;
-
-                letters.forEach((l, idx) => {
-                    const raw = userScores.value[l] !== undefined ? Number(userScores.value[l]) : 0;
-                    const pct = Math.min(100, Math.max(0, Math.round((raw / 50) * 100)));
-                    const w = weights[idx] || 0.20;
-                    weightedSum += pct * w;
-                    weightTotal += w;
-                });
-
-                const finalPct = Math.min(99, Math.max(30, Math.round(weightedSum / weightTotal)));
-                return `${finalPct}% Your Match`;
-            });
-
-            const programTracks = computed(() => {
-                if (!degree.value) return [];
-                const cat = (degree.value.category || '').toLowerCase();
-                const title = (degree.value.title || '').toLowerCase();
-                
-                if (title.includes('radiologic') || title.includes('rad tech') || title.includes('x-ray')) {
-                    return [
-                        { name: 'Diagnostic Radiography & Fluoroscopy', desc: 'Clinical X-ray operations, trauma imaging protocols, fluoroscopic procedures and radiation protection.', tag: 'Key: Digital X-Ray & ALARA Safety' },
-                        { name: 'Computed Tomography (CT Imaging)', desc: 'Multi-slice helical CT scans, volumetric angiography, cross-sectional anatomy and 3D reconstruction.', tag: 'Key: 3D Cross-Sectional Imaging' },
-                        { name: 'Magnetic Resonance Imaging (MRI)', desc: 'RF pulse sequences, high-field magnetic resonance physics, neuroimaging and musculoskeletal scans.', tag: 'Key: High-Tesla MRI Protocols' },
-                        { name: 'Radiation Oncology & Nuclear Medicine', desc: 'Linear accelerator beam setups, computerized dosimetry, radiopharmaceuticals and gamma camera scans.', tag: 'Key: Linear Accelerator & Dosimetry' }
-                    ];
-                }
-
-                if (title.includes('medical technology') || title.includes('med tech')) {
-                    return [
-                        { name: 'Clinical Chemistry & Toxicology', desc: 'Biochemical assays, serum analytics, endocrine testing and automated clinical analyzers.', tag: 'Key: Clinical Assays & Quality Control' },
-                        { name: 'Microbiology & Parasitology', desc: 'Bacterial cultures, antimicrobial susceptibility, viral diagnostics and fungal identification.', tag: 'Key: Diagnostic Microbiology' },
-                        { name: 'Hematology & Blood Banking', desc: 'Immunohematology, blood cross-matching, transfusion medicine and coagulation profiles.', tag: 'Key: Transfusion Science & Blood Bank' },
-                        { name: 'Histopathology & Molecular Biology', desc: 'Tissue biopsy processing, immunohistochemistry, PCR amplification and cytopathology.', tag: 'Key: Molecular Pathology & Biopsy' }
-                    ];
-                }
-
-                if (title.includes('nursing')) {
-                    return [
-                        { name: 'Critical Care & Emergency Nursing', desc: 'ICU monitoring, cardiovascular stabilization, advanced life support and trauma triage.', tag: 'Key: Advanced Life Support & ICU' },
-                        { name: 'Maternal & Child Health Nursing', desc: 'Obstetric care, labor and delivery, neonatal intensive care and pediatric wellness.', tag: 'Key: OB-GYN & Neonatal Care' },
-                        { name: 'Community & Public Health Nursing', desc: 'Primary healthcare delivery, epidemic prevention, health education and immunization.', tag: 'Key: Community Health Nursing' },
-                        { name: 'Surgical & Perioperative Care', desc: 'Operating room protocol, sterile fields, surgical instrumentation and anesthesia care.', tag: 'Key: Perioperative & Surgical Suite' }
-                    ];
-                }
-
-                if (title.includes('civil') || (cat === 'engineering' && title.includes('civil'))) {
-                    return [
-                        { name: 'Structural Engineering', desc: 'Structural mechanics, reinforced concrete, seismic resistance and high-rise framing analysis.', tag: 'Key: Seismic & Steel Design' },
-                        { name: 'Geotechnical Engineering', desc: 'Soil mechanics, slope stability, foundation engineering and underground tunneling systems.', tag: 'Key: Subsurface & Soil Mechanics' },
-                        { name: 'Water Resources & Hydraulics', desc: 'Fluid dynamics, drainage networks, flood mitigation, hydrology and water supply systems.', tag: 'Key: Hydrology & River Engineering' },
-                        { name: 'Construction Management', desc: 'Project lifecycle scheduling, quantity surveying, cost estimation and safety compliance.', tag: 'Key: Primavera & Project Controls' }
-                    ];
-                }
-                
-                if (cat === 'engineering' || title.includes('computer') || title.includes('information')) {
-                    return [
-                        { name: 'Software Architecture', desc: 'Enterprise systems, design patterns, scalable backend APIs and algorithmic optimization.', tag: 'Key: Microservices & Cloud Systems' },
-                        { name: 'AI & Data Engineering', desc: 'Machine learning, automated pipelines, predictive analytics and statistical modeling.', tag: 'Key: Deep Learning & Data Science' },
-                        { name: 'Network & Cyber Security', desc: 'Cryptographic protocols, penetration testing, firewall defenses and threat auditing.', tag: 'Key: SecOps & Zero Trust' },
-                        { name: 'DevOps & Systems Engineering', desc: 'Container orchestration, CI/CD pipelines, container clustering and infrastructure as code.', tag: 'Key: Kubernetes & Cloud Infrastructure' }
-                    ];
-                }
-                
-                if (cat === 'health') {
-                    return [
-                        { name: 'Clinical Healthcare Practice', desc: 'Direct patient assessment, medical care procedures, pharmacology and triage diagnostics.', tag: 'Key: Critical Care & Patient Safety' },
-                        { name: 'Diagnostic & Laboratory Science', desc: 'Hematology, clinical chemistry, microbiology and advanced diagnostic imaging.', tag: 'Key: Precision Diagnostics' },
-                        { name: 'Public & Community Health', desc: 'Epidemiological surveillance, health policy, maternal care and wellness outreach.', tag: 'Key: Community Health & Outreach' },
-                        { name: 'Health Systems Administration', desc: 'Hospital workflows, clinical informatics, healthcare ethics and quality compliance.', tag: 'Key: Healthcare Leadership & JCI Standards' }
-                    ];
-                }
-                
-                return [
-                    { name: 'Marketing Management', desc: 'Consumer psychology, branding, omni-channel campaigns & strategic market positioning.', tag: 'Key: Digital Strategy & Brand Equity' },
-                    { name: 'Financial Management', desc: 'Corporate finance, capital investments, portfolio modeling and risk advisory.', tag: 'Key: Corporate Valuation & Audit' },
-                    { name: 'Human Resource Mgmt', desc: 'Talent acquisition, organizational sociology, compensation architecture and labor law.', tag: 'Key: Leadership & People Strategy' },
-                    { name: 'Operations Management', desc: 'Supply chain logistics, lean optimization, quality control and systems efficiency.', tag: 'Key: Global Supply Chain & Six Sigma' }
-                ];
-            });
-
-            const careerPathways = computed(() => {
-                if (!degree.value) return [];
-                const cat = (degree.value.category || '').toLowerCase();
-                const title = (degree.value.title || '').toLowerCase();
-                
-                if (title.includes('radiologic') || title.includes('rad tech') || title.includes('x-ray')) {
-                    return [
-                        { role: 'Registered Radiologic Technologist (RTR)', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'CT Scan & MRI Medical Imaging Specialist', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Radiation Therapy & Dosimetry Technologist', demand: 'High Demand', badgeClass: 'text-blue-600' },
-                        { role: 'Chief Radiographer / Radiology Dept. Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                    ];
-                }
-
-                if (title.includes('medical technology') || title.includes('med tech')) {
-                    return [
-                        { role: 'Registered Medical Technologist (RMT)', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'Clinical Microbiologist & Serologist', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Immunohematology & Blood Bank Specialist', demand: 'High Demand', badgeClass: 'text-blue-600' },
-                        { role: 'Chief Medical Technologist / Laboratory Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                    ];
-                }
-
-                if (title.includes('nursing')) {
-                    return [
-                        { role: 'Registered Nurse (RN) / Clinical Practitioner', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'Critical Care & Emergency Room Nurse', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Nurse Educator & Clinical Specialist', demand: 'High Demand', badgeClass: 'text-blue-600' },
-                        { role: 'Chief Nurse / Director of Nursing Services', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                    ];
-                }
-
-                if (title.includes('civil')) {
-                    return [
-                        { role: 'Licensed Structural Design Engineer', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'Construction Project Manager / Superintendent', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Geotechnical & Foundation Consultant', demand: 'Specialized', badgeClass: 'text-blue-600' },
-                        { role: 'Public Works & Infrastructure Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                    ];
-                }
-                
-                if (cat === 'engineering' || title.includes('computer') || title.includes('information')) {
-                    return [
-                        { role: 'Software Engineer / Systems Developer', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'Cloud & Infrastructure Architect', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Cybersecurity Analyst / SecOps', demand: 'High Demand', badgeClass: 'text-blue-600' },
-                        { role: 'Chief Technology Officer (CTO)', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                    ];
-                }
-                
-                if (cat === 'health') {
-                    return [
-                        { role: 'Licensed Clinical Healthcare Specialist', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                        { role: 'Department Clinical Supervisor', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                        { role: 'Diagnostic & Care Consultant', demand: 'High Demand', badgeClass: 'text-blue-600' },
-                        { role: 'Hospital & Healthcare Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                    ];
-                }
-                
-                return [
-                    { role: 'Financial Analyst / Strategic Planner', demand: 'High Demand', badgeClass: 'text-emerald-600' },
-                    { role: 'Brand & Product Operations Manager', demand: 'Rapid Growth', badgeClass: 'text-emerald-600' },
-                    { role: 'Strategy & Management Consultant', demand: 'Global Roles', badgeClass: 'text-blue-600' },
-                    { role: 'Corporate Vice President / Managing Director', demand: 'Executive', badgeClass: 'text-gray-500 bg-gray-100 px-2 py-0.5 rounded' }
-                ];
-            });
-
-            const cleanCollegeName = (name) => {
-                if (!name) return '';
-                return name.replace(/Dasmari.*?as/gi, 'Dasmariñas');
-            };
 
             onMounted(async () => {
                 const urlParams = new URLSearchParams(window.location.search);
                 const id = urlParams.get('id');
                 
-                // Read user scores if available
-                const savedScores = localStorage.getItem('talunton_assessment_scores');
-                if (savedScores) {
-                    try {
-                        const parsed = JSON.parse(savedScores);
-                        if (parsed.scores && Object.values(parsed.scores).some(v => Number(v) > 0)) {
-                            userScores.value = parsed.scores;
-                        }
-                    } catch (e) {}
-                }
-
-                if (!userScores.value) {
-                    try {
-                        const aRes = await fetch('/riasec/api/get_latest_assessment');
-                        if (aRes.ok) {
-                            const aData = await aRes.json();
-                            if (aData.success && aData.scores) {
-                                userScores.value = aData.scores;
-                                localStorage.setItem('talunton_assessment_scores', JSON.stringify({
-                                    scores: aData.scores,
-                                    holland_code: aData.holland_code
-                                }));
-                            }
-                        }
-                    } catch (e) {}
-                }
-
                 if (id) {
                     try {
-                        const storedResult = localStorage.getItem(`degreeQuizLatestResult_${id}`);
+                        const user = JSON.parse(localStorage.getItem('talunton_user') || 'null');
+                        const storedResult = user && user.user_id ? localStorage.getItem('degreeQuizLatestResult_' + user.user_id + '_' + id) : null;
                         if (storedResult) {
                             latestQuizResult.value = JSON.parse(storedResult);
                         }
                     } catch (e) {}
 
                     try {
-                        const res = await fetch('/riasec/api/get_degree?id=' + id);
+                        const res = await fetch('api/get_degree?id=' + id);
                         if (res.ok) {
                             degree.value = await res.json();
                         }
@@ -548,20 +247,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             return {
-                degree, 
-                latestQuizResult,
-                hollandTitle,
-                psychometricTraits,
-                psychometricExplanation,
-                overallMatchPercent,
-                programTracks,
-                careerPathways,
-                cleanCollegeName
+                degree, latestQuizResult
             };
         }
     }).mount('#app');
 });
 </script>
+
+
+
+
+
+
 
 <script>
 (function() {
@@ -593,24 +290,64 @@ document.addEventListener('DOMContentLoaded', () => {
         .track-card-content {
             flex-grow: 1;
         }
-        /* Explicit rows for buttons and degree info */
+        /* Keep actions and metadata readable at every viewport width. */
         .buttons-row {
-            display: flex;
-            flex-wrap: nowrap;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 0.75rem;
-            align-items: center;
-            overflow-x: auto;
+            align-items: stretch;
+            overflow: visible;
+        }
+        .buttons-row > * {
+            width: 100%;
+            min-width: 0;
+            justify-content: center;
+            box-sizing: border-box;
+            max-width: 100%;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .buttons-row > :last-child {
+            grid-column: 1 / -1;
         }
         .info-row-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 1rem;
+        }
+        .info-row-grid > * {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+        @media (min-width: 768px) {
+            .buttons-row {
+                display: flex;
+                flex-wrap: wrap;
+            }
+            .buttons-row > * {
+                width: auto;
+                flex: 0 1 auto;
+            }
+            .buttons-row > :last-child {
+                grid-column: auto;
+            }
+            .info-row-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+            }
         }
         @media (max-width: 600px) {
             .buttons-row .px-6 {
-                padding-left: 1rem;
-                padding-right: 1rem;
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
                 font-size: 0.75rem;
+            }
+        }
+        @media (max-width: 420px) {
+            .buttons-row {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .buttons-row > :last-child {
+                grid-column: auto;
             }
         }
         .hero-image-container {
@@ -619,19 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         @media (min-width: 1024px) {
             .hero-image-container {
-                width: 50%; /* Make image larger */ } } 
-        /* Explicit RIASEC trait progress bar colors */
-        .bg-rose-500 { background-color: #f43f5e !important; }
-        .bg-blue-600 { background-color: #2563eb !important; }
-        .bg-purple-600 { background-color: #9333ea !important; }
-        .bg-emerald-600 { background-color: #059669 !important; }
-        .bg-amber-500 { background-color: #f59e0b !important; }
-        .bg-slate-600 { background-color: #475569 !important; }
-        .campus-card-link:hover {
-            border-color: #6ee7b7 !important;
-            background-color: #f0fdf4 !important;
-        }`;
+                width: 50%; /* Make image larger */ } } `;
         document.head.appendChild(style);
     }
 })();
 </script>
+
+
+
+
