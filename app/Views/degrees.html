@@ -255,7 +255,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (user) {
             try {
                 const apiBase = window.location.pathname.startsWith('/riasec') ? '/riasec/' : '';
-                const res = await fetch(`${apiBase}api/get_recommended_degrees`);
+                const res = await fetch(`${apiBase}api/get_recommended_degrees`, {
+                    credentials: 'same-origin',
+                    cache: 'no-store'
+                });
                 if (res.ok) {
                     const recData = await res.json();
                     if (Array.isArray(recData)) {
@@ -272,7 +275,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Fallback for guests or if backend fails/empty
         const scoreAccount = user;
-        const savedScoreKey = scoreAccount && scoreAccount.user_id ? 'talunton_assessment_scores_' + scoreAccount.user_id : null;
+        const uid = scoreAccount ? (scoreAccount.user_id || scoreAccount.id) : null;
+        let savedScoreKey = uid ? 'talunton_assessment_scores_' + uid : null;
+        if (!savedScoreKey || !localStorage.getItem(savedScoreKey)) {
+            savedScoreKey = 'talunton_assessment_scores';
+        }
         if ((!matches || matches.length === 0) && savedScoreKey && localStorage.getItem(savedScoreKey)) {
             const savedData = localStorage.getItem(savedScoreKey);
             try {

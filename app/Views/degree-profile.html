@@ -176,23 +176,34 @@
                                 <span class="text-gray-400 font-normal text-xs hidden sm:inline">&mdash; {{ trait.role }}</span>
                             </div>
                             <div class="text-right">
-                                <span class="font-bold text-sm" :style="{ color: trait.hexColor }">{{ trait.curriculumWeight }}%</span>
-                                <span class="text-[10px] text-gray-400 font-normal ml-0.5">fit</span>
+                                <span class="font-bold text-sm" :style="{ color: trait.hexColor }">
+                                    {{ trait.userScore !== null ? trait.userScore + '%' : trait.curriculumWeight + '%' }}
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-normal ml-0.5">
+                                    {{ trait.userScore !== null ? 'your strength' : 'target fit' }}
+                                </span>
                             </div>
                         </div>
                         
-                        <!-- Single Clean Progress Bar with generous height and smooth fill -->
+                        <!-- Progress Bar reflecting actual student strength when available -->
                         <div class="w-full rounded-full h-2.5 overflow-hidden" style="background-color: #f1f5f9;">
-                            <div class="h-2.5 rounded-full transition-all duration-700" :style="{ width: trait.curriculumWeight + '%', backgroundColor: trait.hexColor }"></div>
+                            <div class="h-2.5 rounded-full transition-all duration-700" 
+                                 :style="{ 
+                                     width: (trait.userScore !== null ? Math.max(6, trait.userScore) : trait.curriculumWeight) + '%', 
+                                     backgroundColor: trait.hexColor 
+                                 }"></div>
                         </div>
 
-                        <!-- Subtitle with Role & User Score -->
+                        <!-- Subtitle with Role & User Score / Rank -->
                         <div class="flex justify-between items-center text-xs mt-2">
-                            <span class="text-gray-400 font-medium">{{ trait.levelLabel }}</span>
-                            <span v-if="trait.userScore !== null" class="font-semibold text-[11px]" :style="{ color: trait.userScore >= 80 ? '#059669' : (trait.userScore >= 60 ? '#2563eb' : '#d97706') }">
-                                Your Strength: {{ trait.userScore }}% &bull; {{ trait.userScore >= 80 ? 'High Alignment' : (trait.userScore >= 60 ? 'Moderate Fit' : 'Growth Area') }}
+                            <span class="text-gray-400 font-medium">
+                                {{ trait.levelLabel }}
+                                <span v-if="trait.userScore !== null" class="text-gray-300 ml-1">&bull; Target: {{ trait.curriculumWeight }}%</span>
                             </span>
-                            <span v-else class="text-[11px] text-gray-400">Curriculum Requirement</span>
+                            <span v-if="trait.userScore !== null" class="font-semibold text-[11px]" :style="{ color: trait.userScore >= 75 ? '#059669' : (trait.userScore >= 50 ? '#2563eb' : '#d97706') }">
+                                {{ trait.userRankLabel }} ({{ trait.userScore }}%) &bull; {{ trait.userScore >= 75 ? 'High Alignment' : (trait.userScore >= 50 ? 'Moderate Fit' : 'Growth Area') }}
+                            </span>
+                            <span v-else class="text-[11px] text-gray-400">Curriculum Target: {{ trait.curriculumWeight }}%</span>
                         </div>
                     </div>
                 </div>
@@ -372,14 +383,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     traitCodes = ['E', 'S', 'C'];
                 }
                 
-                const weights = [94, 85, 76];
+                const curriculumWeights = [90, 80, 70];
                 const roleLabels = ['Primary Core Focus', 'Secondary Focus', 'Supporting Competency'];
+                
+                let sortedUserTraitCodes = [];
+                let maxVal = 50;
+                if (userScores.value) {
+                    const maxScoreInObj = Math.max(0, ...Object.values(userScores.value).map(Number));
+                    maxVal = maxScoreInObj > 50 ? 100 : 50;
+                    sortedUserTraitCodes = Object.keys(userScores.value)
+                        .map(k => ({ code: k, score: Number(userScores.value[k]) || 0 }))
+                        .sort((a, b) => b.score - a.score)
+                        .map(t => t.code);
+                }
                 
                 return traitCodes.map((code, index) => {
                     const meta = RIASEC_MAP[code] || RIASEC_MAP['E'];
                     let userScore = null;
+                    let userRank = null;
+                    let userRankLabel = null;
+                    
                     if (userScores.value && userScores.value[code] !== undefined) {
-                        userScore = Math.min(100, Math.round(((Number(userScores.value[code]) || 0) / 50) * 100));
+                        const raw = Number(userScores.value[code]) || 0;
+                        userScore = Math.min(100, Math.max(0, Math.round((raw / maxVal) * 100)));
+                        const rankIdx = sortedUserTraitCodes.indexOf(code);
+                        userRank = rankIdx !== -1 ? rankIdx + 1 : null;
+                        if (userRank === 1) {
+                            userRankLabel = 'Your #1 Dominant Trait';
+                        } else if (userRank <= 3) {
+                            userRankLabel = `Your Core Strength (Rank #${userRank})`;
+                        } else {
+                            userRankLabel = `Supporting Trait (Rank #${userRank})`;
+                        }
                     }
                     
                     return {
@@ -390,8 +425,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         description: meta.description,
                         action: meta.action,
                         levelLabel: roleLabels[index] || 'Supporting Dimension',
-                        curriculumWeight: weights[index] || 70,
+                        curriculumWeight: curriculumWeights[index] || 70,
                         userScore: userScore,
+                        userRank: userRank,
+                        userRankLabel: userRankLabel,
                         hexColor: meta.hexColor,
                         lightBg: meta.lightBg
                     };
@@ -400,55 +437,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const overallMatch = computed(() => {
                 if (!degree.value || !degree.value.holland_code) {
-                    return { percent: 94, isPersonalized: false, label: 'Curriculum Fit', userCode: '', badgeBg: '#fffbeb', badgeText: '#92400e' };
+                    return { percent: 90, isPersonalized: false, label: 'Standard Fit', userCode: '', badgeBg: '#fffbeb', badgeText: '#92400e' };
                 }
                 
                 if (userScores.value) {
                     const rawCode = (degree.value.holland_code || '').toUpperCase().trim();
-                    const letters = rawCode.split('').filter(l => RIASEC_MAP[l]);
-                    if (letters.length > 0) {
-                        const maxVal = 50;
+                    const degreeLetters = rawCode.split('').filter(l => RIASEC_MAP[l]);
+                    if (degreeLetters.length > 0) {
+                        const maxVal = Math.max(0, ...Object.values(userScores.value).map(Number)) > 50 ? 100 : 50;
                         const getTraitScore = (l) => Math.min(100, Math.round(((Number(userScores.value[l]) || 0) / maxVal) * 100));
                         
-                        let score = 0;
-                        if (letters.length >= 3) {
-                            score = 0.50 * getTraitScore(letters[0]) + 0.30 * getTraitScore(letters[1]) + 0.20 * getTraitScore(letters[2]);
-                        } else if (letters.length === 2) {
-                            score = 0.60 * getTraitScore(letters[0]) + 0.40 * getTraitScore(letters[1]);
-                        } else {
-                            score = getTraitScore(letters[0]);
-                        }
-                        
+                        // Sort user traits to find their top 3 Holland code letters
                         const sortedUserTraits = Object.keys(userScores.value)
-                            .sort((a, b) => (Number(userScores.value[b]) || 0) - (Number(userScores.value[a]) || 0));
-                            
-                        if (sortedUserTraits[0] === letters[0]) score += 5;
-                        else if (sortedUserTraits.slice(0, 3).includes(letters[0])) score += 3;
+                            .map(k => ({ code: k, score: Number(userScores.value[k]) || 0 }))
+                            .sort((a, b) => b.score - a.score)
+                            .map(t => t.code);
                         
-                        const finalScore = Math.max(30, Math.min(99, Math.round(score)));
+                        const userCode = userHollandCode.value || sortedUserTraits.slice(0, 3).join('');
                         
+                        // Standardized Holland alignment algorithm (consistent with Results & Degree Recommendations)
+                        let matchPoints = 0;
+                        if (sortedUserTraits[0] && degreeLetters.includes(sortedUserTraits[0])) matchPoints += 50;
+                        if (sortedUserTraits[1] && degreeLetters.includes(sortedUserTraits[1])) matchPoints += 30;
+                        if (sortedUserTraits[2] && degreeLetters.includes(sortedUserTraits[2])) matchPoints += 10;
+                        
+                        // Exact primary match bonus
+                        if (degreeLetters[0] === sortedUserTraits[0]) matchPoints += 5;
+                        
+                        let finalScore;
                         let label = 'Moderate Match';
-                        let badgeBg = '#fffbeb';
-                        let badgeText = '#92400e';
-                        if (finalScore >= 80) {
-                            label = 'Top Personal Match';
-                            badgeBg = '#ecfdf5';
-                            badgeText = '#065f46';
-                        } else if (finalScore >= 60) {
-                            label = 'Moderate Match';
-                            badgeBg = '#eff6ff';
-                            badgeText = '#1e40af';
+                        let badgeBg = '#eff6ff';
+                        let badgeText = '#1e40af';
+                        
+                        if (matchPoints > 0) {
+                            finalScore = Math.min(99, Math.max(50, 45 + matchPoints));
+                            if (finalScore >= 85) {
+                                label = 'Top Personal Match';
+                                badgeBg = '#ecfdf5';
+                                badgeText = '#065f46';
+                            } else if (finalScore >= 70) {
+                                label = 'Strong Match';
+                                badgeBg = '#eff6ff';
+                                badgeText = '#1e40af';
+                            } else {
+                                label = 'Moderate Match';
+                                badgeBg = '#fffbeb';
+                                badgeText = '#92400e';
+                            }
                         } else {
+                            // Non-matching top traits: calculate base fit from the user's lower scores on this degree's traits
+                            let sumScores = 0;
+                            degreeLetters.forEach(l => { sumScores += getTraitScore(l); });
+                            const avgTraitScore = degreeLetters.length ? Math.round(sumScores / degreeLetters.length) : 35;
+                            finalScore = Math.max(25, Math.min(48, Math.round(avgTraitScore * 0.75)));
                             label = 'Exploratory Fit';
-                            badgeBg = '#fffbeb';
-                            badgeText = '#92400e';
+                            badgeBg = '#fef2f2';
+                            badgeText = '#991b1b';
                         }
                         
                         return {
                             percent: finalScore,
                             isPersonalized: true,
                             label: label,
-                            userCode: userHollandCode.value || sortedUserTraits.slice(0, 3).join(''),
+                            userCode: userCode,
                             badgeBg: badgeBg,
                             badgeText: badgeText
                         };
@@ -456,9 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 return {
-                    percent: 94,
+                    percent: 90,
                     isPersonalized: false,
-                    label: 'Curriculum Fit',
+                    label: 'Standard Fit',
                     userCode: '',
                     badgeBg: '#fffbeb',
                     badgeText: '#92400e'
@@ -474,7 +525,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const secondary = traits[1];
                 
                 if (userScores.value && overallMatch.value.isPersonalized) {
-                    return `Based on your Holland Profile (${overallMatch.value.userCode}), you have a ${overallMatch.value.percent}% compatibility rating with this degree. This program places primary emphasis on ${primary.name} (${primary.role.toLowerCase()}) alongside ${secondary.name} (${secondary.role.toLowerCase()}). Compare your personal strengths with the curriculum expectations below.`;
+                    const matchPercent = overallMatch.value.percent;
+                    let matchTone = 'high compatibility';
+                    if (matchPercent >= 85) {
+                        matchTone = 'exceptional alignment with your natural strengths';
+                    } else if (matchPercent >= 70) {
+                        matchTone = 'strong compatibility with your career interests';
+                    } else if (matchPercent >= 50) {
+                        matchTone = 'moderate alignment across some of your core traits';
+                    } else {
+                        matchTone = 'an exploratory fit with different primary focus areas from your profile';
+                    }
+                    
+                    return `Based on your Holland Profile (${overallMatch.value.userCode}), this degree shows a ${matchPercent}% match (${matchTone}). The curriculum centers on ${primary.name} (${primary.role.toLowerCase()}) and ${secondary.name} (${secondary.role.toLowerCase()}). Compare your personal assessment strengths with the curriculum expectations below.`;
                 }
                 
                 if (traits.length >= 3) {
@@ -502,7 +565,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Fetch user assessment for psychometric alignment
                     try {
                         const apiBase = window.location.pathname.startsWith('/riasec') ? '/riasec/' : '';
-                        const assessRes = await fetch(`${apiBase}api/get_my_assessment`);
+                        const assessRes = await fetch(`${apiBase}api/get_my_assessment`, {
+                            credentials: 'same-origin',
+                            cache: 'no-store'
+                        });
                         if (assessRes.ok) {
                             const assessData = await assessRes.json();
                             if (assessData && assessData.has_result && assessData.result) {
@@ -519,8 +585,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!userScores.value) {
                         try {
                             const user = JSON.parse(localStorage.getItem('talunton_user') || 'null');
-                            const key = user && user.user_id ? 'talunton_assessment_scores_' + user.user_id : 'talunton_assessment_scores';
-                            const savedData = localStorage.getItem(key);
+                            const uid = user ? (user.user_id || user.id) : null;
+                            let savedData = uid ? localStorage.getItem('talunton_assessment_scores_' + uid) : null;
+                            if (!savedData) {
+                                savedData = localStorage.getItem('talunton_assessment_scores');
+                            }
                             if (savedData) {
                                 const parsed = JSON.parse(savedData);
                                 if (parsed.scores) {
