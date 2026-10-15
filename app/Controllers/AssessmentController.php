@@ -196,15 +196,29 @@ class AssessmentController extends Controller {
                     if (isset($topTraits[2]) && strpos($degree_hc, $topTraits[2]) !== false) $match_score += 10;
                 }
                 
+                $map = json_decode(file_get_contents('image_map.json'), true);
+                $img = 'assets/images/placeholder.jpg';
+                if($map) {
+                    foreach ($map as $k => $v) {
+                        if (stripos($row['title'], $k) !== false) {
+                            $img = $v;
+                            break;
+                        }
+                    }
+                }
+
                 if ($match_score > 0) {
                     $recommended[] = [
                         'id' => $row['id'],
                         'title' => $row['title'],
+                        'category' => $row['category'] ?? 'Program',
+                        'image_url' => $img,
                         'fit' => min(99, 45 + $match_score),
                         'isPublic' => ($row['category'] !== 'private'),
                         'tuition' => 'Varies',
                         'scholarship' => 'Check Eligibility',
                         'desc' => $row['description'],
+                        'description' => $row['description'],
                         'reason' => 'This perfectly aligns with your core traits.',
                         'campusCount' => count($campuses),
                         'campuses' => $campuses,
@@ -247,13 +261,20 @@ class AssessmentController extends Controller {
         $conn = getDB();
         $id = intval($_GET['id']);
 
-        $stmt = $conn->prepare("SELECT * FROM degrees WHERE id = ?");
-        $stmt->bind_param("i", $id);
+        startAuthSession();
+        $user_id = isLoggedIn() ? intval($_SESSION['user_id']) : 0;
+
+        $stmt = $conn->prepare("SELECT d.*, IF(usd.id IS NOT NULL, 1, 0) as is_saved 
+                                FROM degrees d 
+                                LEFT JOIN user_saved_degrees usd ON d.id = usd.degree_id AND usd.user_id = ?
+                                WHERE d.id = ?");
+        $stmt->bind_param("ii", $user_id, $id);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($result->num_rows > 0) {
             $degree = $result->fetch_assoc();
+            $degree['is_saved'] = (bool)$degree['is_saved'];
             $map = json_decode(file_get_contents('image_map.json'), true);
             $img = 'assets/images/placeholder.jpg';
             if($map) {

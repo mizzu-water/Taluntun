@@ -315,18 +315,32 @@
             if (btn.disabled) return Promise.resolve(false);
             
             const svg = btn.querySelector('svg');
-            const isFilled = svg.getAttribute('fill') === 'currentColor';
-            const originalFill = svg.getAttribute('fill');
+            const isFilled = svg ? svg.getAttribute('fill') === 'currentColor' : false;
+            const originalFill = svg ? svg.getAttribute('fill') : 'none';
+            const originalHtml = btn.innerHTML;
             const originalClassName = btn.className;
-            
-            if (isFilled) {
-                svg.setAttribute('fill', 'none');
-                btn.classList.remove('text-emerald-600', 'bg-emerald-50');
-                btn.classList.add('text-gray-400', 'hover:text-emerald-600', 'bg-gray-50', 'hover:bg-emerald-50');
+            const isTextPill = btn.textContent && (btn.textContent.includes('Shortlist') || btn.textContent.includes('Saved'));
+
+            if (isTextPill) {
+                if (isFilled) {
+                    btn.innerHTML = `Save to Shortlist <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
+                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+                    btn.classList.add('bg-[#0e3223]', 'hover:bg-black');
+                } else {
+                    btn.innerHTML = `<svg class="w-4 h-4" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg> Saved to Shortlist`;
+                    btn.classList.remove('bg-[#0e3223]', 'hover:bg-black');
+                    btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+                }
             } else {
-                svg.setAttribute('fill', 'currentColor');
-                btn.classList.remove('text-gray-400', 'hover:text-emerald-600', 'bg-gray-50', 'hover:bg-emerald-50');
-                btn.classList.add('text-emerald-600', 'bg-emerald-50');
+                if (isFilled) {
+                    if (svg) svg.setAttribute('fill', 'none');
+                    btn.classList.remove('text-emerald-600', 'bg-emerald-50');
+                    btn.classList.add('text-gray-400', 'hover:text-emerald-600', 'bg-gray-50', 'hover:bg-emerald-50');
+                } else {
+                    if (svg) svg.setAttribute('fill', 'currentColor');
+                    btn.classList.remove('text-gray-400', 'hover:text-emerald-600', 'bg-gray-50', 'hover:bg-emerald-50');
+                    btn.classList.add('text-emerald-600', 'bg-emerald-50');
+                }
             }
             
             const csrfMeta = document.querySelector('meta[name="csrf-token"]');
@@ -334,7 +348,8 @@
             
             btn.disabled = true;
             btn.setAttribute('aria-busy', 'true');
-            return fetch('api/save_degree', {
+            const apiBase = window.location.pathname.startsWith('/riasec') ? '/riasec/' : '';
+            return fetch(`${apiBase}api/save_degree`, {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -348,7 +363,7 @@
             })
             .then(data => {
                 if(!data.success) {
-                    svg.setAttribute('fill', originalFill);
+                    btn.innerHTML = originalHtml;
                     btn.className = originalClassName;
                     window.showToast?.(data.error || 'Failed to update shortlist', 'error');
                     return false;
@@ -359,7 +374,7 @@
             })
             .catch(err => {
                 console.error(err);
-                svg.setAttribute('fill', originalFill);
+                btn.innerHTML = originalHtml;
                 btn.className = originalClassName;
                 window.showToast?.('Network error while saving', 'error');
                 return false;

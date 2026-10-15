@@ -323,14 +323,42 @@ document.addEventListener('DOMContentLoaded', () => {
         finally { button.disabled = false; button.removeAttribute('aria-busy'); spinner.hidden = true; text.textContent = 'Verify Account'; }
     });
     field('resendBtn').addEventListener('click', async () => {
-        const message = field('resendMsg'); message.classList.remove('visible'); message.textContent = '';
+        const message = field('resendMsg');
+        const resendBtn = field('resendBtn');
+        message.classList.remove('visible');
+        message.textContent = '';
+        const targetEmail = (field('email')?.value || '').trim() || (document.getElementById('confirmedEmail')?.textContent || '').trim();
+        if (!targetEmail) {
+            message.textContent = 'Email address not found. Please refresh and try again.';
+            message.classList.add('visible');
+            return;
+        }
+        resendBtn.disabled = true;
+        const originalText = resendBtn.textContent;
+        resendBtn.textContent = 'Sending...';
         try {
-            const response = await fetch('resend_code', { method:'POST', headers:{'Content-Type':'application/json','X-CSRF-Token':document.querySelector('meta[name="csrf-token"]')?.content || ''}, body:JSON.stringify({email:field('email').value.trim()}) });
+            const response = await fetch('resend_code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({ email: targetEmail })
+            });
             const data = await response.json();
-            if (data.dev_code) { field('devCode').textContent = data.dev_code; field('devCodeBox').hidden = false; }
+            if (data.dev_code) {
+                field('devCode').textContent = data.dev_code;
+                field('devCodeBox').hidden = false;
+            }
             message.textContent = data.success ? 'A new code has been sent.' : (data.message || data.error || 'Could not resend code.');
             message.classList.add('visible');
-        } catch (error) { message.textContent = 'Network error. Please try again.'; message.classList.add('visible'); }
+        } catch (error) {
+            message.textContent = 'Network error. Please try again.';
+            message.classList.add('visible');
+        } finally {
+            resendBtn.disabled = false;
+            resendBtn.textContent = originalText;
+        }
     });
     const currentRoute = location.pathname.replace(/\/+$/, '').split('/').pop() || 'home';
     document.querySelectorAll('header a[href]').forEach(link => { if (link.getAttribute('href') === currentRoute) link.setAttribute('aria-current', 'page'); });

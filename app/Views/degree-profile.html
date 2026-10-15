@@ -31,9 +31,14 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Take a Quiz
                     </a>
-                    <button class="bg-[#0e3223] hover:bg-black text-white px-6 py-3 rounded-full font-bold transition shadow inline-flex items-center gap-2 text-sm" @click="window.saveDegree ? window.saveDegree($event.currentTarget, degree.id) : (window.showToast ? window.showToast('Program saved to shortlist! 🎓', 'success') : alert('Program saved!'))">
-                        Save to Shortlist
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    <button 
+                        :class="degree.is_saved ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-[#0e3223] hover:bg-black text-white'" 
+                        class="px-6 py-3 rounded-full font-bold transition shadow inline-flex items-center gap-2 text-sm" 
+                        @click="toggleShortlist($event)">
+                        <svg class="w-4 h-4" :fill="degree.is_saved ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                        <span>{{ degree.is_saved ? 'Saved to Shortlist' : 'Save to Shortlist' }}</span>
                     </button>
                 </div>
 
@@ -541,6 +546,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
+            const toggleShortlist = async (event) => {
+                if (!degree.value || !degree.value.id) return;
+                const userDataStr = localStorage.getItem('talunton_user');
+                if (!userDataStr) {
+                    window.location.href = 'login';
+                    return;
+                }
+
+                const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                const csrfToken = csrfMeta ? csrfMeta.content : '';
+                const apiBase = window.location.pathname.startsWith('/riasec') ? '/riasec/' : '';
+
+                const prevState = degree.value.is_saved;
+                degree.value.is_saved = !prevState;
+
+                try {
+                    const res = await fetch(`${apiBase}api/save_degree`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-Token': csrfToken
+                        },
+                        body: JSON.stringify({ degree_id: degree.value.id })
+                    });
+                    const data = await res.json();
+                    if (!data.success) {
+                        degree.value.is_saved = prevState;
+                        if (window.showToast) window.showToast(data.error || 'Failed to update shortlist', 'error');
+                        else alert(data.error || 'Failed to update shortlist');
+                        return;
+                    }
+                    const action = data.action || (prevState ? 'removed' : 'added');
+                    const msg = action === 'removed' ? 'Removed program from shortlist' : 'Program saved to your shortlist! 🎓';
+                    if (window.showToast) {
+                        window.showToast(msg, action === 'removed' ? 'info' : 'success');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    degree.value.is_saved = prevState;
+                    if (window.showToast) window.showToast('Network error while saving', 'error');
+                }
+            };
+
             return {
                 degree,
                 latestQuizResult,
@@ -550,7 +598,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 fullHollandCodeName,
                 psychometricTraits,
                 overallMatch,
-                psychometricDescription
+                psychometricDescription,
+                toggleShortlist
             };
         }
     }).mount('#app');

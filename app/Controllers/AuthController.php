@@ -56,6 +56,54 @@ class AuthController extends Controller {
 
             $redirect = safeAuthReturnPath($_SESSION['auth_return_to'] ?? '') ?? 'home';
             unset($_SESSION['auth_return_to']);
+
+            // Send login confirmation email asynchronously/safely without blocking login
+            try {
+                $loginDate = date('F j, Y');
+                $loginTime = date('g:i A');
+                $subject = "Successful Login to Talunton RIASEC System";
+
+                $htmlBody = "
+                <div style='background-color: #f4f6f8; padding: 30px 15px; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif;'>
+                    <div style='max-width: 560px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;'>
+                        <div style='background-color: #0e3223; padding: 28px 24px; text-align: center;'>
+                            <h1 style='color: #10b981; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px;'>Talunton</h1>
+                            <p style='color: #d1fae5; margin: 6px 0 0 0; font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px;'>RIASEC Career Profiling System</p>
+                        </div>
+                        <div style='padding: 32px 28px;'>
+                            <h2 style='color: #111827; font-size: 19px; margin-top: 0; font-weight: 700;'>Successful Login Notification</h2>
+                            <p style='color: #374151; font-size: 15px; line-height: 1.6; margin-bottom: 20px;'>
+                                You have successfully logged in to the Talunton RIASEC System on <strong>{$loginDate}</strong> at <strong>{$loginTime}</strong>. You can now access the system’s features, take the RIASEC assessment, explore recommended degree programs, and discover career paths that match your interests, skills, and personality.
+                            </p>
+                            <div style='background-color: #f0fdf4; border-left: 4px solid #10b981; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px;'>
+                                <p style='color: #065f46; font-size: 13px; margin: 0; line-height: 1.5;'>
+                                    If this was not you, please secure your account immediately or contact support.
+                                </p>
+                            </div>
+                            <p style='color: #6b7280; font-size: 14px; margin-bottom: 0;'>
+                                Best regards,<br>
+                                <strong style='color: #0e3223;'>Talunton Guidance Team</strong>
+                            </p>
+                        </div>
+                        <div style='background-color: #f9fafb; padding: 16px 24px; text-align: center; border-top: 1px solid #f3f4f6;'>
+                            <p style='color: #9ca3af; font-size: 12px; margin: 0;'>&copy; " . date('Y') . " Talunton RIASEC System. All rights reserved.</p>
+                        </div>
+                    </div>
+                </div>";
+
+                $plainBody = "You have successfully logged in to the Talunton RIASEC System on {$loginDate} at {$loginTime}. You can now access the system’s features, take the RIASEC assessment, explore recommended degree programs, and discover career paths that match your interests, skills, and personality.\n\nIf this was not you, please secure your account immediately.\n\nTalunton RIASEC System";
+
+                sendMail($user['email'], $subject, $htmlBody, $plainBody);
+            } catch (\Throwable $mailEx) {
+                $errorMsg = '[' . date('Y-m-d H:i:s') . '] Login notification failed for ' . $user['email'] . ': ' . $mailEx->getMessage() . PHP_EOL;
+                $logDir = __DIR__ . '/../../storage/logs';
+                if (!is_dir($logDir)) {
+                    @mkdir($logDir, 0777, true);
+                }
+                $logFile = is_dir($logDir) ? $logDir . '/mail.log' : __DIR__ . '/../../auth/mail_errors.log';
+                @file_put_contents($logFile, $errorMsg, FILE_APPEND);
+            }
+
             jsonResponse(true, 'Login successful.', [
                 'user_id'   => (int)$user['id'],
                 'full_name' => $user['full_name'],

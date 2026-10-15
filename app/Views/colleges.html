@@ -120,7 +120,9 @@ function initCollegesPage() {
         grid.innerHTML = colleges.map(college => {
             const isPublic = college.type && college.type.toLowerCase().includes('public');
             const isSaved = Boolean(college.is_saved);
-            const badgeClass = isPublic ? 'bg-emerald-600 text-white' : 'bg-white/95 text-gray-900 border border-gray-200';
+            const badgeClass = isPublic 
+                ? 'bg-emerald-600 text-white' 
+                : 'bg-[#0e3223] text-white shadow-md border border-emerald-900/40';
             const badgeText = isPublic ? 'Public (Free Tuition)' : (college.type || 'Private');
             
             // Generate clean relative profile URLs without hardcoded /riasec/

@@ -10,15 +10,24 @@
                 </div>
             </div>
             
+            <div v-else-if="!hasAssessment" class="max-w-3xl mx-auto px-4 py-16 text-center mt-8 bg-white rounded-2xl shadow-xl border border-gray-100 mb-16">
+                <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm text-3xl">
+                    🧬
+                </div>
+                <h2 class="text-3xl font-serif-heading font-bold text-gray-900 mb-4">No Assessment Results Yet</h2>
+                <p class="text-gray-500 mb-8 max-w-lg mx-auto">
+                    You haven't completed the Holland Career Assessment yet. Take the assessment to uncover your RIASEC personality traits, personalized degree matches in Cavite, and career inspiration!
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="assessment" class="bg-[#0e3223] hover:bg-black text-white font-bold py-3.5 px-8 rounded-full transition shadow-lg inline-flex items-center gap-2">
+                        <span>Start Assessment</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
+                </div>
+            </div>
+
             <div v-else>
             <!-- Matrix & Scoring -->
-            
-            <div v-if="!isLoggedIn" class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-8 flex justify-between items-center max-w-[1200px] mx-auto text-amber-800 shadow-sm mt-4">
-                <div>
-                    <strong>Guest Mode:</strong> Your results are only saved locally right now. Sign up to permanently save your profile and degree matches!
-                </div>
-                <a href="signup" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-lg font-bold shadow-sm transition">Create Account</a>
-            </div>
             
             <section class="profile-results" aria-labelledby="profile-title">
                 <header class="profile-heading">
@@ -120,19 +129,7 @@
                             </div>
                             <h3 class="text-3xl font-serif-heading font-bold text-gray-900 mb-4 degree-featured-title">{{ topDegree.title }}</h3>
                             
-                            <div class="flex flex-wrap gap-2 mb-6">
-                                <span v-if="topDegree.isPublic" class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1.5 rounded border border-blue-100 flex items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                                    Free Tuition (CHED)
-                                </span>
-                                <span v-else class="bg-gray-100 text-gray-600 text-xs font-bold px-3 py-1.5 rounded border border-gray-200">
-                                    Est. {{ topDegree.tuition || '₱40k - ₱60k / sem' }}
-                                </span>
-                                <span v-if="topDegree.scholarship" class="bg-yellow-50 text-yellow-700 text-xs font-bold px-3 py-1.5 rounded border border-yellow-200 flex items-center gap-1.5">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    {{ topDegree.scholarship }}
-                                </span>
-                            </div>
+
 
                             <p class="text-gray-600 text-lg mb-6 max-w-4xl degree-featured-description">{{ topDegree.desc }}</p>
                             <div class="bg-emerald-50 rounded-xl p-5 mb-8 border border-emerald-100 degree-insight-panel">
@@ -194,20 +191,6 @@
                             </button>
                         </div>
                         <h3 class="text-xl font-bold text-gray-900 mb-2">{{ match.title }}</h3>
-                        
-                        <div class="flex flex-wrap gap-2 mb-3">
-                            <span v-if="match.isPublic" class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded border border-blue-100 flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                                Free Tuition (CHED)
-                            </span>
-                            <span v-else class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded border border-gray-200">
-                                Est. {{ match.tuition || '₱40k - ₱60k / sem' }}
-                            </span>
-                            <span v-if="match.scholarship" class="bg-yellow-50 text-yellow-700 text-[10px] font-bold px-2 py-1 rounded border border-yellow-200 flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                {{ match.scholarship }}
-                            </span>
-                        </div>
 
                         <p class="text-gray-500 text-sm mb-3">{{ match.desc }}</p>
                         <div class="bg-gray-50 rounded p-3 mb-4 flex-grow border border-gray-100 degree-insight-panel">
@@ -391,6 +374,8 @@
                 C: 'Conventional (Organizers)'
             };
 
+            const hasAssessment = ref(false);
+
             const checkAuthAndScores = () => {
                 let user = null;
                 try { user = JSON.parse(localStorage.getItem('talunton_user') || 'null'); } catch (e) {}
@@ -401,7 +386,12 @@
                 if (savedData) {
                     try {
                         const parsed = JSON.parse(savedData);
-                        if (parsed.scores) scores.value = { ...scores.value, ...parsed.scores };
+                        if (parsed.scores) {
+                            scores.value = { ...scores.value, ...parsed.scores };
+                            if (Math.max(0, ...Object.values(parsed.scores).map(v => Number(v) || 0)) > 0) {
+                                hasAssessment.value = true;
+                            }
+                        }
                     } catch (e) {}
                 }
             };
@@ -422,7 +412,7 @@
             });
 
             const highestScore = computed(() => Math.max(0, ...Object.values(scores.value).map(value => Number(value) || 0)));
-            const strongestTraits = computed(() => highestScore.value > 0
+            const strongestTraits = computed(() => (hasAssessment.value && highestScore.value > 0)
                 ? topTraits.value.filter(trait => (Number(scores.value[trait.code]) || 0) === highestScore.value)
                 : []);
 
@@ -517,6 +507,12 @@
             });
 
             const fetchRecommendedDegrees = async () => {
+                if (!hasAssessment.value) {
+                    degreeMatches.value = [];
+                    roleModel.value = null;
+                    return;
+                }
+
                 try {
                     if (isLoggedIn.value) {
                         const res = await fetch('api/get_recommended_degrees');
@@ -574,6 +570,10 @@
             });
 
             const fetchRoleModel = async (degrees) => {
+                if (!hasAssessment.value) {
+                    roleModel.value = null;
+                    return;
+                }
                 try {
                     for (const deg of degrees) {
                         const res = await fetch('api/get_role_model?degree=' + encodeURIComponent(deg.title));
@@ -604,13 +604,23 @@
                             localStorage.setItem('talunton_user', JSON.stringify(account));
                             if (data.has_result && data.result && data.result.scores) {
                                 scores.value = { ...scores.value, ...data.result.scores };
+                                if (Math.max(0, ...Object.values(data.result.scores).map(v => Number(v) || 0)) > 0) {
+                                    hasAssessment.value = true;
+                                }
                                 localStorage.setItem('talunton_assessment_scores_' + data.user_id, JSON.stringify({ scores: data.result.scores, holland_code: data.result.holland_code }));
+                            } else {
+                                hasAssessment.value = false;
                             }
                         }
                     } catch (e) {}
                 }
-                animateTraitPercentages();
-                fetchRecommendedDegrees();
+                if (hasAssessment.value) {
+                    animateTraitPercentages();
+                    fetchRecommendedDegrees();
+                } else {
+                    degreeMatches.value = [];
+                    roleModel.value = null;
+                }
                 document.addEventListener('click', () => { degreeMatches.value.forEach(m => m.showDropdown = false); });
             });
 
@@ -664,6 +674,7 @@
 
             return {
                 isLoggedIn,
+                hasAssessment,
                 scores,
                 getScore,
                 topTraits,

@@ -8,8 +8,11 @@
         <span class="text-emerald-800 font-bold">Cavite State University (CvSU)</span>
     </div>
     <div style="height: clamp(240px, 35vh, 320px);" class="w-full bg-gray-900 relative overflow-hidden rounded-[2rem] shadow-lg mb-8">
-        <img id="college-banner-img" src="assets/images/colleges/cvsu.png" alt="Cavite State University" class="w-full h-full object-cover object-center">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+        <!-- Ambient blurred background to fill banner space without letterbox borders -->
+        <img id="college-banner-bg" src="assets/images/colleges/cvsu.png" alt="" class="absolute inset-0 w-full h-full object-cover blur-lg scale-110 opacity-50 select-none pointer-events-none" aria-hidden="true">
+        <!-- Crisp foreground image displaying the complete photo in its original aspect ratio -->
+        <img id="college-banner-img" src="assets/images/colleges/cvsu.png" alt="Cavite State University" class="relative w-full h-full object-contain object-center z-0">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1] pointer-events-none"></div>
         <div class="absolute bottom-6 left-6 right-6 sm:bottom-10 sm:left-10 sm:right-10 z-10 text-white">
             <div class="flex flex-wrap gap-2 mb-3">
                 <span class="bg-emerald-600 text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">CHED Recognized</span>
@@ -191,7 +194,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('college-type').textContent = college.type || "Private";
         if (document.getElementById('college-type-badge')) document.getElementById('college-type-badge').textContent = college.type || "Private";
         if (document.getElementById('college-uni-type')) document.getElementById('college-uni-type').textContent = (college.type && college.type.toLowerCase().includes('public')) ? 'Public University' : 'Private University';
-        if (document.getElementById('college-banner-img') && college.image_url) document.getElementById('college-banner-img').src = college.image_url;
+        // Keep the local CvSU campus photo; the database URL is a generic stock image.
+        // The portrait source is top-aligned so the campus entrance signage stays visible in the banner.
+        const cvsuImgSrc = college.image_url || 'assets/images/colleges/cvsu.png';
+        if (document.getElementById('college-banner-img')) document.getElementById('college-banner-img').src = cvsuImgSrc;
+        if (document.getElementById('college-banner-bg')) document.getElementById('college-banner-bg').src = cvsuImgSrc;
         
         document.title = `${college.name} - Talunton Cavite`;
         
