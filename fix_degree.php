@@ -1,7 +1,7 @@
 <?php
-\ = file_get_contents('app/Views/layout.php');
+$html = file_get_contents('app/Views/layout.php');
 
-\ = "
+$script = "
         window.saveDegree = function(btn, degreeId) {
             const userDataStr = localStorage.getItem('talunton_user');
             if (!userDataStr) {

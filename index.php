@@ -33,6 +33,8 @@ $router->add('/api/get_role_model', 'AssessmentController@getRoleModel');
 $router->add('/api/get_questions', 'AssessmentController@getQuestions', true);
 $router->add('/api/pause_assessment', 'AssessmentController@saveProgress', true);
 $router->add('/api/check_progress', 'AssessmentController@checkProgress', true);
+$router->add('/api/discard_assessment', 'AssessmentController@discardProgress', true);
+$router->add('/assessment/discard', 'AssessmentController@discardProgress', true);
 $router->add('/api/get_degree', 'AssessmentController@getDegree');
 $router->add('/api/get_college', 'AssessmentController@getCollege');
 $router->add('/api/get_colleges', 'AssessmentController@getColleges');

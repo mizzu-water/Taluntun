@@ -55,7 +55,10 @@ class PagesController extends Controller {
     public function schoolTuition() { $this->view('school-tuition'); }
 
     // Admin & Details
-    public function admin() { $this->view('admin'); }
+    public function admin() {
+        header('Location: admin/index.php');
+        exit;
+    }
     public function details() { $this->view('details'); }
 }
 

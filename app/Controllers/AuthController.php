@@ -16,11 +16,11 @@ class AuthController extends Controller {
             $data = json_decode(file_get_contents('php://input'), true);
 
             $errors = [];
-            $email    = trim($data['email'] ?? '');
-            $password = $data['password'] ?? '';
+            $loginInput = trim($data['email'] ?? ($data['login'] ?? ''));
+            $password   = $data['password'] ?? '';
 
-            if (empty($email)) {
-                $errors['email'] = 'Email address is required.';
+            if (empty($loginInput)) {
+                $errors['email'] = 'Email or username is required.';
             }
             if (empty($password)) {
                 $errors['password'] = 'Password is required.';
@@ -30,7 +30,7 @@ class AuthController extends Controller {
             }
 
             $userModel = $this->model('User');
-            $user = $userModel->findByEmail($email);
+            $user = $userModel->findByLogin($loginInput);
 
             if (!$user || !password_verify($password, $user['password_hash'])) {
                 jsonResponse(false, 'Validation failed.', [
@@ -42,19 +42,66 @@ class AuthController extends Controller {
                 jsonResponse(false, 'Email not verified.', [
                     'errors' => ['email' => 'Please verify your email before logging in. Check your inbox.'],
                     'not_verified' => true,
-                    'email' => $email
+                    'email' => $user['email']
                 ]);
             }
 
             startAuthSession();
             session_regenerate_id(true);
 
-            $_SESSION['user_id']   = $user['id'];
-            $_SESSION['full_name'] = $user['full_name'];
-            $_SESSION['email']     = $user['email'];
-            $_SESSION['user_type'] = $user['user_type'];
+            $_SESSION['student_id'] = $user['id'];
+            $_SESSION['user_id']    = $user['id'];
+            $_SESSION['full_name']  = $user['full_name'];
+            $_SESSION['email']      = $user['email'];
+            $_SESSION['user_type']  = $user['user_type'];
+            $_SESSION['role']       = $user['role'] ?? 'user';
 
-            $redirect = safeAuthReturnPath($_SESSION['auth_return_to'] ?? '') ?? 'home';
+            if (($user['role'] ?? 'user') === 'admin') {
+                require_once __DIR__ . '/../../admin/includes/bootstrap.php';
+                
+                // Concurrency check for admin
+                $conn = getDB();
+                $stmtCheck = $conn->prepare("SELECT current_session_id, last_activity,
+                                                    TIMESTAMPDIFF(SECOND, last_activity, NOW()) AS idle_seconds
+                                             FROM users WHERE id = ? LIMIT 1");
+                $stmtCheck->bind_param('i', $user['id']);
+                $stmtCheck->execute();
+                $adminCheck = $stmtCheck->get_result()->fetch_assoc();
+                $stmtCheck->close();
+
+                $idleSecs = $adminCheck['idle_seconds'] !== null ? (int)$adminCheck['idle_seconds'] : null;
+                $hasActiveSession = !empty($adminCheck['current_session_id']) && ($idleSecs === null || $idleSecs <= ADMIN_IDLE_TIMEOUT_SECONDS);
+
+                if ($hasActiveSession) {
+                    jsonResponse(false, 'This admin account is already logged in somewhere else.', [
+                        'errors' => ['email' => 'This admin account is already logged in somewhere else.']
+                    ]);
+                }
+
+                // Initialize dedicated admin session
+                startAdminSession();
+                session_regenerate_id(true);
+                $newAdminSessionId = session_id();
+                $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
+
+                $upd = $conn->prepare("UPDATE users 
+                                      SET current_session_id = ?, last_activity = NOW(), last_login_ip = ?
+                                      WHERE id = ? 
+                                        AND (current_session_id IS NULL OR last_activity IS NULL OR TIMESTAMPDIFF(SECOND, last_activity, NOW()) > ?)");
+                $timeoutSecs = ADMIN_IDLE_TIMEOUT_SECONDS;
+                $upd->bind_param('ssii', $newAdminSessionId, $clientIp, $user['id'], $timeoutSecs);
+                $upd->execute();
+                $upd->close();
+
+                $_SESSION['admin_id']  = $user['id'];
+                $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['email']     = $user['email'];
+                $_SESSION['role']      = 'admin';
+
+                $redirect = 'admin/index.php';
+            } else {
+                $redirect = safeAuthReturnPath($_SESSION['auth_return_to'] ?? '') ?? 'home';
+            }
             unset($_SESSION['auth_return_to']);
 
             // Send login confirmation email asynchronously/safely without blocking login
@@ -109,6 +156,7 @@ class AuthController extends Controller {
                 'full_name' => $user['full_name'],
                 'email'     => $user['email'],
                 'user_type' => $user['user_type'],
+                'role'      => $user['role'] ?? 'user',
                 'redirect'  => $redirect 
             ]);
             exit;
@@ -267,10 +315,11 @@ class AuthController extends Controller {
 
         startAuthSession();
         session_regenerate_id(true);
-        $_SESSION['user_id']   = $user['id'];
-        $_SESSION['full_name'] = $user['full_name'];
-        $_SESSION['email']     = $email;
-        $_SESSION['user_type'] = $user['user_type'];
+        $_SESSION['student_id'] = $user['id'];
+        $_SESSION['user_id']    = $user['id'];
+        $_SESSION['full_name']  = $user['full_name'];
+        $_SESSION['email']      = $email;
+        $_SESSION['user_type']  = $user['user_type'];
 
         $redirect = safeAuthReturnPath($_SESSION['auth_return_to'] ?? '') ?? 'home';
         unset($_SESSION['auth_return_to']);

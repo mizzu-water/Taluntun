@@ -17,4 +17,14 @@ class User {
         $stmt->close();
         return $user;
     }
+
+    public function findByLogin($login) {
+        $stmt = $this->db->prepare('SELECT * FROM users WHERE email = ? OR username = ?');
+        $stmt->bind_param('ss', $login, $login);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        return $user;
+    }
 }

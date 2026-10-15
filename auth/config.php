@@ -62,40 +62,14 @@ function jsonResponse(bool $success, string $message, array $data = []): void {
     exit;
 }
 
+require_once __DIR__ . '/student_auth.php';
+
 function startAuthSession(): void {
-    if (session_status() !== PHP_SESSION_NONE) return;
-    ini_set('session.use_strict_mode', '1');
-    ini_set('session.use_only_cookies', '1');
-    ini_set('session.use_trans_sid', '0');
-    $secure = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || (($_SERVER['SERVER_PORT'] ?? null) == 443);
-    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'secure' => $secure, 'httponly' => true, 'samesite' => 'Lax']);
-    session_start();
+    startStudentSession();
 }
 
 function isLoggedIn(): bool {
-    static $checkedUserId = null;
-    static $checkedResult = false;
-    startAuthSession();
-    if (!isset($_SESSION['user_id']) || filter_var($_SESSION['user_id'], FILTER_VALIDATE_INT) === false || (int)$_SESSION['user_id'] < 1) return false;
-    $userId = (int)$_SESSION['user_id'];
-    if ($checkedUserId === $userId) return $checkedResult;
-    $checkedUserId = $userId;
-    try {
-        $conn = getDB();
-        $stmt = $conn->prepare('SELECT is_verified FROM users WHERE id = ? LIMIT 1');
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        $stmt->bind_result($isVerified);
-        $checkedResult = $stmt->fetch() && (bool)$isVerified;
-        $stmt->close();
-        $conn->close();
-    } catch (Throwable $error) {
-        $checkedResult = false;
-    }
-    if (!$checkedResult) {
-        unset($_SESSION['user_id'], $_SESSION['full_name'], $_SESSION['email'], $_SESSION['user_type']);
-    }
-    return $checkedResult;
+    return isStudentLoggedIn();
 }
 function safeAuthReturnPath($candidate): ?string {
     if (!is_string($candidate) || $candidate === '' || preg_match('/[\\x00-\\x1F\\\\]/', $candidate)) return null;

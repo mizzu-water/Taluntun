@@ -32,17 +32,29 @@ class AssessmentController extends Controller {
         $holland_code = $data['holland_code'];
 
         $conn = getDB();
+        $conn->begin_transaction();
 
-        $stmt = $conn->prepare("INSERT INTO assessment_results (user_id, scores, holland_code) VALUES (?, ?, ?)");
-        $stmt->bind_param("iss", $user_id, $scores, $holland_code);
+        try {
+            $stmt = $conn->prepare("INSERT INTO assessment_results (user_id, scores, holland_code) VALUES (?, ?, ?)");
+            $stmt->bind_param("iss", $user_id, $scores, $holland_code);
+            if (!$stmt->execute()) {
+                throw new Exception("Failed to insert assessment result");
+            }
+            $stmt->close();
 
-        if ($stmt->execute()) {
+            // Mark any active in-progress assessment for this user as completed
+            $stmt_prog = $conn->prepare("UPDATE user_assessments SET status = 'completed', updated_at = NOW() WHERE user_id = ? AND status = 'in_progress'");
+            $stmt_prog->bind_param("i", $user_id);
+            $stmt_prog->execute();
+            $stmt_prog->close();
+
+            $conn->commit();
             echo json_encode(['success' => true, 'message' => 'Assessment saved successfully', 'user_id' => $user_id]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'Failed to save assessment']);
+        } catch (Throwable $e) {
+            $conn->rollback();
+            echo json_encode(['success' => false, 'error' => 'Failed to save assessment: ' . $e->getMessage()]);
         }
 
-        $stmt->close();
         $conn->close();
     }
 
@@ -60,14 +72,14 @@ class AssessmentController extends Controller {
                     FROM degrees d 
                     LEFT JOIN user_saved_degrees usd ON d.id = usd.degree_id AND usd.user_id = $user_id
                     LEFT JOIN college_degrees cd ON d.id = cd.degree_id
-                    LEFT JOIN colleges c ON cd.college_id = c.id
+                    LEFT JOIN colleges c ON cd.college_id = c.id AND (c.is_archived = 0 OR c.is_archived IS NULL)
                     GROUP BY d.id";
         } else {
             $sql = "SELECT d.*, 0 as is_saved,
                            GROUP_CONCAT(CONCAT(c.short_name, '::', c.profile_url) SEPARATOR '|') as campuses_list
                     FROM degrees d
                     LEFT JOIN college_degrees cd ON d.id = cd.degree_id
-                    LEFT JOIN colleges c ON cd.college_id = c.id
+                    LEFT JOIN colleges c ON cd.college_id = c.id AND (c.is_archived = 0 OR c.is_archived IS NULL)
                     GROUP BY d.id";
         }
 
@@ -165,7 +177,7 @@ class AssessmentController extends Controller {
                 FROM degrees d 
                 LEFT JOIN user_saved_degrees usd ON d.id = usd.degree_id AND usd.user_id = $user_id
                 LEFT JOIN college_degrees cd ON d.id = cd.degree_id
-                LEFT JOIN colleges c ON cd.college_id = c.id
+                LEFT JOIN colleges c ON cd.college_id = c.id AND (c.is_archived = 0 OR c.is_archived IS NULL)
                 GROUP BY d.id";
 
         $result = $conn->query($sql);
@@ -291,7 +303,7 @@ class AssessmentController extends Controller {
             $stmt2 = $conn->prepare(
                 "SELECT c.* FROM colleges c
                  INNER JOIN college_degrees cd ON c.id = cd.college_id
-                 WHERE cd.degree_id = ?"
+                 WHERE cd.degree_id = ? AND (c.is_archived = 0 OR c.is_archived IS NULL)"
             );
             $stmt2->bind_param("i", $id);
             $stmt2->execute();
@@ -322,7 +334,7 @@ class AssessmentController extends Controller {
         $conn = getDB();
         $short_name = $_GET['id'];
         
-        $stmt = $conn->prepare("SELECT * FROM colleges WHERE short_name = ?");
+        $stmt = $conn->prepare("SELECT * FROM colleges WHERE short_name = ? AND (is_archived = 0 OR is_archived IS NULL)");
         $stmt->bind_param("s", $short_name);
         $stmt->execute();
         $res = $stmt->get_result();
@@ -359,7 +371,9 @@ class AssessmentController extends Controller {
                                     SELECT 1 FROM user_saved_colleges usc
                                     WHERE usc.college_id = c.id AND usc.user_id = ?
                                 ) AS is_saved
-                                FROM colleges c ORDER BY c.name ASC");
+                                FROM colleges c 
+                                WHERE (c.is_archived = 0 OR c.is_archived IS NULL)
+                                ORDER BY c.name ASC");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -462,22 +476,72 @@ class AssessmentController extends Controller {
         $user_id = intval($_SESSION["user_id"]);
         $conn = getDB();
         
-        $stmt = $conn->prepare("SELECT test_type, current_question_index, answers FROM user_assessments WHERE user_id = ? AND status = 'in_progress' ORDER BY updated_at DESC LIMIT 1");
+        // Fetch all in_progress rows for this user ordered by most recently updated
+        $stmt = $conn->prepare("SELECT id, test_type, current_question_index, answers FROM user_assessments WHERE user_id = ? AND status = 'in_progress' ORDER BY updated_at DESC, id DESC");
         $stmt->bind_param("i", $user_id);
         $stmt->execute();
         $res = $stmt->get_result();
 
         if ($res->num_rows > 0) {
-            $row = $res->fetch_assoc();
-            $row["test_type_str"] = ($row["test_type"] == 120) ? "extended" : "standard";
-            $row["answers"] = json_decode($row["answers"], true);
-            echo json_encode(["success" => true, "has_progress" => true, "progress" => $row]);
+            $latest = $res->fetch_assoc();
+            $redundantIds = [];
+            while ($extra = $res->fetch_assoc()) {
+                $redundantIds[] = intval($extra['id']);
+            }
+            // If multiple in-progress rows exist, clean up the stale ones
+            if (!empty($redundantIds)) {
+                $placeholders = implode(',', array_fill(0, count($redundantIds), '?'));
+                $types = str_repeat('i', count($redundantIds));
+                $stmt_clean = $conn->prepare("UPDATE user_assessments SET status = 'completed' WHERE id IN ($placeholders)");
+                $stmt_clean->bind_param($types, ...$redundantIds);
+                $stmt_clean->execute();
+                $stmt_clean->close();
+            }
+
+            $latest["test_type_str"] = ($latest["test_type"] == 120) ? "extended" : "standard";
+            $latest["answers"] = json_decode($latest["answers"], true);
+            echo json_encode(["success" => true, "has_progress" => true, "progress" => $latest]);
         } else {
             echo json_encode(["success" => true, "has_progress" => false]);
         }
 
         $stmt->close();
         $conn->close();
+        exit;
+    }
+
+    public function discardProgress() {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+            exit;
+        }
+        $this->validateCsrf();
+        require_once 'auth/config.php';
+        startAuthSession();
+
+        if (!isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'error' => 'Not logged in']);
+            exit;
+        }
+
+        $user_id = intval($_SESSION['user_id']);
+        $conn = getDB();
+
+        // Mark all in_progress records for this user as completed (or deleted)
+        $stmt = $conn->prepare("UPDATE user_assessments SET status = 'completed', updated_at = NOW() WHERE user_id = ? AND status = 'in_progress'");
+        $stmt->bind_param("i", $user_id);
+        $success = $stmt->execute();
+        $stmt->close();
+        $conn->close();
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Assessment progress discarded successfully']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Failed to discard progress']);
+        }
         exit;
     }
 

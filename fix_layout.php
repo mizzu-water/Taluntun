@@ -1,7 +1,7 @@
 <?php
-\ = file_get_contents('app/Views/layout.php');
+$html = file_get_contents('app/Views/layout.php');
 
-\ = "
+$script = "
         // Global save functions for colleges and degrees
         window.saveCollege = function(btn, collegeId) {
             const userDataStr = localStorage.getItem('talunton_user');

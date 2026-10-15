@@ -1,7 +1,9 @@
 <?php
 class Controller {
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) {
+        if (function_exists('startStudentSession')) {
+            startStudentSession();
+        } elseif (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         if (empty($_SESSION['csrf_token'])) {

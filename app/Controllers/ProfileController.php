@@ -143,7 +143,7 @@ class ProfileController extends Controller {
                            FROM user_saved_degrees usd
                            JOIN degrees d ON usd.degree_id = d.id
                            LEFT JOIN college_degrees cd ON d.id = cd.degree_id
-                           LEFT JOIN colleges c ON cd.college_id = c.id
+                           LEFT JOIN colleges c ON cd.college_id = c.id AND (c.is_archived = 0 OR c.is_archived IS NULL)
                            WHERE usd.user_id = ?
                            GROUP BY d.id
                            ORDER BY usd.saved_at DESC";
@@ -176,7 +176,7 @@ class ProfileController extends Controller {
             $sqlColleges = "SELECT c.*, usc.saved_at
                             FROM user_saved_colleges usc
                             JOIN colleges c ON usc.college_id = c.id
-                            WHERE usc.user_id = ?
+                            WHERE usc.user_id = ? AND (c.is_archived = 0 OR c.is_archived IS NULL)
                             ORDER BY usc.saved_at DESC";
             $stmtC = $conn->prepare($sqlColleges);
             $stmtC->bind_param("i", $user_id);
